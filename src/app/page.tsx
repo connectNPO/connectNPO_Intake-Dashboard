@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { Button } from '@/components/ui/Button';
@@ -11,9 +12,14 @@ export default async function HomePage() {
   return (
     <main className="flex flex-1 items-center justify-center px-4 py-16">
       <div className="w-full max-w-xl text-center">
-        <p className="text-sm font-semibold tracking-wide text-primary">
-          connectNPO
-        </p>
+        <Image
+          src="/connectnpo-logo.png"
+          alt="connectNPO"
+          width={500}
+          height={120}
+          priority
+          className="mx-auto h-12 w-auto"
+        />
         <h1 className="mt-2 text-3xl font-semibold text-main sm:text-4xl">
           Nonprofit Growth Readiness Intake
         </h1>

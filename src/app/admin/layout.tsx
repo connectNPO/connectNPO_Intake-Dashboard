@@ -11,19 +11,21 @@ export default function AdminLayout({
   return (
     <div className="flex flex-1 flex-col">
       <header className="border-b border-border bg-surface">
-        <div className="mx-auto flex w-full max-w-[1200px] items-center justify-between px-4 py-3.5">
-          <div className="flex items-center gap-6">
-            <Logo />
-            <nav className="hidden gap-2 sm:flex">
+        <div className="mx-auto flex min-h-16 w-full max-w-[1200px] items-center justify-between px-4">
+          <div className="flex h-16 items-center gap-8">
+            <div className="flex w-[120px] items-center">
+              <Logo />
+            </div>
+            <nav className="hidden h-16 items-center gap-2 sm:flex">
               <Link
                 href="/admin"
-                className="rounded-[10px] px-3 py-2 text-sm font-medium text-muted hover:bg-primary-soft hover:text-main"
+                className="rounded-[7px] px-3 py-2 text-sm font-medium text-muted hover:bg-primary-soft hover:text-main"
               >
                 Organizations
               </Link>
               <Link
                 href="/admin/organizations/new"
-                className="rounded-[10px] px-3 py-2 text-sm font-medium text-muted hover:bg-primary-soft hover:text-main"
+                className="rounded-[7px] px-3 py-2 text-sm font-medium text-muted hover:bg-primary-soft hover:text-main"
               >
                 New Intake
               </Link>

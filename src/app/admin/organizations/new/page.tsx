@@ -57,16 +57,25 @@ export default async function NewOrganizationPage({
         {error && (
           <div
             role="alert"
-            className="mb-5 rounded-[10px] border border-[#eccaca] bg-[#f7e3e3] px-3.5 py-2.5 text-sm text-danger"
+            className="mb-5 rounded-[7px] border border-[#eccaca] bg-[#f7e3e3] px-3.5 py-2.5 text-sm text-danger"
           >
             {error}
           </div>
         )}
 
         <form action={createOrganization} className="flex flex-col gap-5">
-          <Field htmlFor="name" label="Organization name" required>
-            <Input id="name" name="name" required />
-          </Field>
+          <div className="grid gap-5 sm:grid-cols-2">
+            <Field htmlFor="name" label="Organization name" required>
+              <Input id="name" name="name" required />
+            </Field>
+            <Field htmlFor="contact_role" label="Contact role">
+              <Input
+                id="contact_role"
+                name="contact_role"
+                placeholder="e.g. Executive Director"
+              />
+            </Field>
+          </div>
 
           <Field htmlFor="website_url" label="Website URL">
             <Input
@@ -89,14 +98,6 @@ export default async function NewOrganizationPage({
               />
             </Field>
           </div>
-
-          <Field htmlFor="contact_role" label="Contact role">
-            <Input
-              id="contact_role"
-              name="contact_role"
-              placeholder="e.g. Executive Director"
-            />
-          </Field>
 
           <div className="grid gap-5 sm:grid-cols-2">
             <Field htmlFor="city" label="City">

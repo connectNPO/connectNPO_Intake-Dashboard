@@ -61,7 +61,7 @@ export default async function IntakePage({
                 will help us prepare a more useful review and recommendation.
               </p>
             </div>
-            <div className="rounded-[10px] border border-primary bg-primary-soft px-4 py-3">
+            <div className="rounded-[7px] border border-primary bg-primary-soft px-4 py-3">
               <p className="text-sm text-main">
                 <strong className="font-semibold">Privacy reminder:</strong>{' '}
                 Please do not enter passwords, donor lists, private financial
@@ -75,7 +75,7 @@ export default async function IntakePage({
           {error && (
             <div
               role="alert"
-              className="rounded-[10px] border border-[#eccaca] bg-[#f7e3e3] px-4 py-3 text-sm text-danger"
+              className="rounded-[7px] border border-[#eccaca] bg-[#f7e3e3] px-4 py-3 text-sm text-danger"
             >
               {error}
             </div>

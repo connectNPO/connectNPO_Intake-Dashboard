@@ -94,14 +94,14 @@ export function IntakeForm({
           <span className="text-muted">{progress}% complete</span>
         </div>
         <div
-          className="h-2 w-full overflow-hidden rounded-[10px] bg-primary-soft"
+          className="h-2 w-full overflow-hidden rounded-[7px] bg-primary-soft"
           role="progressbar"
           aria-valuenow={progress}
           aria-valuemin={0}
           aria-valuemax={100}
         >
           <div
-            className="h-full rounded-[10px] bg-primary transition-all"
+            className="h-full rounded-[7px] bg-primary transition-all"
             style={{ width: `${progress}%` }}
           />
         </div>

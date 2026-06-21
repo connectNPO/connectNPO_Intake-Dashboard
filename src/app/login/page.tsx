@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { Card } from '@/components/ui/Card';
@@ -24,10 +25,15 @@ export default async function LoginPage({
     <main className="flex flex-1 items-center justify-center px-4 py-16">
       <div className="w-full max-w-md">
         <div className="mb-6 text-center">
-          <p className="text-sm font-semibold tracking-wide text-primary">
-            connectNPO
-          </p>
-          <h1 className="mt-1 text-2xl font-semibold text-main">
+          <Image
+            src="/connectnpo-logo.png"
+            alt="connectNPO"
+            width={500}
+            height={120}
+            priority
+            className="mx-auto h-10 w-auto"
+          />
+          <h1 className="mt-3 text-2xl font-semibold text-main">
             Admin sign in
           </h1>
           <p className="mt-1 text-sm text-muted">
@@ -39,7 +45,7 @@ export default async function LoginPage({
           {error && (
             <div
               role="alert"
-              className="mb-4 rounded-[10px] border border-[#eccaca] bg-[#f7e3e3] px-3.5 py-2.5 text-sm text-danger"
+              className="mb-4 rounded-[7px] border border-[#eccaca] bg-[#f7e3e3] px-3.5 py-2.5 text-sm text-danger"
             >
               {error}
             </div>

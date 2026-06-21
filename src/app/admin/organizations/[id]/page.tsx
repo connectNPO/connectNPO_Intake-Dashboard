@@ -97,7 +97,7 @@ export default async function OrganizationDetailPage({
               />
             </div>
             {responsesBySection.length === 0 ? (
-              <p className="rounded-[10px] border border-dashed border-border bg-[#faf9f5] px-4 py-6 text-center text-sm text-muted">
+              <p className="rounded-[7px] border border-dashed border-border bg-[#faf9f5] px-4 py-6 text-center text-sm text-muted">
                 No responses yet. Responses will appear here after the
                 organization submits the intake form.
               </p>
@@ -112,7 +112,7 @@ export default async function OrganizationDetailPage({
                       {items.map((item) => (
                         <div
                           key={item.id}
-                          className="rounded-[10px] border border-border bg-[#faf9f5] px-4 py-3"
+                          className="rounded-[7px] border border-border bg-[#faf9f5] px-4 py-3"
                         >
                           <dt className="text-sm font-medium text-main">
                             {item.question_label}
@@ -154,7 +154,7 @@ export default async function OrganizationDetailPage({
               title="Private intake link"
               description="Share this link with the organization’s contact."
             />
-            <p className="break-all rounded-[10px] border border-border bg-[#faf9f5] px-3.5 py-2.5 text-xs text-muted">
+            <p className="break-all rounded-[7px] border border-border bg-[#faf9f5] px-3.5 py-2.5 text-xs text-muted">
               {intakeUrl}
             </p>
             <div className="flex gap-2">
@@ -238,7 +238,7 @@ export default async function OrganizationDetailPage({
                 {notes.map((n) => (
                   <li
                     key={n.id}
-                    className="rounded-[10px] border border-border bg-[#faf9f5] px-3.5 py-3"
+                    className="rounded-[7px] border border-border bg-[#faf9f5] px-3.5 py-3"
                   >
                     <p className="whitespace-pre-wrap text-sm text-main">
                       {n.note}

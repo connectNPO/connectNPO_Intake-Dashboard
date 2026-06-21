@@ -12,7 +12,7 @@ export default function IntakeCompletePage() {
 
       <div className="mx-auto flex w-full max-w-[900px] flex-1 items-center justify-center px-4 py-16">
         <Card className="w-full text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-[10px] bg-[#e3f3ec] text-2xl text-success">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-[7px] bg-[#e3f3ec] text-2xl text-success">
             ✓
           </div>
           <h1 className="text-2xl font-semibold text-main">
