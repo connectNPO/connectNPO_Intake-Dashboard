@@ -16,20 +16,37 @@ function fieldName(sectionKey: string, questionKey: string): string {
 
 function QuestionField({ section, question }: { section: IntakeSection; question: IntakeQuestion }) {
   const name = fieldName(section.key, question.key);
+  const supportsOther = question.type === 'select' && question.allowOther && question.options?.includes('Other');
+  const [selectedValue, setSelectedValue] = useState('');
 
   return (
     <Field htmlFor={name} label={question.label} helper={question.helper}>
       {question.type === 'textarea' ? (
         <Textarea id={name} name={name} placeholder={question.placeholder} />
       ) : question.type === 'select' ? (
-        <Select id={name} name={name} defaultValue="">
-          <option value="">Select an option</option>
-          {(question.options ?? []).map((opt) => (
-            <option key={opt} value={opt}>
-              {opt}
-            </option>
-          ))}
-        </Select>
+        <div className="flex flex-col gap-3">
+          <Select
+            id={name}
+            name={name}
+            defaultValue=""
+            onChange={(event) => setSelectedValue(event.target.value)}
+          >
+            <option value="">Select an option</option>
+            {(question.options ?? []).map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </Select>
+          {supportsOther && selectedValue === 'Other' && (
+            <Input
+              id={`${name}__other`}
+              name={`${name}__other`}
+              placeholder="Please describe"
+              aria-label={`${question.label} — Other`}
+            />
+          )}
+        </div>
       ) : (
         <Input
           id={name}
@@ -77,14 +94,14 @@ export function IntakeForm({
           <span className="text-muted">{progress}% complete</span>
         </div>
         <div
-          className="h-2 w-full overflow-hidden rounded-full bg-primary-soft"
+          className="h-2 w-full overflow-hidden rounded-[10px] bg-primary-soft"
           role="progressbar"
           aria-valuenow={progress}
           aria-valuemin={0}
           aria-valuemax={100}
         >
           <div
-            className="h-full rounded-full bg-primary transition-all"
+            className="h-full rounded-[10px] bg-primary transition-all"
             style={{ width: `${progress}%` }}
           />
         </div>

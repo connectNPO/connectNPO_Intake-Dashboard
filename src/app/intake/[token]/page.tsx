@@ -1,6 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import { INTAKE_SECTIONS } from '@/lib/intake/questions';
 import { Card } from '@/components/ui/Card';
+import { Logo } from '@/components/Logo';
 import { IntakeForm } from './IntakeForm';
 
 export const dynamic = 'force-dynamic';
@@ -41,15 +42,12 @@ export default async function IntakePage({
   return (
     <main className="flex flex-1 flex-col">
       <header className="border-b border-border bg-surface">
-        <div className="mx-auto flex w-full max-w-2xl items-center gap-2 px-4 py-4">
-          <span className="text-sm font-semibold tracking-wide text-primary">
-            connectNPO
-          </span>
-          <span className="text-sm text-muted">Readiness Intake</span>
+        <div className="mx-auto flex w-full max-w-[900px] items-center gap-2 px-4 py-4">
+          <Logo href="/" />
         </div>
       </header>
 
-      <div className="mx-auto w-full max-w-2xl flex-1 px-4 py-8">
+      <div className="mx-auto w-full max-w-[900px] flex-1 px-4 py-8">
         <div className="flex flex-col gap-6">
           {/* Welcome + privacy */}
           <Card className="flex flex-col gap-4">
@@ -63,8 +61,8 @@ export default async function IntakePage({
                 will help us prepare a more useful review and recommendation.
               </p>
             </div>
-            <div className="rounded-xl border border-[#d6d6ff] bg-primary-soft px-4 py-3">
-              <p className="text-sm text-[#4a55c7]">
+            <div className="rounded-[10px] border border-primary bg-primary-soft px-4 py-3">
+              <p className="text-sm text-main">
                 <strong className="font-semibold">Privacy reminder:</strong>{' '}
                 Please do not enter passwords, donor lists, private financial
                 records, private client information, or confidential internal
@@ -77,7 +75,7 @@ export default async function IntakePage({
           {error && (
             <div
               role="alert"
-              className="rounded-xl border border-[#eccaca] bg-[#f7e3e3] px-4 py-3 text-sm text-danger"
+              className="rounded-[10px] border border-[#eccaca] bg-[#f7e3e3] px-4 py-3 text-sm text-danger"
             >
               {error}
             </div>

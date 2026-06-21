@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { signOut } from '@/app/login/actions';
+import { Logo } from '@/components/Logo';
 import { Button } from '@/components/ui/Button';
 
 export default function AdminLayout({
@@ -10,26 +11,21 @@ export default function AdminLayout({
   return (
     <div className="flex flex-1 flex-col">
       <header className="border-b border-border bg-surface">
-        <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-4 py-3.5">
+        <div className="mx-auto flex w-full max-w-[1200px] items-center justify-between px-4 py-3.5">
           <div className="flex items-center gap-6">
-            <Link href="/admin" className="flex items-baseline gap-2">
-              <span className="text-sm font-semibold tracking-wide text-primary">
-                connectNPO
-              </span>
-              <span className="text-sm text-muted">Intake</span>
-            </Link>
-            <nav className="hidden gap-4 sm:flex">
+            <Logo />
+            <nav className="hidden gap-2 sm:flex">
               <Link
                 href="/admin"
-                className="text-sm text-muted hover:text-main"
+                className="rounded-[10px] px-3 py-2 text-sm font-medium text-muted hover:bg-primary-soft hover:text-main"
               >
                 Organizations
               </Link>
               <Link
                 href="/admin/organizations/new"
-                className="text-sm text-muted hover:text-main"
+                className="rounded-[10px] px-3 py-2 text-sm font-medium text-muted hover:bg-primary-soft hover:text-main"
               >
-                New Organization
+                New Intake
               </Link>
             </nav>
           </div>
@@ -41,7 +37,7 @@ export default function AdminLayout({
         </div>
       </header>
 
-      <div className="mx-auto w-full max-w-5xl flex-1 px-4 py-8">{children}</div>
+      <div className="mx-auto w-full max-w-[1200px] flex-1 px-4 py-8">{children}</div>
     </div>
   );
 }

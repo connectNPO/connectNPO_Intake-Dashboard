@@ -36,7 +36,7 @@ export default async function NewOrganizationPage({
   const { error } = await searchParams;
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="mx-auto flex w-full max-w-[900px] flex-col gap-6">
       <div>
         <Link
           href="/admin"
@@ -53,11 +53,11 @@ export default async function NewOrganizationPage({
         </p>
       </div>
 
-      <Card className="max-w-2xl">
+      <Card>
         {error && (
           <div
             role="alert"
-            className="mb-5 rounded-xl border border-[#eccaca] bg-[#f7e3e3] px-3.5 py-2.5 text-sm text-danger"
+            className="mb-5 rounded-[10px] border border-[#eccaca] bg-[#f7e3e3] px-3.5 py-2.5 text-sm text-danger"
           >
             {error}
           </div>

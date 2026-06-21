@@ -39,7 +39,7 @@ export default async function LoginPage({
           {error && (
             <div
               role="alert"
-              className="mb-4 rounded-xl border border-[#eccaca] bg-[#f7e3e3] px-3.5 py-2.5 text-sm text-danger"
+              className="mb-4 rounded-[10px] border border-[#eccaca] bg-[#f7e3e3] px-3.5 py-2.5 text-sm text-danger"
             >
               {error}
             </div>

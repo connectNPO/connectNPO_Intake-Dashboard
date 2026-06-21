@@ -86,34 +86,18 @@ export default async function OrganizationDetailPage({
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Left column: summary + responses */}
+        {/* Left column: responses first, then compact summary */}
         <div className="flex flex-col gap-6 lg:col-span-2">
-          {/* Summary */}
-          <Card className="flex flex-col gap-4">
-            <SectionHeader title="Organization summary" />
-            <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
-              <SummaryItem label="Website" value={organization.website_url} />
-              <SummaryItem label="Contact name" value={organization.contact_name} />
-              <SummaryItem label="Contact email" value={organization.contact_email} />
-              <SummaryItem label="Contact role" value={organization.contact_role} />
-              <SummaryItem label="City" value={organization.city} />
-              <SummaryItem label="State" value={organization.state} />
-              <SummaryItem label="Service area" value={organization.service_area} />
-              <SummaryItem label="Category" value={organization.organization_category} />
-              <SummaryItem label="Annual budget" value={organization.annual_budget_range} />
-              <SummaryItem label="Created" value={formatDate(organization.created_at)} />
-              <SummaryItem label="Submitted" value={formatDate(organization.submitted_at)} />
-            </dl>
-          </Card>
-
           {/* Responses */}
           <Card className="flex flex-col gap-5">
-            <SectionHeader
-              title="Intake responses"
-              description="Answers submitted by the organization, grouped by section."
-            />
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <SectionHeader
+                title="Intake responses"
+                description="Submitted answers are shown first so you do not have to scroll past organization details."
+              />
+            </div>
             {responsesBySection.length === 0 ? (
-              <p className="rounded-xl border border-dashed border-border bg-[#faf9f5] px-4 py-6 text-center text-sm text-muted">
+              <p className="rounded-[10px] border border-dashed border-border bg-[#faf9f5] px-4 py-6 text-center text-sm text-muted">
                 No responses yet. Responses will appear here after the
                 organization submits the intake form.
               </p>
@@ -128,7 +112,7 @@ export default async function OrganizationDetailPage({
                       {items.map((item) => (
                         <div
                           key={item.id}
-                          className="rounded-xl border border-border bg-[#faf9f5] px-4 py-3"
+                          className="rounded-[10px] border border-border bg-[#faf9f5] px-4 py-3"
                         >
                           <dt className="text-sm font-medium text-main">
                             {item.question_label}
@@ -148,13 +132,29 @@ export default async function OrganizationDetailPage({
 
         {/* Right column: intake link, status, export, notes */}
         <div className="flex flex-col gap-6">
+          {/* Summary */}
+          <Card className="flex flex-col gap-4 p-5">
+            <SectionHeader title="Organization summary" />
+            <dl className="grid grid-cols-1 gap-x-4 gap-y-2 text-sm sm:grid-cols-2 lg:grid-cols-1">
+              <SummaryItem label="Website" value={organization.website_url} />
+              <SummaryItem label="Contact" value={organization.contact_name} />
+              <SummaryItem label="Email" value={organization.contact_email} />
+              <SummaryItem label="Role" value={organization.contact_role} />
+              <SummaryItem label="Location" value={[organization.city, organization.state].filter(Boolean).join(', ')} />
+              <SummaryItem label="Service area" value={organization.service_area} />
+              <SummaryItem label="Category" value={organization.organization_category} />
+              <SummaryItem label="Budget" value={organization.annual_budget_range} />
+              <SummaryItem label="Submitted" value={formatDate(organization.submitted_at)} />
+            </dl>
+          </Card>
+
           {/* Intake link */}
           <Card className="flex flex-col gap-3">
             <SectionHeader
               title="Private intake link"
               description="Share this link with the organization’s contact."
             />
-            <p className="break-all rounded-xl border border-border bg-[#faf9f5] px-3.5 py-2.5 text-xs text-muted">
+            <p className="break-all rounded-[10px] border border-border bg-[#faf9f5] px-3.5 py-2.5 text-xs text-muted">
               {intakeUrl}
             </p>
             <div className="flex gap-2">
@@ -238,7 +238,7 @@ export default async function OrganizationDetailPage({
                 {notes.map((n) => (
                   <li
                     key={n.id}
-                    className="rounded-xl border border-border bg-[#faf9f5] px-3.5 py-3"
+                    className="rounded-[10px] border border-border bg-[#faf9f5] px-3.5 py-3"
                   >
                     <p className="whitespace-pre-wrap text-sm text-main">
                       {n.note}

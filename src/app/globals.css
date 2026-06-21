@@ -2,13 +2,13 @@
 
 /* connectNPO palette */
 :root {
-  --background: #faf9f5;
+  --background: #ffffff;
   --surface: #ffffff;
-  --primary: #7182ff;
-  --primary-soft: #ececff;
+  --primary: #d3ea52;
+  --primary-soft: #f5facd;
   --muted-text: #6f6a63;
   --main-text: #111111;
-  --border: #e8e4dc;
+  --border: #e5e5e5;
   --success: #2f9e6d;
   --warning: #c88719;
   --danger: #c24141;

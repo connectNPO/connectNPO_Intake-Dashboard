@@ -26,6 +26,8 @@ export type IntakeQuestion = {
   options?: string[];
   placeholder?: string;
   required?: boolean;
+  /** When true, selecting "Other" reveals a companion free-text field. */
+  allowOther?: boolean;
 };
 
 /** A group of related intake questions. */

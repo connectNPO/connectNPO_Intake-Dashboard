@@ -34,7 +34,17 @@ export async function submitIntake(formData: FormData) {
   for (const section of INTAKE_SECTIONS) {
     for (const question of section.questions) {
       const raw = formData.get(fieldName(section.key, question.key));
-      const value = raw === null ? '' : String(raw).trim();
+      let value = raw === null ? '' : String(raw).trim();
+      if (
+        value === 'Other' &&
+        question.type === 'select' &&
+        question.allowOther &&
+        question.options?.includes('Other')
+      ) {
+        const otherRaw = formData.get(`${fieldName(section.key, question.key)}__other`);
+        const otherValue = otherRaw === null ? '' : String(otherRaw).trim();
+        value = otherValue ? `Other: ${otherValue}` : 'Other';
+      }
       if (value === '') continue; // skip unanswered questions
       rows.push({
         organization_id: org.id,
