@@ -1,10 +1,13 @@
 import { NextResponse } from 'next/server';
+import { buildGrowthReadinessAgentPacket } from '@/lib/agent-packet';
 import { createClient } from '@/lib/supabase/server';
+import type { AdminNote, IntakeResponse, Organization } from '@/lib/types';
 
 /**
- * Admin-only JSON export for a future AI report agent.
- * Returns organization metadata, all responses, and admin notes.
- * Requires an authenticated admin session; never includes secrets.
+ * Admin-only Growth Readiness Agent Packet export.
+ * Returns a structured, evidence-first JSON packet for future report agents.
+ * Requires an authenticated admin session; never includes intake tokens, contact email,
+ * passwords, API keys, or private credentials.
  */
 export async function GET(
   _request: Request,
@@ -21,32 +24,78 @@ export async function GET(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { data: org } = await supabase
+  const { data: org, error: orgError } = await supabase
     .from('organizations')
     .select(
-      'id, name, website_url, contact_role, city, state, service_area, organization_category, annual_budget_range, status',
+      'id, name, website_url, contact_role, city, state, service_area, organization_category, nonprofit_status, annual_budget_range, status, submitted_at, created_at, updated_at',
     )
     .eq('id', id)
     .maybeSingle();
+
+  if (orgError) {
+    return NextResponse.json(
+      { error: 'Could not load organization' },
+      { status: 500 },
+    );
+  }
 
   if (!org) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
 
-  const { data: responses } = await supabase
+  const { data: responses, error: responsesError } = await supabase
     .from('intake_responses')
-    .select('section_key, question_key, question_label, answer')
+    .select('id, organization_id, section_key, question_key, question_label, answer, created_at, updated_at')
     .eq('organization_id', id);
 
-  const { data: notes } = await supabase
+  if (responsesError) {
+    return NextResponse.json(
+      { error: 'Could not load intake responses' },
+      { status: 500 },
+    );
+  }
+
+  const { data: notes, error: notesError } = await supabase
     .from('admin_notes')
     .select('note, created_at')
     .eq('organization_id', id)
     .order('created_at', { ascending: false });
 
-  return NextResponse.json({
-    organization: org,
-    responses: responses ?? [],
-    admin_notes: notes ?? [],
+  if (notesError) {
+    return NextResponse.json(
+      { error: 'Could not load admin notes' },
+      { status: 500 },
+    );
+  }
+
+  const packet = buildGrowthReadinessAgentPacket({
+    organization: org as Pick<
+      Organization,
+      | 'id'
+      | 'name'
+      | 'website_url'
+      | 'contact_role'
+      | 'city'
+      | 'state'
+      | 'service_area'
+      | 'organization_category'
+      | 'nonprofit_status'
+      | 'annual_budget_range'
+      | 'status'
+      | 'submitted_at'
+      | 'created_at'
+      | 'updated_at'
+    >,
+    responses: (responses ?? []) as IntakeResponse[],
+    notes: (notes ?? []) as Pick<AdminNote, 'note' | 'created_at'>[],
+  });
+
+  return NextResponse.json(packet, {
+    headers: {
+      'Content-Disposition': `attachment; filename="${org.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '') || 'organization'}-agent-packet.json"`,
+    },
   });
 }

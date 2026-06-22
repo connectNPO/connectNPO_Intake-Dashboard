@@ -191,18 +191,18 @@ export default async function OrganizationDetailPage({
             </form>
           </Card>
 
-          {/* Export */}
+          {/* Agent packet */}
           <Card className="flex flex-col gap-3">
             <SectionHeader
-              title="JSON export"
-              description="Structured data packet for a future report agent."
+              title="Agent packet"
+              description="Evidence-first JSON for the future Growth Readiness Report workflow."
             />
             <Link
               href={`/api/admin/organizations/${organization.id}/export`}
               target="_blank"
             >
               <Button variant="secondary" size="sm" className="w-full">
-                Download JSON
+                Download agent packet
               </Button>
             </Link>
           </Card>
