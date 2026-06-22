@@ -74,6 +74,8 @@ export default async function AgentPacketPreviewPage({
   const missingRequiredQuestions = intakeSections.flatMap(
     (section) => section.missing_required_questions,
   );
+  const hasSubmittedMissingRequired =
+    packet.organization.workflow_status === 'submitted' && missingRequiredQuestions.length > 0;
   const packetJson = JSON.stringify(packet, null, 2);
 
   return (
@@ -103,6 +105,21 @@ export default async function AgentPacketPreviewPage({
         <MetricCard label="Missing required" value={String(missingRequiredQuestions.length)} />
         <MetricCard label="Admin notes" value={String(packet.internal_admin_notes.length)} />
       </div>
+
+      {hasSubmittedMissingRequired && (
+        <Card className="flex flex-col gap-2 border-[#d97706]/40 bg-[#fff7ed]">
+          <p className="text-sm font-semibold text-[#92400e]">
+            Submitted packet needs review
+          </p>
+          <p className="text-sm leading-6 text-main">
+            This organization is marked as Submitted, but the agent packet still has{' '}
+            <strong>{missingRequiredQuestions.length}</strong> missing required answer
+            {missingRequiredQuestions.length === 1 ? '' : 's'}. Do not draft or send a
+            Growth Readiness Report until an operator confirms whether the missing
+            answers are acceptable, outdated test data, or need follow-up.
+          </p>
+        </Card>
+      )}
 
       {missingRequiredQuestions.length > 0 && (
         <Card className="flex flex-col gap-3 border-danger/30 bg-[#fff8f6]">
