@@ -3,6 +3,7 @@
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { escapeHtml, notificationEmail, sendEmail } from '@/lib/email';
 
 const TURNSTILE_VERIFY_URL =
   'https://challenges.cloudflare.com/turnstile/v0/siteverify';
@@ -113,15 +114,6 @@ function buildEmailText(intakeUrl: string, contactName: string | null): string {
   ].join('\n');
 }
 
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
 async function sendIntakeEmail({
   to,
   contactName,
@@ -131,29 +123,65 @@ async function sendIntakeEmail({
   contactName: string | null;
   intakeUrl: string;
 }): Promise<boolean> {
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.RESEND_FROM_EMAIL;
-  if (!apiKey || !from) return false;
+  return sendEmail({
+    to,
+    subject: 'Your connectNPO Growth Readiness Intake',
+    html: buildEmailHtml(intakeUrl, contactName),
+    text: buildEmailText(intakeUrl, contactName),
+  });
+}
 
-  try {
-    const res = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from,
-        to,
-        subject: 'Your connectNPO Growth Readiness Intake',
-        html: buildEmailHtml(intakeUrl, contactName),
-        text: buildEmailText(intakeUrl, contactName),
-      }),
-    });
-    return res.ok;
-  } catch {
-    return false;
-  }
+async function sendInternalRequestNotification({
+  organizationName,
+  websiteUrl,
+  contactName,
+  contactEmail,
+  contactRole,
+  intakeUrl,
+  adminUrl,
+}: {
+  organizationName: string;
+  websiteUrl: string | null;
+  contactName: string | null;
+  contactEmail: string;
+  contactRole: string | null;
+  intakeUrl: string;
+  adminUrl: string;
+}): Promise<void> {
+  const rows = [
+    ['Organization', organizationName],
+    ['Website', websiteUrl ?? '—'],
+    ['Contact', contactName ?? '—'],
+    ['Email', contactEmail],
+    ['Role', contactRole ?? '—'],
+  ];
+
+  await sendEmail({
+    to: notificationEmail(),
+    subject: `New connectNPO review request: ${organizationName}`,
+    html: `<!doctype html>
+<html><body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color:#1f1f1f;">
+  <h1 style="font-size:20px;">New Growth Readiness Review Request</h1>
+  <table cellpadding="6" cellspacing="0" style="border-collapse:collapse;">
+    ${rows
+      .map(
+        ([label, value]) =>
+          `<tr><td style="font-weight:600; color:#555;">${escapeHtml(label)}</td><td>${escapeHtml(value)}</td></tr>`,
+      )
+      .join('')}
+  </table>
+  <p><a href="${escapeHtml(adminUrl)}">Open in admin dashboard</a></p>
+  <p><a href="${escapeHtml(intakeUrl)}">Open private intake link</a></p>
+</body></html>`,
+    text: [
+      'New Growth Readiness Review Request',
+      '',
+      ...rows.map(([label, value]) => `${label}: ${value}`),
+      '',
+      `Admin: ${adminUrl}`,
+      `Private intake link: ${intakeUrl}`,
+    ].join('\n'),
+  });
 }
 
 export async function submitRequestReview(formData: FormData) {
@@ -205,6 +233,7 @@ export async function submitRequestReview(formData: FormData) {
   }
 
   const intakeUrl = `${siteUrl!.replace(/\/$/, '')}/intake/${inserted.intake_token}`;
+  const adminUrl = `${siteUrl!.replace(/\/$/, '')}/admin/organizations/${inserted.id}`;
 
   const emailOk = await sendIntakeEmail({
     to: contactEmailRaw!,
@@ -222,6 +251,16 @@ export async function submitRequestReview(formData: FormData) {
       'We saved your request but could not send the email. Please contact connectNPO so we can share your intake link.',
     );
   }
+
+  await sendInternalRequestNotification({
+    organizationName: name!,
+    websiteUrl,
+    contactName,
+    contactEmail: contactEmailRaw!,
+    contactRole,
+    intakeUrl,
+    adminUrl,
+  });
 
   redirect('/request-review/sent');
 }

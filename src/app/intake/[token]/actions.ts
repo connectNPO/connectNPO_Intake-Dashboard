@@ -1,13 +1,75 @@
 'use server';
 
+import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { INTAKE_SECTIONS } from '@/lib/intake/questions';
+import { escapeHtml, notificationEmail, sendEmail } from '@/lib/email';
 import type { IntakeResponseInput } from '@/lib/types';
 
 /** Field name used in the form for a given question. */
 function fieldName(sectionKey: string, questionKey: string): string {
   return `${sectionKey}__${questionKey}`;
+}
+
+async function getBaseSiteUrl(): Promise<string | null> {
+  const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (configured) return configured.replace(/\/$/, '');
+
+  const requestHeaders = await headers();
+  const host = requestHeaders.get('x-forwarded-host') ?? requestHeaders.get('host');
+  if (!host) return null;
+
+  const proto = requestHeaders.get('x-forwarded-proto') ?? 'https';
+  return `${proto}://${host}`.replace(/\/$/, '');
+}
+
+async function sendInternalIntakeSubmittedNotification({
+  organizationId,
+  organizationName,
+  contactName,
+  contactEmail,
+  responseCount,
+  adminUrl,
+}: {
+  organizationId: string;
+  organizationName: string;
+  contactName: string | null;
+  contactEmail: string | null;
+  responseCount: number;
+  adminUrl: string | null;
+}): Promise<void> {
+  const rows = [
+    ['Organization', organizationName],
+    ['Contact', contactName ?? '—'],
+    ['Email', contactEmail ?? '—'],
+    ['Answers saved', String(responseCount)],
+  ];
+
+  await sendEmail({
+    to: notificationEmail(),
+    subject: `Intake submitted: ${organizationName}`,
+    html: `<!doctype html>
+<html><body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color:#1f1f1f;">
+  <h1 style="font-size:20px;">Growth Readiness Intake Submitted</h1>
+  <table cellpadding="6" cellspacing="0" style="border-collapse:collapse;">
+    ${rows
+      .map(
+        ([label, value]) =>
+          `<tr><td style="font-weight:600; color:#555;">${escapeHtml(label)}</td><td>${escapeHtml(value)}</td></tr>`,
+      )
+      .join('')}
+  </table>
+  ${adminUrl ? `<p><a href="${escapeHtml(adminUrl)}">Open submission in admin dashboard</a></p>` : ''}
+</body></html>`,
+    text: [
+      'Growth Readiness Intake Submitted',
+      '',
+      ...rows.map(([label, value]) => `${label}: ${value}`),
+      '',
+      adminUrl ? `Admin: ${adminUrl}` : `Organization ID: ${organizationId}`,
+    ].join('\n'),
+  });
 }
 
 export async function submitIntake(formData: FormData) {
@@ -21,7 +83,7 @@ export async function submitIntake(formData: FormData) {
   // Validate the token server-side before any write.
   const { data: org, error: orgError } = await supabase
     .from('organizations')
-    .select('id, intake_token')
+    .select('id, name, contact_name, contact_email, intake_token')
     .eq('intake_token', token)
     .maybeSingle();
 
@@ -80,6 +142,18 @@ export async function submitIntake(formData: FormData) {
         encodeURIComponent('We couldn’t complete your submission. Please try again.'),
     );
   }
+
+  const baseSiteUrl = await getBaseSiteUrl();
+  const adminUrl = baseSiteUrl ? `${baseSiteUrl}/admin/organizations/${org.id}` : null;
+
+  await sendInternalIntakeSubmittedNotification({
+    organizationId: org.id,
+    organizationName: org.name,
+    contactName: org.contact_name,
+    contactEmail: org.contact_email,
+    responseCount: rows.length,
+    adminUrl,
+  });
 
   redirect(`/intake/${token}/complete`);
 }
