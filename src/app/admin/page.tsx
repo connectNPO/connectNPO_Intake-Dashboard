@@ -9,14 +9,24 @@ import type { Organization } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
-export default async function AdminHomePage() {
+export default async function AdminHomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ archived?: string }>;
+}) {
+  const { archived } = await searchParams;
+  const showArchived = archived === '1';
   const supabase = await createClient();
-  const { data, error } = await supabase
+  let query = supabase
     .from('organizations')
     .select(
       'id, name, website_url, contact_email, status, created_at, submitted_at',
     )
     .order('created_at', { ascending: false });
+
+  query = showArchived ? query.eq('status', 'archived') : query.neq('status', 'archived');
+
+  const { data, error } = await query;
 
   const organizations = (data ?? []) as Pick<
     Organization,
@@ -33,14 +43,27 @@ export default async function AdminHomePage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-main">Organizations</h1>
+          <h1 className="text-2xl font-semibold text-main">
+            {showArchived ? 'Archived organizations' : 'Organizations'}
+          </h1>
           <p className="mt-1 text-sm text-muted">
-            Review nonprofit intake submissions and track their status.
+            {showArchived
+              ? 'Review organizations that have been archived and restore them if needed.'
+              : 'Review nonprofit intake submissions and track their status.'}
           </p>
         </div>
-        <Link href="/admin/organizations/new">
-          <Button>New Organization</Button>
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link href={showArchived ? '/admin' : '/admin?archived=1'}>
+            <Button variant="ghost">
+              {showArchived ? 'View active' : 'View archived'}
+            </Button>
+          </Link>
+          {!showArchived && (
+            <Link href="/admin/organizations/new">
+              <Button>New Organization</Button>
+            </Link>
+          )}
+        </div>
       </div>
 
       {error && (
@@ -54,12 +77,22 @@ export default async function AdminHomePage() {
 
       {!error && organizations.length === 0 && (
         <EmptyState
-          title="No organizations yet"
-          description="Create your first organization to generate a private intake link you can share."
+          title={showArchived ? 'No archived organizations' : 'No organizations yet'}
+          description={
+            showArchived
+              ? 'Archived organizations will appear here after you archive them.'
+              : 'Create your first organization to generate a private intake link you can share.'
+          }
           action={
-            <Link href="/admin/organizations/new">
-              <Button>New Organization</Button>
-            </Link>
+            showArchived ? (
+              <Link href="/admin">
+                <Button>View active organizations</Button>
+              </Link>
+            ) : (
+              <Link href="/admin/organizations/new">
+                <Button>New Organization</Button>
+              </Link>
+            )
           }
         />
       )}

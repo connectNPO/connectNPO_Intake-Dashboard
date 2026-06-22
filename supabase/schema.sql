@@ -19,7 +19,7 @@ create table if not exists public.organizations (
   organization_category text,
   nonprofit_status text,
   annual_budget_range text,
-  status text not null default 'draft_created',
+  status text not null default 'draft_created', -- includes archived for soft-hide from admin list
   intake_token uuid not null default gen_random_uuid(),
   submitted_at timestamptz,
   created_at timestamptz not null default now(),

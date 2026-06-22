@@ -8,7 +8,8 @@ export type OrganizationStatus =
   | 'under_review'
   | 'needs_clarification'
   | 'ready_for_report'
-  | 'report_created';
+  | 'report_created'
+  | 'archived';
 
 /** A single stored answer value. Flexible to support future field types. */
 export type IntakeAnswer = string | string[] | number | boolean | null;

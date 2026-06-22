@@ -44,6 +44,10 @@ export const STATUS_META: Record<OrganizationStatus, StatusMeta> = {
     label: 'Report created',
     className: 'bg-[#111111] text-white border-[#111111]',
   },
+  archived: {
+    label: 'Archived',
+    className: 'bg-[#f0eee8] text-[#6F6A63] border-[#E8E4DC]',
+  },
 };
 
 /** Ordered list of statuses for selectors. */
@@ -57,6 +61,7 @@ export const STATUS_ORDER: OrganizationStatus[] = [
   'needs_clarification',
   'ready_for_report',
   'report_created',
+  'archived',
 ];
 
 export function statusLabel(status: string): string {

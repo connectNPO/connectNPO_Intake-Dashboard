@@ -50,3 +50,36 @@ export async function addNote(formData: FormData) {
   revalidatePath(`/admin/organizations/${id}`);
   redirect(`/admin/organizations/${id}`);
 }
+
+export async function archiveOrganization(formData: FormData) {
+  const id = String(formData.get('organization_id') ?? '');
+  const confirm = String(formData.get('confirm_archive') ?? '');
+
+  if (!id || confirm !== 'on') return;
+
+  const supabase = await createClient();
+  await supabase
+    .from('organizations')
+    .update({ status: 'archived' })
+    .eq('id', id);
+
+  revalidatePath('/admin');
+  revalidatePath(`/admin/organizations/${id}`);
+  redirect('/admin');
+}
+
+export async function restoreOrganization(formData: FormData) {
+  const id = String(formData.get('organization_id') ?? '');
+
+  if (!id) return;
+
+  const supabase = await createClient();
+  await supabase
+    .from('organizations')
+    .update({ status: 'under_review' })
+    .eq('id', id);
+
+  revalidatePath('/admin');
+  revalidatePath(`/admin/organizations/${id}`);
+  redirect(`/admin/organizations/${id}`);
+}

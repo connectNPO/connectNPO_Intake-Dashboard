@@ -14,7 +14,7 @@ import { STATUS_ORDER, statusLabel } from '@/lib/status';
 import { INTAKE_SECTIONS } from '@/lib/intake/questions';
 import { formatDate, formatAnswer } from '@/lib/format';
 import type { AdminNote, IntakeResponse, Organization } from '@/lib/types';
-import { updateStatus, addNote } from './actions';
+import { updateStatus, addNote, archiveOrganization, restoreOrganization } from './actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -178,7 +178,7 @@ export default async function OrganizationDetailPage({
                   name="status"
                   defaultValue={organization.status}
                 >
-                  {STATUS_ORDER.map((s) => (
+                  {STATUS_ORDER.filter((s) => s !== 'archived').map((s) => (
                     <option key={s} value={s}>
                       {statusLabel(s)}
                     </option>
@@ -205,6 +205,42 @@ export default async function OrganizationDetailPage({
                 Download JSON
               </Button>
             </Link>
+          </Card>
+
+          {/* Archive / restore */}
+          <Card className="flex flex-col gap-3">
+            <SectionHeader
+              title={organization.status === 'archived' ? 'Restore organization' : 'Archive organization'}
+              description={
+                organization.status === 'archived'
+                  ? 'Move this organization back to the active list.'
+                  : 'Hide this organization from the default list without deleting its responses or notes.'
+              }
+            />
+            {organization.status === 'archived' ? (
+              <form action={restoreOrganization} className="flex flex-col gap-3">
+                <input type="hidden" name="organization_id" value={organization.id} />
+                <Button type="submit" variant="secondary" size="sm">
+                  Restore to active list
+                </Button>
+              </form>
+            ) : (
+              <form action={archiveOrganization} className="flex flex-col gap-3">
+                <input type="hidden" name="organization_id" value={organization.id} />
+                <label className="flex items-start gap-2 text-sm text-muted">
+                  <input
+                    type="checkbox"
+                    name="confirm_archive"
+                    required
+                    className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                  />
+                  <span>I understand this will hide the organization from the default list.</span>
+                </label>
+                <Button type="submit" variant="ghost" size="sm">
+                  Archive organization
+                </Button>
+              </form>
+            )}
           </Card>
 
           {/* Notes */}
