@@ -197,14 +197,21 @@ export default async function OrganizationDetailPage({
               title="Agent packet"
               description="Evidence-first JSON for the future Growth Readiness Report workflow."
             />
-            <Link
-              href={`/api/admin/organizations/${organization.id}/export`}
-              target="_blank"
-            >
-              <Button variant="secondary" size="sm" className="w-full">
-                Download agent packet
-              </Button>
-            </Link>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <Link
+                href={`/api/admin/organizations/${organization.id}/export`}
+                target="_blank"
+              >
+                <Button variant="secondary" size="sm" className="w-full">
+                  Download JSON
+                </Button>
+              </Link>
+              <Link href={`/admin/organizations/${organization.id}/agent-packet`}>
+                <Button variant="secondary" size="sm" className="w-full">
+                  Preview packet
+                </Button>
+              </Link>
+            </div>
             <div className="rounded-[7px] border border-dashed border-border bg-[#faf9f5] px-3 py-2 text-xs text-muted">
               <p className="font-medium text-main">Report template</p>
               <p className="mt-1">
