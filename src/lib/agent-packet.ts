@@ -30,17 +30,20 @@ type EvidenceStatus =
   | 'Needs confirmation';
 
 const READINESS_CATEGORIES = [
+  'Executive Summary',
+  'Evidence Snapshot',
   'Website Clarity',
   'Donor Trust',
   'Volunteer Readiness',
-  'Trust & Transparency Signals',
+  'Transparency Signals',
   'SEO Readiness',
   'GEO / AI Search Readiness',
   'Grant Readiness',
   'Operations & Automation Opportunities',
-  'Missing Information',
+  'Missing / Needs Confirmation',
   '30-Day Action Plan',
   '90-Day Action Plan',
+  'Appendix: Evidence Log',
 ] as const;
 
 const EVIDENCE_STATUSES: EvidenceStatus[] = [
@@ -159,9 +162,25 @@ export function buildGrowthReadinessAgentPacket({
     },
     report_scope: {
       report_name: 'Growth Readiness Report',
+      template_reference: 'docs/GROWTH_READINESS_REPORT_TEMPLATE.md',
       categories: READINESS_CATEGORIES,
       target_outcome:
         'Help the nonprofit become clearer, more trustworthy, more discoverable, and easier to support.',
+      writing_tone:
+        'Public-facing English: warm, plain, practical, supportive but honest, and grounded in evidence.',
+      output_contract: {
+        format: 'Markdown draft for human review',
+        every_finding_requires: [
+          'Status',
+          'Evidence / Source URL',
+          'Finding',
+          'Recommendation',
+          'Priority',
+        ],
+        executive_summary_rule:
+          'Write after analysis sections are complete; do not introduce new claims.',
+        human_review_label: 'DRAFT — requires connectNPO human review before delivery',
+      },
     },
     organization: {
       id: organization.id,
