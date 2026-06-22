@@ -205,6 +205,20 @@ export default async function OrganizationDetailPage({
                 Download agent packet
               </Button>
             </Link>
+            <div className="rounded-[7px] border border-dashed border-border bg-[#faf9f5] px-3 py-2 text-xs text-muted">
+              <p className="font-medium text-main">Report template</p>
+              <p className="mt-1">
+                Use the internal Growth Readiness Report template when turning
+                this packet into a human-reviewed draft.
+              </p>
+              <Link
+                href="https://github.com/connectNPO/connectNPO_Intake-Dashboard/blob/main/docs/GROWTH_READINESS_REPORT_TEMPLATE.md"
+                target="_blank"
+                className="mt-2 inline-flex text-primary hover:underline"
+              >
+                Open report template
+              </Link>
+            </div>
           </Card>
 
           {/* Report workflow */}
