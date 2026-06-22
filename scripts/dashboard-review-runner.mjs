@@ -142,8 +142,10 @@ async function main() {
       await page.goto(orgDetailUrl, { waitUntil: 'domcontentloaded' });
       await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
       const detailTitle = await safeText(page.locator('h1').first());
+      const detailText = await page.locator('body').innerText();
       const previewHref = await page.locator('a[href$="/agent-packet"]').first().getAttribute('href').catch(() => null);
       report.checks.push(status('Organization detail loads', Boolean(detailTitle), `title=${detailTitle ?? 'missing'}`));
+      report.checks.push(status('Organization detail shows next operator step', detailText.includes('Next operator step') && detailText.toLowerCase().includes('current status')));
       report.checks.push(status('Preview packet link exists', Boolean(previewHref), previewHref ?? 'missing'));
 
       const downloadLink = page.locator('a[download][href$="/export"]').first();

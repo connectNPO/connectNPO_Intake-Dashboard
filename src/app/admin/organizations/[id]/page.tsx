@@ -13,7 +13,7 @@ import { SectionHeader } from '@/components/ui/SectionHeader';
 import { STATUS_ORDER, statusLabel } from '@/lib/status';
 import { INTAKE_SECTIONS } from '@/lib/intake/questions';
 import { formatDate, formatAnswer } from '@/lib/format';
-import type { AdminNote, IntakeResponse, Organization } from '@/lib/types';
+import type { AdminNote, IntakeResponse, Organization, OrganizationStatus } from '@/lib/types';
 import { updateStatus, addNote, archiveOrganization, restoreOrganization } from './actions';
 
 export const dynamic = 'force-dynamic';
@@ -62,6 +62,7 @@ export default async function OrganizationDetailPage({
 
   const baseUrl = await getBaseUrl();
   const intakeUrl = `${baseUrl}/intake/${organization.intake_token}`;
+  const nextOperatorStep = getNextOperatorStep(organization.status);
   const agentPacketFilename = `${organization.name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
@@ -88,6 +89,22 @@ export default async function OrganizationDetailPage({
           <StatusBadge status={organization.status} />
         </div>
       </div>
+
+      <Card className="flex flex-col gap-2 border-primary/20 bg-primary-soft/40">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-xs uppercase tracking-wide text-muted">Current status</p>
+            <p className="text-sm font-semibold text-main">{statusLabel(organization.status)}</p>
+          </div>
+          <span className="rounded-full border border-primary/20 bg-white px-3 py-1 text-xs font-medium text-primary">
+            Next operator step
+          </span>
+        </div>
+        <div>
+          <p className="text-base font-semibold text-main">{nextOperatorStep.title}</p>
+          <p className="mt-1 text-sm leading-6 text-muted">{nextOperatorStep.description}</p>
+        </div>
+      </Card>
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Left column: responses first, then compact summary */}
@@ -363,6 +380,74 @@ export default async function OrganizationDetailPage({
       </div>
     </div>
   );
+}
+
+function getNextOperatorStep(status: OrganizationStatus): {
+  title: string;
+  description: string;
+} {
+  switch (status) {
+    case 'draft_created':
+      return {
+        title: 'Send or copy the private intake link.',
+        description:
+          'Confirm the organization summary, then share the private intake link with the nonprofit contact.',
+      };
+    case 'intake_sent':
+      return {
+        title: 'Wait for the nonprofit to complete intake.',
+        description:
+          'Keep the record active. If the contact asks for help, use the private intake link card to reopen or copy the link.',
+      };
+    case 'email_failed':
+      return {
+        title: 'Fix delivery before continuing.',
+        description:
+          'Check the contact email, Resend configuration, and internal notes before resending or manually sharing the intake link.',
+      };
+    case 'in_progress':
+      return {
+        title: 'Monitor intake progress.',
+        description:
+          'The organization has started but not submitted. Follow up only if the intake has been idle too long.',
+      };
+    case 'submitted':
+      return {
+        title: 'Review the agent packet and missing answers.',
+        description:
+          'Open the packet preview, confirm required answers are present, add internal notes, then move to Under review or Needs clarification.',
+      };
+    case 'under_review':
+      return {
+        title: 'Complete human review before report work.',
+        description:
+          'Check responses, notes, public website context, and packet quality. Move to Ready for report only after the packet is safe to use.',
+      };
+    case 'needs_clarification':
+      return {
+        title: 'Request clarification before report work.',
+        description:
+          'Add an internal note describing what is missing, then contact the nonprofit manually. Do not draft a report yet.',
+      };
+    case 'ready_for_report':
+      return {
+        title: 'Prepare a human-reviewed report draft.',
+        description:
+          'Use the packet, report template, and report writer prompt. Keep the draft internal until a connectNPO reviewer signs off.',
+      };
+    case 'report_created':
+      return {
+        title: 'Follow up or archive when complete.',
+        description:
+          'Confirm any final reviewer notes, then decide whether this organization should stay active or move to the archive.',
+      };
+    case 'archived':
+      return {
+        title: 'Restore only if work should resume.',
+        description:
+          'Archived records are hidden from the default list. Restore this organization only when active follow-up is needed.',
+      };
+  }
 }
 
 function SummaryItem({
