@@ -125,6 +125,7 @@ async function main() {
     await page.goto(adminUrl, { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
     const adminTitle = await safeText(page.locator('h1').first());
+    const checklistNavLink = await page.locator('a[href="/admin/operations-checklist"]').first().getAttribute('href').catch(() => null);
     const organizationHrefs = await page.locator('a[href^="/admin/organizations/"]').evaluateAll((links) =>
       links
         .map((link) => link.getAttribute('href'))
@@ -133,6 +134,13 @@ async function main() {
     const orgRows = organizationHrefs.length;
     report.metrics.organization_link_count = orgRows;
     report.checks.push(status('Admin dashboard loads', Boolean(adminTitle?.includes('Organizations')) || orgRows > 0, `title=${adminTitle ?? 'missing'}, organization_links=${orgRows}`));
+    report.checks.push(status('Operations checklist nav link exists', checklistNavLink === '/admin/operations-checklist', checklistNavLink ?? 'missing'));
+
+    const checklistUrl = sameOriginUrl(loginUrl, '/admin/operations-checklist');
+    await page.goto(checklistUrl, { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
+    const checklistText = await page.locator('body').innerText();
+    report.checks.push(status('Operations checklist page loads', checklistText.includes('E2E Operations Test Checklist') && checklistText.includes('Agent packet')));
 
     if (orgRows === 0) {
       report.issues.push({ severity: 'Medium', title: 'No organizations available for packet preview review' });
