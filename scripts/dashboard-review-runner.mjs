@@ -141,6 +141,7 @@ async function main() {
     await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
     const checklistText = await page.locator('body').innerText();
     report.checks.push(status('Operations checklist page loads', checklistText.includes('E2E Operations Test Checklist') && checklistText.includes('Agent packet')));
+    report.checks.push(status('Operations checklist shows Phase 2 rehearsal quick start', checklistText.includes('Phase 2 rehearsal quick start') && checklistText.includes('non-sensitive test answers')));
 
     if (orgRows === 0) {
       report.issues.push({ severity: 'Medium', title: 'No organizations available for packet preview review' });

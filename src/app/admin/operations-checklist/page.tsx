@@ -37,6 +37,18 @@ export default async function OperationsChecklistPage() {
           </p>
           <CopyButton value={checklist} label="Copy checklist" />
         </div>
+
+        <div className="rounded-[7px] border border-primary/20 bg-primary-soft/40 px-4 py-3">
+          <p className="text-sm font-semibold text-main">Phase 2 rehearsal quick start</p>
+          <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm leading-6 text-muted">
+            <li>Create or choose a clearly marked test nonprofit record.</li>
+            <li>Open the private intake link and submit non-sensitive test answers.</li>
+            <li>Confirm the organization moves to Submitted and review missing answers.</li>
+            <li>Open Preview packet and Download JSON, then check the report template.</li>
+            <li>Add a short internal note and move the status to Ready for report only if the packet is safe.</li>
+          </ol>
+        </div>
+
         <pre className="max-h-[70vh] overflow-auto whitespace-pre-wrap rounded-[7px] border border-border bg-[#111827] p-4 text-sm leading-6 text-[#f9fafb]">
           {checklist}
         </pre>
