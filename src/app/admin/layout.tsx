@@ -3,67 +3,92 @@ import { signOut } from '@/app/login/actions';
 import { Logo } from '@/components/Logo';
 import { Button } from '@/components/ui/Button';
 
+const navGroups = [
+  {
+    label: 'Operations',
+    items: [
+      { href: '/admin', label: 'Organizations' },
+      { href: '/admin/organizations/new', label: 'New Intake' },
+      { href: '/admin/operations-checklist', label: 'Checklist' },
+    ],
+  },
+  {
+    label: 'Report Workflow',
+    items: [
+      { href: '/admin/report-template', label: 'Report Template' },
+      { href: '/admin/research-agent-prompt', label: 'Research Prompt' },
+      { href: '/admin/report-writer-prompt', label: 'Writer Prompt' },
+    ],
+  },
+  {
+    label: 'System',
+    items: [{ href: '/admin/system-check', label: 'System Check' }],
+  },
+];
+
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-1 flex-col">
-      <header className="border-b border-border bg-surface">
-        <div className="mx-auto flex min-h-16 w-full max-w-[1200px] items-center justify-between px-4">
-          <div className="flex h-16 items-center gap-8">
-            <div className="flex w-[120px] items-center">
-              <Logo />
-            </div>
-            <nav className="hidden h-16 items-center gap-2 sm:flex">
-              <Link
-                href="/admin"
-                className="rounded-[7px] px-3 py-2 text-sm font-medium text-muted hover:bg-primary-soft hover:text-main"
-              >
-                Organizations
-              </Link>
-              <Link
-                href="/admin/organizations/new"
-                className="rounded-[7px] px-3 py-2 text-sm font-medium text-muted hover:bg-primary-soft hover:text-main"
-              >
-                New Intake
-              </Link>
-              <Link
-                href="/admin/report-template"
-                className="rounded-[7px] px-3 py-2 text-sm font-medium text-muted hover:bg-primary-soft hover:text-main"
-              >
-                Report Template
-              </Link>
-              <Link
-                href="/admin/research-agent-prompt"
-                className="rounded-[7px] px-3 py-2 text-sm font-medium text-muted hover:bg-primary-soft hover:text-main"
-              >
-                Research Prompt
-              </Link>
-              <Link
-                href="/admin/operations-checklist"
-                className="rounded-[7px] px-3 py-2 text-sm font-medium text-muted hover:bg-primary-soft hover:text-main"
-              >
-                Checklist
-              </Link>
-              <Link
-                href="/admin/system-check"
-                className="rounded-[7px] px-3 py-2 text-sm font-medium text-muted hover:bg-primary-soft hover:text-main"
-              >
-                System Check
-              </Link>
-            </nav>
+    <div className="flex flex-1 flex-col bg-[#f7f5ef] lg:flex-row">
+      <aside className="border-b border-border bg-surface lg:sticky lg:top-0 lg:flex lg:min-h-screen lg:w-64 lg:flex-col lg:border-b-0 lg:border-r">
+        <div className="flex min-h-16 items-center justify-between gap-4 px-4 lg:min-h-0 lg:flex-col lg:items-stretch lg:justify-start lg:gap-8 lg:px-5 lg:py-5">
+          <div className="flex items-center justify-between gap-3 lg:block">
+            <Logo />
+            <p className="hidden text-xs uppercase tracking-[0.18em] text-muted lg:mt-3 lg:block">
+              Admin dashboard
+            </p>
           </div>
-          <form action={signOut}>
-            <Button type="submit" variant="ghost" size="sm">
+
+          <nav className="hidden flex-1 flex-col gap-6 lg:flex" aria-label="Admin navigation">
+            {navGroups.map((group) => (
+              <div key={group.label} className="flex flex-col gap-2">
+                <p className="px-3 text-xs font-semibold uppercase tracking-[0.16em] text-muted">
+                  {group.label}
+                </p>
+                <div className="flex flex-col gap-1">
+                  {group.items.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className="rounded-[7px] px-3 py-2 text-sm font-medium text-muted transition-colors hover:bg-primary-soft hover:text-main"
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </nav>
+
+          <nav
+            className="hidden items-center gap-2 overflow-x-auto sm:flex lg:hidden"
+            aria-label="Admin navigation"
+          >
+            {navGroups.flatMap((group) => group.items).map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="whitespace-nowrap rounded-[7px] px-3 py-2 text-sm font-medium text-muted hover:bg-primary-soft hover:text-main"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+
+          <form action={signOut} className="lg:mt-auto">
+            <Button type="submit" variant="ghost" size="sm" className="w-full lg:justify-start">
               Sign out
             </Button>
           </form>
         </div>
-      </header>
+      </aside>
 
-      <div className="mx-auto w-full max-w-[1200px] flex-1 px-4 py-8">{children}</div>
+      <main className="w-full flex-1 px-4 py-8 lg:px-8">
+        <div className="mx-auto w-full max-w-[1200px]">{children}</div>
+      </main>
     </div>
   );
 }
