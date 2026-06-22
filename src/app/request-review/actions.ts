@@ -1,5 +1,6 @@
 'use server';
 
+import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { createAdminClient } from '@/lib/supabase/admin';
 
@@ -27,6 +28,18 @@ function normalizeUrl(value: string | null): string | null {
 
 function fail(message: string): never {
   redirect('/request-review?error=' + encodeURIComponent(message));
+}
+
+async function getBaseSiteUrl(): Promise<string | null> {
+  const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (configured) return configured.replace(/\/$/, '');
+
+  const requestHeaders = await headers();
+  const host = requestHeaders.get('x-forwarded-host') ?? requestHeaders.get('host');
+  if (!host) return null;
+
+  const proto = requestHeaders.get('x-forwarded-proto') ?? 'https';
+  return `${proto}://${host}`.replace(/\/$/, '');
 }
 
 async function verifyTurnstile(token: string | null): Promise<boolean> {
@@ -164,7 +177,7 @@ export async function submitRequestReview(formData: FormData) {
     fail('That email address does not look right. Please double-check it.');
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  const siteUrl = await getBaseSiteUrl();
   if (!siteUrl) fail(GENERIC_ERROR);
 
   const turnstileOk = await verifyTurnstile(turnstileToken);
