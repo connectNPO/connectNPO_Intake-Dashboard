@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { SectionHeader } from '@/components/ui/SectionHeader';
+import { CopyButton } from '@/components/ui/CopyButton';
 import type { AdminNote, IntakeResponse, Organization } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -136,10 +137,13 @@ export default async function AgentPacketPreviewPage({
       </Card>
 
       <Card className="flex flex-col gap-3">
-        <SectionHeader
-          title="Raw JSON preview"
-          description="Visible to admins only. Contact email and private intake token are intentionally excluded."
-        />
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <SectionHeader
+            title="Raw JSON preview"
+            description="Visible to admins only. Contact email and private intake token are intentionally excluded."
+          />
+          <CopyButton value={packetJson} label="Copy JSON" />
+        </div>
         <pre className="max-h-[640px] overflow-auto rounded-[7px] border border-border bg-[#1f2937] p-4 text-xs leading-relaxed text-[#f9fafb]">
           {packetJson}
         </pre>
