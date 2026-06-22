@@ -38,6 +38,11 @@ export default async function ReportTemplatePage() {
           </p>
           <div className="flex flex-wrap gap-2">
             <CopyButton value={template} label="Copy template" />
+            <Link href="/admin/research-agent-prompt">
+              <Button variant="secondary" size="sm">
+                Research prompt
+              </Button>
+            </Link>
             <Link href="/admin/report-writer-prompt">
               <Button variant="secondary" size="sm">
                 Report writer prompt

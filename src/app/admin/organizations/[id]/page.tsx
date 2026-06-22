@@ -247,6 +247,12 @@ export default async function OrganizationDetailPage({
                   Open report template
                 </Link>
                 <Link
+                  href="/admin/research-agent-prompt"
+                  className="inline-flex text-primary hover:underline"
+                >
+                  Open research prompt
+                </Link>
+                <Link
                   href="/admin/report-writer-prompt"
                   className="inline-flex text-primary hover:underline"
                 >

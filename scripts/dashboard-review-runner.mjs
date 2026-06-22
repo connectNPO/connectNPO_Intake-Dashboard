@@ -163,6 +163,8 @@ async function main() {
 
       const templateLink = await page.locator('a[href="/admin/report-template"]').first().getAttribute('href').catch(() => null);
       report.checks.push(status('In-app report template link exists', templateLink === '/admin/report-template', templateLink ?? 'missing'));
+      const researchPromptLink = await page.locator('a[href="/admin/research-agent-prompt"]').first().getAttribute('href').catch(() => null);
+      report.checks.push(status('Organization detail links research agent prompt', researchPromptLink === '/admin/research-agent-prompt', researchPromptLink ?? 'missing'));
       const promptLink = await page.locator('a[href="/admin/report-writer-prompt"]').first().getAttribute('href').catch(() => null);
       report.checks.push(status('Organization detail links report writer prompt', promptLink === '/admin/report-writer-prompt', promptLink ?? 'missing'));
 
@@ -172,7 +174,14 @@ async function main() {
       const templateText = await page.locator('body').innerText();
       report.checks.push(status('Report template page loads', templateText.includes('Growth Readiness Report') && templateText.includes('Allowed Statuses')));
       report.checks.push(status('Report template has copy action', templateText.includes('Copy template')));
+      report.checks.push(status('Report template links research agent prompt', templateText.includes('Research prompt')));
       report.checks.push(status('Report template links report writer prompt', templateText.includes('Report writer prompt')));
+
+      const researchPromptUrl = sameOriginUrl(loginUrl, '/admin/research-agent-prompt');
+      await page.goto(researchPromptUrl, { waitUntil: 'domcontentloaded' });
+      await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
+      const researchPromptText = await page.locator('body').innerText();
+      report.checks.push(status('Research agent prompt page loads', researchPromptText.includes('Research Agent Prompt') && researchPromptText.includes('Copy research prompt')));
 
       const promptUrl = sameOriginUrl(loginUrl, '/admin/report-writer-prompt');
       await page.goto(promptUrl, { waitUntil: 'domcontentloaded' });
