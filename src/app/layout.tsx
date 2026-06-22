@@ -10,7 +10,7 @@ const geistSans = Geist({
 export const metadata: Metadata = {
   title: "connectNPO Intake",
   description:
-    "Nonprofit growth readiness intake — a friendly, private way to share your organization's story with connectNPO.",
+    "Nonprofit growth readiness intake — a private, practical way to help connectNPO prepare a focused review and next-step recommendations.",
 };
 
 export default function RootLayout({

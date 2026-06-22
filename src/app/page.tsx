@@ -24,8 +24,8 @@ export default async function HomePage() {
           Nonprofit Growth Readiness Intake
         </h1>
         <p className="mx-auto mt-4 max-w-md text-base text-muted">
-          A warm, private way to share your organization’s story so the
-          connectNPO team can prepare a more helpful review.
+          A private, practical intake that helps connectNPO prepare a focused
+          growth readiness review for your organization.
         </p>
 
         <div className="mt-8 flex items-center justify-center gap-3">

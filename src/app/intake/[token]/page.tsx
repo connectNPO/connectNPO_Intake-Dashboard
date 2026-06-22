@@ -49,29 +49,6 @@ export default async function IntakePage({
 
       <div className="mx-auto w-full max-w-[900px] flex-1 px-4 py-8">
         <div className="flex flex-col gap-6">
-          {/* Welcome + privacy */}
-          <Card className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2">
-              <h1 className="text-2xl font-semibold text-main">
-                Welcome to your connectNPO readiness intake
-              </h1>
-              <p className="text-sm text-muted">
-                This form helps us understand your organization, your goals, your
-                website, and the areas where you may need support. Your answers
-                will help us prepare a more useful review and recommendation.
-              </p>
-            </div>
-            <div className="rounded-[7px] border border-primary bg-primary-soft px-4 py-3">
-              <p className="text-sm text-main">
-                <strong className="font-semibold">Privacy reminder:</strong>{' '}
-                Please do not enter passwords, donor lists, private financial
-                records, private client information, or confidential internal
-                documents. This intake is only for general organization and
-                digital readiness information.
-              </p>
-            </div>
-          </Card>
-
           {error && (
             <div
               role="alert"
