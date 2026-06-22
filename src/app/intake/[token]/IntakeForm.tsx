@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { FormEvent, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import type { IntakeQuestion, IntakeSection } from '@/lib/types';
 import { Field } from '@/components/ui/Field';
@@ -14,15 +14,47 @@ function fieldName(sectionKey: string, questionKey: string): string {
   return `${sectionKey}__${questionKey}`;
 }
 
-function QuestionField({ section, question }: { section: IntakeSection; question: IntakeQuestion }) {
+function questionHasValue(form: HTMLFormElement, section: IntakeSection, question: IntakeQuestion): boolean {
+  const name = fieldName(section.key, question.key);
+  if (question.type === 'checkbox') {
+    return form.querySelectorAll<HTMLInputElement>(`input[name="${name}"]:checked`).length > 0;
+  }
+
+  const value = String(new FormData(form).get(name) ?? '').trim();
+  return value.length > 0;
+}
+
+function questionHasValidFormat(form: HTMLFormElement, section: IntakeSection, question: IntakeQuestion): boolean {
+  if (question.type !== 'url') return true;
+  const name = fieldName(section.key, question.key);
+  const input = form.querySelector<HTMLInputElement>(`input[name="${name}"]`);
+  if (!input || input.value.trim() === '') return true;
+  return input.checkValidity();
+}
+
+function QuestionField({
+  section,
+  question,
+  error,
+}: {
+  section: IntakeSection;
+  question: IntakeQuestion;
+  error?: string;
+}) {
   const name = fieldName(section.key, question.key);
   const supportsOther = question.type === 'select' && question.allowOther && question.options?.includes('Other');
   const [selectedValue, setSelectedValue] = useState('');
 
   return (
-    <Field htmlFor={name} label={question.label} helper={question.helper}>
+    <Field htmlFor={name} label={question.label} helper={question.helper} required={question.required}>
       {question.type === 'textarea' ? (
-        <Textarea id={name} name={name} placeholder={question.placeholder} />
+        <Textarea
+          id={name}
+          name={name}
+          placeholder={question.placeholder}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? `${name}-error` : undefined}
+        />
       ) : question.type === 'select' ? (
         <div className="flex flex-col gap-3">
           <Select
@@ -30,6 +62,8 @@ function QuestionField({ section, question }: { section: IntakeSection; question
             name={name}
             defaultValue=""
             onChange={(event) => setSelectedValue(event.target.value)}
+            aria-invalid={Boolean(error)}
+            aria-describedby={error ? `${name}-error` : undefined}
           >
             <option value="">Select an option</option>
             {(question.options ?? []).map((opt) => (
@@ -47,13 +81,39 @@ function QuestionField({ section, question }: { section: IntakeSection; question
             />
           )}
         </div>
+      ) : question.type === 'checkbox' ? (
+        <div
+          id={name}
+          className="grid gap-2 rounded-[7px] border border-border bg-surface p-3 sm:grid-cols-2"
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? `${name}-error` : undefined}
+        >
+          {(question.options ?? []).map((opt) => (
+            <label key={opt} className="flex items-start gap-2 text-sm text-main">
+              <input
+                type="checkbox"
+                name={name}
+                value={opt}
+                className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary"
+              />
+              <span>{opt}</span>
+            </label>
+          ))}
+        </div>
       ) : (
         <Input
           id={name}
           name={name}
           type={question.type === 'url' ? 'url' : 'text'}
           placeholder={question.placeholder}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? `${name}-error` : undefined}
         />
+      )}
+      {error && (
+        <p id={`${name}-error`} className="text-sm text-danger" role="alert">
+          {error}
+        </p>
       )}
     </Field>
   );
@@ -131,7 +191,7 @@ function IntroStep({ onStart }: { onStart: () => void }) {
       <ul className="grid gap-2 text-sm text-muted sm:grid-cols-2">
         <li>• Estimated time: 10–15 minutes</li>
         <li>• Rough estimates are okay</li>
-        <li>• You can skip questions that do not apply</li>
+        <li>• Required questions are marked with *</li>
         <li>• Examples are provided to make answers easier</li>
       </ul>
 
@@ -151,15 +211,63 @@ export function IntakeForm({
   token: string;
   sections: IntakeSection[];
 }) {
+  const formRef = useRef<HTMLFormElement>(null);
   const [current, setCurrent] = useState(-1);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const total = sections.length;
   const isIntro = current === -1;
   const isFirst = current === 0;
   const isLast = current === total - 1;
   const progress = isIntro ? 0 : Math.round(((current + 1) / total) * 100);
 
+  function validateSection(index: number): boolean {
+    const form = formRef.current;
+    const section = sections[index];
+    if (!form || !section) return true;
+
+    const nextErrors: Record<string, string> = {};
+    for (const question of section.questions) {
+      const name = fieldName(section.key, question.key);
+      if (question.required && !questionHasValue(form, section, question)) {
+        nextErrors[name] = 'Please answer this required question before continuing.';
+        continue;
+      }
+      if (!questionHasValidFormat(form, section, question)) {
+        nextErrors[name] = 'Please enter a valid website URL, starting with https:// or http://.';
+      }
+    }
+
+    setErrors((prev) => {
+      const cleared = { ...prev };
+      for (const question of section.questions) {
+        delete cleared[fieldName(section.key, question.key)];
+      }
+      return { ...cleared, ...nextErrors };
+    });
+
+    if (Object.keys(nextErrors).length > 0) {
+      const firstErrorName = Object.keys(nextErrors)[0];
+      const firstControl = form.querySelector<HTMLElement>(`[name="${firstErrorName}"], #${firstErrorName}`);
+      firstControl?.focus();
+      return false;
+    }
+
+    return true;
+  }
+
+  function goNext() {
+    if (!validateSection(current)) return;
+    setCurrent(Math.min(total - 1, current + 1));
+  }
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    if (!validateSection(current)) {
+      event.preventDefault();
+    }
+  }
+
   return (
-    <form action={submitIntake} className="flex flex-col gap-6">
+    <form ref={formRef} action={submitIntake} onSubmit={handleSubmit} className="flex flex-col gap-6">
       <input type="hidden" name="token" value={token} />
 
       {isIntro ? (
@@ -205,9 +313,10 @@ export function IntakeForm({
                 )}
               </div>
               <div className="flex flex-col gap-5">
-                {s.questions.map((q) => (
-                  <QuestionField key={q.key} section={s} question={q} />
-                ))}
+                {s.questions.map((q) => {
+                  const name = fieldName(s.key, q.key);
+                  return <QuestionField key={q.key} section={s} question={q} error={errors[name]} />;
+                })}
               </div>
             </div>
           ))}
@@ -226,10 +335,7 @@ export function IntakeForm({
             {isLast ? (
               <SubmitButton />
             ) : (
-              <Button
-                type="button"
-                onClick={() => setCurrent(Math.min(total - 1, current + 1))}
-              >
+              <Button type="button" onClick={goNext}>
                 Next
               </Button>
             )}

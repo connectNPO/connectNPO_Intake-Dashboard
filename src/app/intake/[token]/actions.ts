@@ -93,29 +93,55 @@ export async function submitIntake(formData: FormData) {
 
   // Build response rows from the question config (single source of truth).
   const rows: (IntakeResponseInput & { organization_id: string })[] = [];
+  const missingRequired: string[] = [];
   for (const section of INTAKE_SECTIONS) {
     for (const question of section.questions) {
-      const raw = formData.get(fieldName(section.key, question.key));
-      let value = raw === null ? '' : String(raw).trim();
-      if (
-        value === 'Other' &&
-        question.type === 'select' &&
-        question.allowOther &&
-        question.options?.includes('Other')
-      ) {
-        const otherRaw = formData.get(`${fieldName(section.key, question.key)}__other`);
-        const otherValue = otherRaw === null ? '' : String(otherRaw).trim();
-        value = otherValue ? `Other: ${otherValue}` : 'Other';
+      const name = fieldName(section.key, question.key);
+      let answer: IntakeResponseInput['answer'];
+
+      if (question.type === 'checkbox') {
+        const values = formData
+          .getAll(name)
+          .map((item) => String(item).trim())
+          .filter(Boolean);
+        answer = values;
+      } else {
+        const raw = formData.get(name);
+        let value = raw === null ? '' : String(raw).trim();
+        if (
+          value === 'Other' &&
+          question.type === 'select' &&
+          question.allowOther &&
+          question.options?.includes('Other')
+        ) {
+          const otherRaw = formData.get(`${name}__other`);
+          const otherValue = otherRaw === null ? '' : String(otherRaw).trim();
+          value = otherValue ? `Other: ${otherValue}` : 'Other';
+        }
+        answer = value;
       }
-      if (value === '') continue; // skip unanswered questions
+
+      const isEmpty = Array.isArray(answer) ? answer.length === 0 : String(answer ?? '').trim() === '';
+      if (question.required && isEmpty) {
+        missingRequired.push(question.label);
+      }
+      if (isEmpty) continue; // skip unanswered questions
+
       rows.push({
         organization_id: org.id,
         section_key: section.key,
         question_key: question.key,
         question_label: question.label,
-        answer: value,
+        answer,
       });
     }
+  }
+
+  if (missingRequired.length > 0) {
+    redirect(
+      `/intake/${token}?error=` +
+        encodeURIComponent('Please complete the required questions before submitting.'),
+    );
   }
 
   if (rows.length > 0) {

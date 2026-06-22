@@ -14,7 +14,7 @@ export type OrganizationStatus =
 export type IntakeAnswer = string | string[] | number | boolean | null;
 
 /** Supported input types for intake questions. */
-export type IntakeQuestionType = 'text' | 'textarea' | 'url' | 'select';
+export type IntakeQuestionType = 'text' | 'textarea' | 'url' | 'select' | 'checkbox';
 
 /** One question within an intake section. */
 export type IntakeQuestion = {
