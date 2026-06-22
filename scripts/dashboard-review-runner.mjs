@@ -152,6 +152,8 @@ async function main() {
 
       const templateLink = await page.locator('a[href="/admin/report-template"]').first().getAttribute('href').catch(() => null);
       report.checks.push(status('In-app report template link exists', templateLink === '/admin/report-template', templateLink ?? 'missing'));
+      const promptLink = await page.locator('a[href="/admin/report-writer-prompt"]').first().getAttribute('href').catch(() => null);
+      report.checks.push(status('Organization detail links report writer prompt', promptLink === '/admin/report-writer-prompt', promptLink ?? 'missing'));
 
       const templateUrl = sameOriginUrl(loginUrl, '/admin/report-template');
       await page.goto(templateUrl, { waitUntil: 'domcontentloaded' });

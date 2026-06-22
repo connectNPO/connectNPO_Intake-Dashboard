@@ -222,12 +222,20 @@ export default async function OrganizationDetailPage({
                 Use the internal Growth Readiness Report template when turning
                 this packet into a human-reviewed draft.
               </p>
-              <Link
-                href="/admin/report-template"
-                className="mt-2 inline-flex text-primary hover:underline"
-              >
-                Open report template
-              </Link>
+              <div className="mt-2 flex flex-wrap gap-3">
+                <Link
+                  href="/admin/report-template"
+                  className="inline-flex text-primary hover:underline"
+                >
+                  Open report template
+                </Link>
+                <Link
+                  href="/admin/report-writer-prompt"
+                  className="inline-flex text-primary hover:underline"
+                >
+                  Open report writer prompt
+                </Link>
+              </div>
             </div>
           </Card>
 
