@@ -28,11 +28,6 @@ export async function createOrganization(formData: FormData) {
       contact_name: clean(formData.get('contact_name')),
       contact_email: clean(formData.get('contact_email')),
       contact_role: clean(formData.get('contact_role')),
-      city: clean(formData.get('city')),
-      state: clean(formData.get('state')),
-      service_area: clean(formData.get('service_area')),
-      organization_category: clean(formData.get('organization_category')),
-      annual_budget_range: clean(formData.get('annual_budget_range')),
     })
     .select('id')
     .single();

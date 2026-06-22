@@ -28,20 +28,23 @@ export default async function HomePage() {
           growth readiness review for your organization.
         </p>
 
-        <div className="mt-8 flex items-center justify-center gap-3">
+        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <Link href="/request-review">
+            <Button>Request a Growth Readiness Review</Button>
+          </Link>
           {user ? (
             <Link href="/admin">
-              <Button>Go to dashboard</Button>
+              <Button variant="ghost">Go to dashboard</Button>
             </Link>
           ) : (
             <Link href="/login">
-              <Button>Admin sign in</Button>
+              <Button variant="ghost">Admin sign in</Button>
             </Link>
           )}
         </div>
 
         <p className="mt-6 text-sm text-muted">
-          Have an intake link? Open it directly to begin your intake.
+          Already have an intake link? Open it directly to begin your intake.
         </p>
       </div>
     </main>

@@ -2,6 +2,7 @@
 export type OrganizationStatus =
   | 'draft_created'
   | 'intake_sent'
+  | 'email_failed'
   | 'in_progress'
   | 'submitted'
   | 'under_review'

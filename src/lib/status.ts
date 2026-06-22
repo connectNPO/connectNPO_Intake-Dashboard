@@ -16,6 +16,10 @@ export const STATUS_META: Record<OrganizationStatus, StatusMeta> = {
     label: 'Intake sent',
     className: 'bg-[#ECECFF] text-[#4a55c7] border-[#d6d6ff]',
   },
+  email_failed: {
+    label: 'Email failed',
+    className: 'bg-[#f7e3e3] text-[#C24141] border-[#eccaca]',
+  },
   in_progress: {
     label: 'In progress',
     className: 'bg-[#ECECFF] text-[#4a55c7] border-[#d6d6ff]',
@@ -46,6 +50,7 @@ export const STATUS_META: Record<OrganizationStatus, StatusMeta> = {
 export const STATUS_ORDER: OrganizationStatus[] = [
   'draft_created',
   'intake_sent',
+  'email_failed',
   'in_progress',
   'submitted',
   'under_review',

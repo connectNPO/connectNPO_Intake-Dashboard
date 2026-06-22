@@ -2,31 +2,8 @@ import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
 import { Field } from '@/components/ui/Field';
 import { Input } from '@/components/ui/Input';
-import { Select } from '@/components/ui/Select';
 import { Button } from '@/components/ui/Button';
 import { createOrganization } from './actions';
-
-const CATEGORIES = [
-  'Arts & Culture',
-  'Education',
-  'Environment',
-  'Health',
-  'Human Services',
-  'Youth Services',
-  'Community Development',
-  'Animal Welfare',
-  'Faith-based',
-  'Other',
-];
-
-const BUDGET_RANGES = [
-  'Under $100K',
-  '$100K–$250K',
-  '$250K–$500K',
-  '$500K–$1M',
-  '$1M–$5M',
-  'Over $5M',
-];
 
 export default async function NewOrganizationPage({
   searchParams,
@@ -64,18 +41,9 @@ export default async function NewOrganizationPage({
         )}
 
         <form action={createOrganization} className="flex flex-col gap-5">
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Field htmlFor="name" label="Organization name" required>
-              <Input id="name" name="name" required />
-            </Field>
-            <Field htmlFor="contact_role" label="Contact role">
-              <Input
-                id="contact_role"
-                name="contact_role"
-                placeholder="e.g. Executive Director"
-              />
-            </Field>
-          </div>
+          <Field htmlFor="name" label="Organization name" required>
+            <Input id="name" name="name" required />
+          </Field>
 
           <Field htmlFor="website_url" label="Website URL">
             <Input
@@ -99,45 +67,13 @@ export default async function NewOrganizationPage({
             </Field>
           </div>
 
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Field htmlFor="city" label="City">
-              <Input id="city" name="city" />
-            </Field>
-            <Field htmlFor="state" label="State">
-              <Input id="state" name="state" />
-            </Field>
-          </div>
-
-          <Field
-            htmlFor="service_area"
-            label="Service area"
-            helper="The community or region the organization serves."
-          >
-            <Input id="service_area" name="service_area" />
+          <Field htmlFor="contact_role" label="Contact role">
+            <Input
+              id="contact_role"
+              name="contact_role"
+              placeholder="e.g. Executive Director"
+            />
           </Field>
-
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Field htmlFor="organization_category" label="Category">
-              <Select id="organization_category" name="organization_category">
-                <option value="">Select a category</option>
-                {CATEGORIES.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </Select>
-            </Field>
-            <Field htmlFor="annual_budget_range" label="Annual budget range">
-              <Select id="annual_budget_range" name="annual_budget_range">
-                <option value="">Select a range</option>
-                {BUDGET_RANGES.map((b) => (
-                  <option key={b} value={b}>
-                    {b}
-                  </option>
-                ))}
-              </Select>
-            </Field>
-          </div>
 
           <div className="flex items-center gap-3 pt-1">
             <Button type="submit">Create organization</Button>
