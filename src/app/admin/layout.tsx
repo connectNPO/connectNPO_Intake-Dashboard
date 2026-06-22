@@ -29,6 +29,18 @@ export default function AdminLayout({
               >
                 New Intake
               </Link>
+              <Link
+                href="/admin/report-template"
+                className="rounded-[7px] px-3 py-2 text-sm font-medium text-muted hover:bg-primary-soft hover:text-main"
+              >
+                Report Template
+              </Link>
+              <Link
+                href="/admin/system-check"
+                className="rounded-[7px] px-3 py-2 text-sm font-medium text-muted hover:bg-primary-soft hover:text-main"
+              >
+                System Check
+              </Link>
             </nav>
           </div>
           <form action={signOut}>

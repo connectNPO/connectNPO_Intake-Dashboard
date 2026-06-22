@@ -62,6 +62,10 @@ export default async function OrganizationDetailPage({
 
   const baseUrl = await getBaseUrl();
   const intakeUrl = `${baseUrl}/intake/${organization.intake_token}`;
+  const agentPacketFilename = `${organization.name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '') || 'organization'}-agent-packet.json`;
 
   // Group responses by section, ordered by the question config.
   const responsesBySection = INTAKE_SECTIONS.map((section) => {
@@ -200,7 +204,7 @@ export default async function OrganizationDetailPage({
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               <Link
                 href={`/api/admin/organizations/${organization.id}/export`}
-                target="_blank"
+                download={agentPacketFilename}
               >
                 <Button variant="secondary" size="sm" className="w-full">
                   Download JSON
@@ -219,8 +223,7 @@ export default async function OrganizationDetailPage({
                 this packet into a human-reviewed draft.
               </p>
               <Link
-                href="https://github.com/connectNPO/connectNPO_Intake-Dashboard/blob/main/docs/GROWTH_READINESS_REPORT_TEMPLATE.md"
-                target="_blank"
+                href="/admin/report-template"
                 className="mt-2 inline-flex text-primary hover:underline"
               >
                 Open report template

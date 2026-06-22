@@ -146,11 +146,35 @@ async function main() {
       report.checks.push(status('Organization detail loads', Boolean(detailTitle), `title=${detailTitle ?? 'missing'}`));
       report.checks.push(status('Preview packet link exists', Boolean(previewHref), previewHref ?? 'missing'));
 
+      const downloadLink = page.locator('a[download][href$="/export"]').first();
+      const downloadName = await downloadLink.getAttribute('download').catch(() => null);
+      report.checks.push(status('Download JSON link has download filename', Boolean(downloadName?.endsWith('-agent-packet.json')), downloadName ?? 'missing'));
+
+      const templateLink = await page.locator('a[href="/admin/report-template"]').first().getAttribute('href').catch(() => null);
+      report.checks.push(status('In-app report template link exists', templateLink === '/admin/report-template', templateLink ?? 'missing'));
+
+      const templateUrl = sameOriginUrl(loginUrl, '/admin/report-template');
+      await page.goto(templateUrl, { waitUntil: 'domcontentloaded' });
+      await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
+      const templateText = await page.locator('body').innerText();
+      report.checks.push(status('Report template page loads', templateText.includes('Growth Readiness Report') && templateText.includes('Allowed Statuses')));
+
+      const systemCheckUrl = sameOriginUrl(loginUrl, '/admin/system-check');
+      await page.goto(systemCheckUrl, { waitUntil: 'domcontentloaded' });
+      await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
+      const systemCheckText = await page.locator('body').innerText();
+      report.checks.push(status('System check page loads without secret values', systemCheckText.includes('System Check') && !systemCheckText.toLowerCase().includes('service_role=')));
+
+      await page.goto(orgDetailUrl, { waitUntil: 'domcontentloaded' });
+      await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
+
       if (previewHref) {
         const previewUrl = sameOriginUrl(loginUrl, previewHref);
         await page.goto(previewUrl, { waitUntil: 'domcontentloaded' });
         await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
         const previewText = await page.locator('body').innerText();
+        const previewDownloadName = await page.locator('a[download][href$="/export"]').first().getAttribute('download').catch(() => null);
+        report.checks.push(status('Preview Download JSON link has download filename', Boolean(previewDownloadName?.endsWith('-agent-packet.json')), previewDownloadName ?? 'missing'));
         const answeredText = await safeText(page.locator('text=Answered questions').locator('..'));
         const missingText = await safeText(page.locator('text=Missing required').locator('..'));
         const rawJsonText = await page.locator('pre').first().innerText({ timeout: 5000 }).catch(() => '');
@@ -189,13 +213,15 @@ async function main() {
         const exportUrl = orgDetailUrl.replace('/admin/organizations/', '/api/admin/organizations/') + '/export';
         const response = await context.request.get(exportUrl);
         const contentType = response.headers()['content-type'] ?? '';
+        const contentDisposition = response.headers()['content-disposition'] ?? '';
         const exportBody = await response.text();
         let exportPacketVersion = null;
         try {
           const parsedExport = JSON.parse(exportBody);
           exportPacketVersion = parsedExport.packet_version ?? null;
         } catch {}
-        report.checks.push(status('Download/export JSON route works', response.ok() && Boolean(exportPacketVersion), `status=${response.status()}, content_type=${contentType}, packet_version=${exportPacketVersion ?? 'missing'}`));
+        report.checks.push(status('Download/export JSON route works', response.ok() && Boolean(exportPacketVersion), `status=${response.status()}, content_type=${contentType}, content_disposition=${contentDisposition || 'missing'}, packet_version=${exportPacketVersion ?? 'missing'}`));
+        report.checks.push(status('Export route sends attachment header', contentDisposition.includes('attachment;') && contentDisposition.includes('-agent-packet.json'), contentDisposition || 'missing'));
       }
     }
 

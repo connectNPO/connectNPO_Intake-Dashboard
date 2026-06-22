@@ -77,6 +77,10 @@ export default async function AgentPacketPreviewPage({
   const hasSubmittedMissingRequired =
     packet.organization.workflow_status === 'submitted' && missingRequiredQuestions.length > 0;
   const packetJson = JSON.stringify(packet, null, 2);
+  const agentPacketFilename = `${packet.organization.name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '') || 'organization'}-agent-packet.json`;
 
   return (
     <div className="flex flex-col gap-6">
@@ -92,7 +96,10 @@ export default async function AgentPacketPreviewPage({
             <p className="text-sm text-muted">Agent packet preview</p>
             <h1 className="text-2xl font-semibold text-main">{packet.organization.name}</h1>
           </div>
-          <Link href={`/api/admin/organizations/${id}/export`} target="_blank">
+          <Link
+            href={`/api/admin/organizations/${id}/export`}
+            download={agentPacketFilename}
+          >
             <Button variant="secondary" size="sm">
               Download JSON
             </Button>
