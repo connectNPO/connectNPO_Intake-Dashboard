@@ -158,12 +158,22 @@ async function main() {
       await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
       const templateText = await page.locator('body').innerText();
       report.checks.push(status('Report template page loads', templateText.includes('Growth Readiness Report') && templateText.includes('Allowed Statuses')));
+      report.checks.push(status('Report template has copy action', templateText.includes('Copy template')));
+      report.checks.push(status('Report template links report writer prompt', templateText.includes('Report writer prompt')));
+
+      const promptUrl = sameOriginUrl(loginUrl, '/admin/report-writer-prompt');
+      await page.goto(promptUrl, { waitUntil: 'domcontentloaded' });
+      await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
+      const promptText = await page.locator('body').innerText();
+      report.checks.push(status('Report writer prompt page loads', promptText.includes('Report Writer Agent Prompt') && promptText.includes('Copy prompt')));
 
       const systemCheckUrl = sameOriginUrl(loginUrl, '/admin/system-check');
       await page.goto(systemCheckUrl, { waitUntil: 'domcontentloaded' });
       await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
       const systemCheckText = await page.locator('body').innerText();
       report.checks.push(status('System check page loads without secret values', systemCheckText.includes('System Check') && !systemCheckText.toLowerCase().includes('service_role=')));
+      report.checks.push(status('System check groups operator areas', systemCheckText.includes('Core app') && systemCheckText.includes('Email & request review') && systemCheckText.includes('Spam protection')));
+      report.checks.push(status('System check gives next action guidance', systemCheckText.includes('Next action')));
 
       await page.goto(orgDetailUrl, { waitUntil: 'domcontentloaded' });
       await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
