@@ -207,6 +207,44 @@ export default async function OrganizationDetailPage({
             </Link>
           </Card>
 
+          {/* Report workflow */}
+          <Card className="flex flex-col gap-4">
+            <SectionHeader
+              title="Report workflow"
+              description="Preparation steps for a human-reviewed Growth Readiness Report."
+            />
+            <ol className="flex flex-col gap-3 text-sm">
+              <WorkflowStep
+                status="Ready"
+                title="Agent packet"
+                description="Intake answers, organization context, evidence rules, and report scope are ready for research."
+              />
+              <WorkflowStep
+                status="Next"
+                title="Website & public research"
+                description="Future research agent should review the website, public sources, SEO/GEO visibility, donor trust signals, and grant readiness evidence."
+              />
+              <WorkflowStep
+                status="Required"
+                title="Fact-check log"
+                description="Each finding should be labeled as found in intake, found on website, found in public source, not found, or needs confirmation."
+              />
+              <WorkflowStep
+                status="Required"
+                title="Human final review"
+                description="A connectNPO reviewer should approve the draft before anything is delivered to the organization."
+              />
+            </ol>
+            <div className="grid grid-cols-1 gap-2 text-xs sm:grid-cols-2">
+              <span className="rounded-[7px] border border-dashed border-border bg-[#faf9f5] px-3 py-2 text-center text-muted">
+                Research agent — future step
+              </span>
+              <span className="rounded-[7px] border border-dashed border-border bg-[#faf9f5] px-3 py-2 text-center text-muted">
+                Draft report — future step
+              </span>
+            </div>
+          </Card>
+
           {/* Archive / restore */}
           <Card className="flex flex-col gap-3">
             <SectionHeader
@@ -307,5 +345,27 @@ function SummaryItem({
       <dt className="text-xs uppercase tracking-wide text-muted">{label}</dt>
       <dd className="mt-0.5 break-words text-main">{value || '—'}</dd>
     </div>
+  );
+}
+
+function WorkflowStep({
+  status,
+  title,
+  description,
+}: {
+  status: string;
+  title: string;
+  description: string;
+}) {
+  return (
+    <li className="rounded-[7px] border border-border bg-[#faf9f5] px-3.5 py-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+          {status}
+        </span>
+        <span className="font-medium text-main">{title}</span>
+      </div>
+      <p className="mt-1.5 text-muted">{description}</p>
+    </li>
   );
 }
