@@ -13,14 +13,6 @@ const navGroups = [
     ],
   },
   {
-    label: 'Report Workflow',
-    items: [
-      { href: '/admin/report-template', label: 'Report Template' },
-      { href: '/admin/research-agent-prompt', label: 'Research Prompt' },
-      { href: '/admin/report-writer-prompt', label: 'Writer Prompt' },
-    ],
-  },
-  {
     label: 'System',
     items: [{ href: '/admin/system-check', label: 'System Check' }],
   },
@@ -34,7 +26,7 @@ export default function AdminLayout({
   return (
     <div className="flex flex-1 flex-col bg-[#f7f5ef] lg:flex-row">
       <aside className="border-b border-border bg-surface lg:sticky lg:top-0 lg:flex lg:min-h-screen lg:w-64 lg:flex-col lg:border-b-0 lg:border-r">
-        <div className="flex min-h-16 items-center justify-between gap-4 px-4 lg:min-h-0 lg:flex-col lg:items-stretch lg:justify-start lg:gap-8 lg:px-5 lg:py-5">
+        <div className="flex min-h-16 items-center justify-between gap-4 px-4 lg:min-h-screen lg:flex-col lg:items-stretch lg:justify-start lg:gap-10 lg:px-5 lg:py-5">
           <div className="flex items-center justify-between gap-3 lg:block">
             <Logo />
             <p className="hidden text-xs uppercase tracking-[0.18em] text-muted lg:mt-3 lg:block">
@@ -45,7 +37,7 @@ export default function AdminLayout({
           <nav className="hidden flex-1 flex-col gap-6 lg:flex" aria-label="Admin navigation">
             {navGroups.map((group) => (
               <div key={group.label} className="flex flex-col gap-2">
-                <p className="px-3 text-xs font-semibold uppercase tracking-[0.16em] text-muted">
+                <p className="px-3 text-xs font-semibold uppercase tracking-[0.16em] text-[#111111]">
                   {group.label}
                 </p>
                 <div className="flex flex-col gap-1">
