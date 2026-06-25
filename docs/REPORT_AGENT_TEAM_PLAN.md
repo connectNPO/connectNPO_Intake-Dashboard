@@ -50,8 +50,8 @@ did not list. No agent calls external paid APIs.
 | 2 | `website-researcher` | Packet + intake summary | `website_findings.json` | seo-geo-analyst, fact-checker |
 | 3 | `seo-geo-analyst` | Packet + website findings | `seo_geo_findings.json` | fact-checker |
 | 4 | `fact-checker` | All findings from 2 + 3 | `fact_check_log.json` | nonprofit-readiness-analyst |
-| 5 | `nonprofit-readiness-analyst` | Intake summary + verified findings | `readiness_assessment.json` | report-writer |
-| 6 | `report-writer` | Everything above | `draft_report.md` | qa-reviewer |
+| 5 | `nonprofit-readiness-analyst` | Intake summary + verified findings + diagnosis framework + expert standards | `readiness_assessment.json` with strategic diagnosis | report-writer |
+| 6 | `report-writer` | Everything above, especially strategic diagnosis | `draft_report.md` | qa-reviewer |
 | 7 | `qa-reviewer` | Draft + every upstream artifact | `qa_review.md` + revision notes | human operator |
 
 A human at connectNPO opens the QA note before anything leaves the team.
@@ -106,6 +106,8 @@ The agents only use tools they need. Defaults:
 - `fact-checker` — `Read`, `Write`, `WebFetch`. Re-fetches only URLs that
   already appear in upstream findings.
 - `nonprofit-readiness-analyst` — `Read`, `Write`. No web access.
+  Reads the diagnosis framework and expert knowledge files, then chooses
+  one evidence-supported primary strategic focus.
 - `report-writer` — `Read`, `Write`. No web access. No new sources may
   enter the draft at this stage.
 - `qa-reviewer` — `Read`, `Write`, optional `WebFetch` for spot-checks

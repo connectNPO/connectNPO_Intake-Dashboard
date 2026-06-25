@@ -167,17 +167,33 @@ Decision rules:
 ## 4. `readiness_assessment.json` — produced by
        `nonprofit-readiness-analyst`
 
-Synthesizes the intake summary and the verified findings into a
-prioritized readiness picture.
+Synthesizes the intake summary, verified findings, expert knowledge,
+and the strategy diagnosis framework into a prioritized readiness
+picture.
 
 ```json
 {
   "schema": "readiness_assessment.v1",
   "run_id": "string",
   "organization_id": "uuid",
+  "strategic_diagnosis": {
+    "stated_goal": "string or null",
+    "public_facing_strengths": ["string"],
+    "main_growth_blocker": "string or null",
+    "main_readiness_gap": "string or null",
+    "recommended_primary_focus": "website_clarity | messaging_positioning | donor_readiness | volunteer_readiness | trust_transparency | seo_geo | content_strategy | grant_readiness | program_impact | financial_compliance_readiness | operations_automation | needs_confirmation",
+    "why_this_focus_first": "one or two sentences tied to supporting findings",
+    "what_can_wait": ["string"],
+    "capacity_assumption": "string or null",
+    "confidence": "high | medium | low",
+    "supporting_finding_ids": ["string"],
+    "human_review_flags": ["string"]
+  },
   "themes": [
     {
-      "theme": "donor_readiness | volunteer_readiness | trust_transparency | content_messaging | operations_automation",
+      "theme": "website_clarity | messaging_positioning | donor_readiness | volunteer_readiness | trust_transparency | seo_geo | content_strategy | grant_readiness | program_impact | financial_compliance_readiness | operations_automation",
+      "current_state": "strength | developing | gap | risk_needs_review | needs_confirmation",
+      "priority": "high | medium | low | needs_confirmation",
       "summary": "two-to-three sentence plain-language summary",
       "strengths": ["string"],
       "gaps": ["string"],
@@ -199,7 +215,10 @@ prioritized readiness picture.
 
 Rules:
 
-- Every entry in `strengths`, `gaps`, `priority_for_30_day`, and
+- `strategic_diagnosis` names the main focus first; it is the source for
+  the final report's Executive Summary and top priorities.
+- Every entry in `strategic_diagnosis.supporting_finding_ids`,
+  `strengths`, `gaps`, `priority_for_30_day`, and
   `priority_for_90_day` must trace back to at least one
   `supporting_finding_ids` row whose `workflow_status` is `verified` —
   or to an explicit intake-source finding.

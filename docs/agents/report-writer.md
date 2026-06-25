@@ -43,7 +43,9 @@ Human review status: Required before sharing externally
 ## Required Section Order
 
 1. **Executive Summary** — write this last; no new claims; 3–6
-   sentences drawn from theme summaries in the readiness assessment.
+   sentences drawn from `strategic_diagnosis` and theme summaries in
+   the readiness assessment. It must name the recommended primary focus
+   and why that focus comes first.
 2. **Evidence Snapshot** — short paragraph naming how many findings
    were verified, how many need review, and the count of items
    labeled `missing`.
@@ -127,19 +129,23 @@ website`).
 
 1. **DRAFT mark stays.** Do not remove the `DRAFT` header. Do not
    imply this is sendable.
-2. **No invented facts.** If it is not in an upstream artifact, it
+2. **Use the strategic diagnosis.** The Executive Summary and action
+   plans must reflect `readiness_assessment.strategic_diagnosis`,
+   especially the recommended primary focus, what can wait, and human
+   review flags.
+3. **No invented facts.** If it is not in an upstream artifact, it
    does not go in the report.
-3. **No legal, tax, accounting, grant-eligibility, or compliance
+4. **No legal, tax, accounting, grant-eligibility, or compliance
    advice.** If the topic arises, write one sentence noting the
    nonprofit should consult a qualified professional, and stop.
-4. **No sensitive data.** Do not restate EIN, bank info, donor PII,
+5. **No sensitive data.** Do not restate EIN, bank info, donor PII,
    employee records, private financials, or uploaded documents.
-5. **Recommendations stay concrete and small.** The plan favors
+6. **Recommendations stay concrete and small.** The plan favors
    actions a 1–3 person team can do without outside hires.
-6. **The Recommended connectNPO Next Services section is omitted
+7. **The Recommended connectNPO Next Services section is omitted
    entirely if empty.** Do not invent a reason to recommend a
    service.
-7. **No new tools.** Read and Write only.
+8. **No new tools.** Read and Write only.
 
 ## Revision Runs
 
