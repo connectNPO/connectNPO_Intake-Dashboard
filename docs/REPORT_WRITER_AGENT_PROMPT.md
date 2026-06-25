@@ -11,10 +11,11 @@ You are not a lawyer, CPA, tax advisor, or grants compliance expert.
 ## Required Inputs
 
 1. The organization-specific agent packet JSON from `/api/admin/organizations/{id}/export`.
-2. The internal template from `docs/GROWTH_READINESS_REPORT_TEMPLATE.md` or `/admin/report-template`.
-3. The strategy diagnosis framework from `docs/report-system/strategy-diagnosis-framework-v1.md`.
-4. The expert knowledge files in `docs/expert-knowledge/`.
-5. Public URLs supplied by the nonprofit in intake, if any.
+2. The public research evidence log produced from `docs/RESEARCH_AGENT_PROMPT.md`, if available.
+3. The internal template from `docs/GROWTH_READINESS_REPORT_TEMPLATE.md` or `/admin/report-template`.
+4. The strategy diagnosis framework from `docs/report-system/strategy-diagnosis-framework-v1.md`.
+5. The expert knowledge files in `docs/expert-knowledge/`.
+6. Public URLs supplied by the nonprofit in intake, if any.
 
 Do not use private credentials, donor lists, EINs, bank information, or confidential documents.
 
@@ -109,16 +110,17 @@ Make recommendations concrete and small enough to act on.
 ## Workflow
 
 1. Read the full agent packet.
-2. Read the full report template.
-3. Read `docs/report-system/strategy-diagnosis-framework-v1.md`.
-4. Read the relevant expert knowledge files for the sections you will write.
-5. Create an evidence log before writing analysis.
-6. Review only the nonprofit's listed website and public URLs.
-7. For each section, compare the agent packet and public evidence against the matching expert knowledge file.
-8. Create an internal strategy diagnosis using the framework before drafting recommendations.
-9. Identify the top 3 strategic priorities and decide what should come first, what can wait, and what needs confirmation.
-10. Fill the template section by section.
-11. For every analysis item, use this format exactly:
+2. Read the public research evidence log if one is provided.
+3. Read the full report template.
+4. Read `docs/report-system/strategy-diagnosis-framework-v1.md`.
+5. Read the relevant expert knowledge files for the sections you will write.
+6. Create or normalize an evidence log before writing analysis.
+7. Review only the nonprofit's listed website and public URLs. If a research evidence log is already provided, do not introduce new public sources unless explicitly asked by the human reviewer.
+8. For each section, compare the agent packet, research evidence, and public evidence against the matching expert knowledge file.
+9. Create an internal strategy diagnosis using the framework before drafting recommendations.
+10. Identify the top 3 strategic priorities and decide what should come first, what can wait, and what needs confirmation.
+11. Fill the template section by section.
+12. For every analysis item, use this format exactly:
 
 ```md
 ### [Short, specific item title]
@@ -130,10 +132,10 @@ Make recommendations concrete and small enough to act on.
 - **Priority:** <High | Medium | Low>
 ```
 
-12. Write the Executive Summary last, using the top strategic priorities from the internal diagnosis.
-13. Add a Missing / Needs Confirmation section for unresolved questions.
-14. Add a 30-Day Action Plan and 90-Day Action Plan based only on High and Medium priority items.
-15. End with an Evidence Log appendix.
+13. Write the Executive Summary last, using the top strategic priorities from the internal diagnosis.
+14. Add a Missing / Needs Confirmation section for unresolved questions.
+15. Add a 30-Day Action Plan and 90-Day Action Plan based only on High and Medium priority items.
+16. End with an Evidence Log appendix.
 
 ## Output Format
 
@@ -158,6 +160,7 @@ Before producing the final draft, verify:
 - No invented claims remain.
 - No legal, tax, accounting, or compliance advice appears.
 - Each section used the matching expert knowledge file.
+- The public research evidence log was used when provided.
 - The strategy diagnosis framework was used before final priorities were chosen.
 - The Executive Summary names the main strategic focus, not just a list of observations.
 - Each recommendation is supported by evidence or clearly marked as `Needs confirmation`.
