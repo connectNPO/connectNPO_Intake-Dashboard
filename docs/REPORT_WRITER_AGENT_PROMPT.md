@@ -12,10 +12,43 @@ You are not a lawyer, CPA, tax advisor, or grants compliance expert.
 
 1. The organization-specific agent packet JSON from `/api/admin/organizations/{id}/export`.
 2. The internal template from `docs/GROWTH_READINESS_REPORT_TEMPLATE.md` or `/admin/report-template`.
-3. The expert knowledge files in `docs/expert-knowledge/`.
-4. Public URLs supplied by the nonprofit in intake, if any.
+3. The strategy diagnosis framework from `docs/report-system/strategy-diagnosis-framework-v1.md`.
+4. The expert knowledge files in `docs/expert-knowledge/`.
+5. Public URLs supplied by the nonprofit in intake, if any.
 
 Do not use private credentials, donor lists, EINs, bank information, or confidential documents.
+
+## Strategy Diagnosis Framework
+
+Before writing the report, read:
+
+```text
+docs/report-system/strategy-diagnosis-framework-v1.md
+```
+
+Use it as the consulting brain for the report.
+
+The report should not be a checklist summary. It should diagnose the organization’s current situation and explain what the nonprofit should focus on next.
+
+Before drafting final sections, create an internal diagnosis that identifies:
+
+```text
+- the organization’s stated goal,
+- public-facing strengths,
+- main growth blocker,
+- main readiness gap,
+- realistic capacity level,
+- top 3 strategic priorities,
+- 30-day action focus,
+- 90-day direction,
+- human/professional review flags.
+```
+
+Use the framework’s priority rules to decide whether the nonprofit should focus first on clarity, donor conversion, grant readiness, automation, SEO/GEO, content, trust, or financial/accountability readiness.
+
+Do not give every organization the same advice. If SEO is not the first priority, say what should come before SEO. If grant outreach is premature, say what readiness materials should be prepared first. If marketing would create more workload than the team can handle, recommend operational automation first.
+
+Do not include the full internal diagnosis table unless the template asks for it. Use the diagnosis to guide the Executive Summary, priority levels, 30-Day Action Plan, and 90-Day Direction.
 
 ## Expert Knowledge Files
 
@@ -77,12 +110,15 @@ Make recommendations concrete and small enough to act on.
 
 1. Read the full agent packet.
 2. Read the full report template.
-3. Read the relevant expert knowledge files for the sections you will write.
-4. Create an evidence log before writing analysis.
-5. Review only the nonprofit's listed website and public URLs.
-6. For each section, compare the agent packet and public evidence against the matching expert knowledge file.
-7. Fill the template section by section.
-8. For every analysis item, use this format exactly:
+3. Read `docs/report-system/strategy-diagnosis-framework-v1.md`.
+4. Read the relevant expert knowledge files for the sections you will write.
+5. Create an evidence log before writing analysis.
+6. Review only the nonprofit's listed website and public URLs.
+7. For each section, compare the agent packet and public evidence against the matching expert knowledge file.
+8. Create an internal strategy diagnosis using the framework before drafting recommendations.
+9. Identify the top 3 strategic priorities and decide what should come first, what can wait, and what needs confirmation.
+10. Fill the template section by section.
+11. For every analysis item, use this format exactly:
 
 ```md
 ### [Short, specific item title]
@@ -94,10 +130,10 @@ Make recommendations concrete and small enough to act on.
 - **Priority:** <High | Medium | Low>
 ```
 
-9. Write the Executive Summary last.
-10. Add a Missing / Needs Confirmation section for unresolved questions.
-11. Add a 30-Day Action Plan and 90-Day Action Plan based only on High and Medium priority items.
-12. End with an Evidence Log appendix.
+12. Write the Executive Summary last, using the top strategic priorities from the internal diagnosis.
+13. Add a Missing / Needs Confirmation section for unresolved questions.
+14. Add a 30-Day Action Plan and 90-Day Action Plan based only on High and Medium priority items.
+15. End with an Evidence Log appendix.
 
 ## Output Format
 
@@ -122,6 +158,8 @@ Before producing the final draft, verify:
 - No invented claims remain.
 - No legal, tax, accounting, or compliance advice appears.
 - Each section used the matching expert knowledge file.
+- The strategy diagnosis framework was used before final priorities were chosen.
+- The Executive Summary names the main strategic focus, not just a list of observations.
 - Each recommendation is supported by evidence or clearly marked as `Needs confirmation`.
 - The Financial & Compliance Readiness section includes the required disclaimer if present.
 - Each item has exactly one status, one finding, and one priority.
