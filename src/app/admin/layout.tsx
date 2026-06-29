@@ -4,29 +4,111 @@ import { Logo } from '@/components/Logo';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/Button';
 
-const navGroups = [
+type NavItem = {
+  href: string;
+  label: string;
+  target?: string;
+  icon: 'overview' | 'intake' | 'request' | 'checklist' | 'template' | 'writer' | 'research' | 'system';
+};
+
+type NavGroup = { label: string; items: NavItem[] };
+
+const navGroups: NavGroup[] = [
   {
-    label: 'Workspace',
+    label: 'Overview',
+    items: [{ href: '/admin', label: 'Platform home', icon: 'overview' }],
+  },
+  {
+    label: 'Apps',
     items: [
-      { href: '/admin', label: 'Organizations', icon: '◌' },
-      { href: '/request-review', label: 'Public request form', icon: '↗', target: '_blank' },
-      { href: '/admin/organizations/new', label: 'New Intake', icon: '+' },
-      { href: '/admin/operations-checklist', label: 'Checklist', icon: '☑' },
+      { href: '/admin/apps/growth-readiness', label: 'Growth Readiness', icon: 'intake' },
+      { href: '/admin#client-hermes-workspaces', label: 'Client Hermes', icon: 'system' },
     ],
   },
   {
-    label: 'Library',
+    label: 'Growth Review',
     items: [
-      { href: '/admin/report-template', label: 'Report Template', icon: '◇' },
-      { href: '/admin/report-writer-prompt', label: 'Writer Prompt', icon: '✎' },
-      { href: '/admin/research-agent-prompt', label: 'Research Prompt', icon: '⌕' },
+      { href: '/admin/organizations/new', label: 'New intake', icon: 'intake' },
+      { href: '/request-review', label: 'Public request form', icon: 'request', target: '_blank' },
+      { href: '/admin/operations-checklist', label: 'Checklist', icon: 'checklist' },
+    ],
+  },
+  {
+    label: 'Reports',
+    items: [
+      { href: '/admin/report-template', label: 'Report template', icon: 'template' },
+      { href: '/admin/report-writer-prompt', label: 'Writer prompt', icon: 'writer' },
+      { href: '/admin/research-agent-prompt', label: 'Research prompt', icon: 'research' },
     ],
   },
   {
     label: 'System',
-    items: [{ href: '/admin/system-check', label: 'System Check', icon: '⚙' }],
+    items: [{ href: '/admin/system-check', label: 'System check', icon: 'system' }],
   },
 ];
+
+function NavIcon({ name }: { name: NavItem['icon'] }) {
+  const common = 'h-4 w-4';
+  switch (name) {
+    case 'overview':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={common} aria-hidden="true">
+          <rect x="3.5" y="4" width="7" height="7" rx="1.5" />
+          <rect x="13.5" y="4" width="7" height="4" rx="1.5" />
+          <rect x="13.5" y="11" width="7" height="9" rx="1.5" />
+          <rect x="3.5" y="14" width="7" height="6" rx="1.5" />
+        </svg>
+      );
+    case 'intake':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={common} aria-hidden="true">
+          <path d="M12 5v14M5 12h14" />
+        </svg>
+      );
+    case 'request':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={common} aria-hidden="true">
+          <path d="M7 17 17 7M9 7h8v8" />
+        </svg>
+      );
+    case 'checklist':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={common} aria-hidden="true">
+          <path d="m4 7 2 2 4-4" />
+          <path d="m4 15 2 2 4-4" />
+          <path d="M13 8h7M13 16h7" />
+        </svg>
+      );
+    case 'template':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={common} aria-hidden="true">
+          <rect x="4" y="4" width="16" height="16" rx="2" />
+          <path d="M4 9h16M9 9v11" />
+        </svg>
+      );
+    case 'writer':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={common} aria-hidden="true">
+          <path d="M4 20h4l10-10-4-4L4 16v4Z" />
+          <path d="m13 7 4 4" />
+        </svg>
+      );
+    case 'research':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={common} aria-hidden="true">
+          <circle cx="11" cy="11" r="6" />
+          <path d="m20 20-4.5-4.5" />
+        </svg>
+      );
+    case 'system':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={common} aria-hidden="true">
+          <circle cx="12" cy="12" r="3" />
+          <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z" />
+        </svg>
+      );
+  }
+}
 
 export default function AdminLayout({
   children,
@@ -35,35 +117,38 @@ export default function AdminLayout({
 }) {
   return (
     <div className="flex flex-1 flex-col bg-background lg:block">
-      <aside className="border-b border-border bg-[var(--sidebar)] lg:fixed lg:inset-y-0 lg:left-0 lg:z-20 lg:flex lg:w-72 lg:flex-col lg:overflow-y-auto lg:border-b-0 lg:border-r">
-        <div className="flex min-h-16 items-center justify-between gap-4 px-4 lg:min-h-full lg:flex-col lg:items-stretch lg:justify-start lg:gap-8 lg:px-4 lg:py-5">
-          <div className="flex items-center justify-between gap-3 lg:block">
-            <div className="rounded-2xl border border-border bg-[var(--surface-elevated)] px-3 py-3 shadow-[0_0_0_1px_var(--ring)]">
+      <aside
+        aria-label="Admin sidebar"
+        className="border-b border-border bg-[var(--sidebar)] lg:fixed lg:inset-y-0 lg:left-0 lg:z-20 lg:flex lg:w-60 lg:flex-col lg:overflow-y-auto lg:border-b-0 lg:border-r"
+      >
+        <div className="flex min-h-16 items-center justify-between gap-3 px-5 lg:min-h-full lg:flex-col lg:items-stretch lg:justify-start lg:gap-7 lg:px-5 lg:py-6">
+          <div className="flex items-center justify-between gap-3 lg:flex-col lg:items-start">
+            <div className="flex flex-col gap-1">
               <Logo />
-              <p className="mt-3 hidden text-xs uppercase tracking-[0.18em] text-muted lg:block">
-                Platform dashboard
+              <p className="hidden text-[11px] uppercase tracking-[0.18em] text-muted lg:block">
+                Admin
               </p>
             </div>
           </div>
 
-          <nav className="hidden flex-1 flex-col gap-6 lg:flex" aria-label="Admin navigation">
+          <nav className="hidden flex-1 flex-col gap-5 lg:flex" aria-label="Admin navigation">
             {navGroups.map((group) => (
-              <div key={group.label} className="flex flex-col gap-2">
-                <p className="px-3 text-[11px] font-medium uppercase tracking-[0.18em] text-muted">
+              <div key={group.label} className="flex flex-col gap-1.5">
+                <p className="px-2 text-[11px] font-medium uppercase tracking-[0.16em] text-muted">
                   {group.label}
                 </p>
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-0.5">
                   {group.items.map((item) => (
                     <Link
                       key={item.href}
                       href={item.href}
-                      target={'target' in item ? item.target : undefined}
-                      className="group inline-flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted transition-colors hover:bg-primary-soft hover:text-main"
+                      target={item.target}
+                      className="group inline-flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm text-muted transition-colors hover:bg-primary-soft hover:text-main"
                     >
-                      <span className="grid h-6 w-6 place-items-center rounded-lg border border-border bg-[var(--surface-elevated)] text-xs text-main shadow-[0_0_0_1px_var(--ring)]">
-                        {item.icon}
+                      <span className="text-muted/80 group-hover:text-primary">
+                        <NavIcon name={item.icon} />
                       </span>
-                      {item.label}
+                      <span className="truncate">{item.label}</span>
                     </Link>
                   ))}
                 </div>
@@ -79,18 +164,18 @@ export default function AdminLayout({
               <Link
                 key={item.href}
                 href={item.href}
-                target={'target' in item ? item.target : undefined}
-                className="whitespace-nowrap rounded-full border border-border bg-surface px-3 py-2 text-sm font-medium text-muted hover:bg-primary-soft hover:text-main"
+                target={item.target}
+                className="whitespace-nowrap rounded-full border border-border bg-surface px-3 py-1.5 text-sm text-muted hover:bg-primary-soft hover:text-main"
               >
                 {item.label}
               </Link>
             ))}
           </nav>
 
-          <div className="flex items-center gap-2 lg:flex-col lg:items-stretch">
+          <div className="flex items-center gap-2 lg:mt-auto lg:flex-col lg:items-stretch lg:gap-1.5 lg:border-t lg:border-border lg:pt-4">
             <ThemeToggle />
             <form action={signOut} className="lg:w-full">
-              <Button type="submit" variant="ghost" size="sm" className="w-full lg:justify-start">
+              <Button type="submit" variant="ghost" size="sm" className="w-full lg:justify-start lg:px-2">
                 Sign out
               </Button>
             </form>
@@ -98,8 +183,8 @@ export default function AdminLayout({
         </div>
       </aside>
 
-      <main className="w-full flex-1 px-4 py-8 lg:ml-72 lg:px-8">
-        <div className="mx-auto w-full max-w-[1180px]">{children}</div>
+      <main className="w-full flex-1 px-4 py-8 lg:ml-60 lg:px-10 lg:py-10">
+        <div className="mx-auto w-full max-w-[1040px]">{children}</div>
       </main>
     </div>
   );

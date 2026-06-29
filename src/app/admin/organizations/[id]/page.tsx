@@ -77,7 +77,7 @@ export default async function OrganizationDetailPage({
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <Link href="/admin" className="text-sm text-muted hover:text-main">
+        <Link href="/admin/apps/growth-readiness" className="text-sm text-muted hover:text-main">
           ← Back to organizations
         </Link>
         <div className="mt-2 flex flex-wrap items-center justify-between gap-3">

@@ -16,7 +16,7 @@ export default async function NewOrganizationPage({
     <div className="mx-auto flex w-full max-w-[900px] flex-col gap-6">
       <div>
         <Link
-          href="/admin"
+          href="/admin/apps/growth-readiness"
           className="text-sm text-muted hover:text-main"
         >
           ← Back to organizations
@@ -77,7 +77,7 @@ export default async function NewOrganizationPage({
 
           <div className="flex items-center gap-3 pt-1">
             <Button type="submit">Create organization</Button>
-            <Link href="/admin">
+            <Link href="/admin/apps/growth-readiness">
               <Button type="button" variant="ghost">
                 Cancel
               </Button>
