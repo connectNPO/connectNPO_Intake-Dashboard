@@ -20,7 +20,33 @@ type OrgRow = Pick<
   | 'submitted_at'
 >;
 
-export default async function AdminHomePage({
+type AppAction = {
+  href: string;
+  label: string;
+  description: string;
+  target?: string;
+};
+
+const appActions: AppAction[] = [
+  {
+    href: '/admin/organizations/new',
+    label: 'New intake',
+    description: 'Create a private intake link for a nonprofit.',
+  },
+  {
+    href: '/request-review',
+    label: 'Public request form',
+    description: 'Send the public request page to a prospective nonprofit.',
+    target: '_blank',
+  },
+  {
+    href: '/admin/operations-checklist',
+    label: 'Checklist',
+    description: 'E2E operations checklist for rehearsing the workflow.',
+  },
+];
+
+export default async function GrowthReadinessAppPage({
   searchParams,
 }: {
   searchParams: Promise<{ archived?: string }>;
@@ -33,7 +59,6 @@ export default async function AdminHomePage({
     .select(
       'id, name, website_url, contact_email, status, created_at, submitted_at',
     )
-    // Sort by most recent activity so newly submitted older intake links rise to the top.
     .order('updated_at', { ascending: false });
 
   query = showArchived ? query.eq('status', 'archived') : query.neq('status', 'archived');
@@ -46,16 +71,16 @@ export default async function AdminHomePage({
   const awaitingCount = organizations.length - submittedCount;
 
   return (
-    <div className="flex flex-col gap-8">
-      <header className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-        <div className="max-w-xl">
+    <div className="flex flex-col gap-6">
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
+        <div>
           <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted">
-            {showArchived ? 'Archive' : 'Overview'}
+            Growth Readiness
           </p>
-          <h1 className="mt-1 font-editorial text-3xl text-main md:text-[2.25rem]">
+          <h1 className="mt-0.5 text-xl font-semibold text-main">
             {showArchived ? 'Archived organizations' : 'Organizations'}
           </h1>
-          <p className="mt-2 text-sm leading-6 text-muted">
+          <p className="mt-1 text-sm text-muted">
             {showArchived
               ? 'Organizations you have archived. Restore one to bring it back into the active list.'
               : 'Track nonprofit intakes from invitation through report-ready handoff.'}
@@ -74,6 +99,12 @@ export default async function AdminHomePage({
           )}
         </div>
       </header>
+
+      <section className="grid gap-3 sm:grid-cols-3">
+        <AppActionTile {...appActions[0]} />
+        <AppActionTile {...appActions[1]} />
+        <AppActionTile {...appActions[2]} />
+      </section>
 
       {!error && organizations.length > 0 && (
         <div className="grid gap-3 sm:grid-cols-3">
@@ -206,11 +237,24 @@ export default async function AdminHomePage({
 
 function StatTile({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-xl border border-border bg-surface px-4 py-3">
+    <div className="rounded-[5px] border border-border bg-surface px-4 py-3">
       <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">
         {label}
       </p>
       <p className="mt-1 font-editorial text-2xl text-main">{value}</p>
     </div>
+  );
+}
+
+function AppActionTile({ href, label, description, target }: AppAction) {
+  return (
+    <Link
+      href={href}
+      target={target}
+      className="group block rounded-[5px] border border-border bg-surface px-4 py-3 transition hover:border-primary/40"
+    >
+      <p className="text-sm font-semibold text-main group-hover:text-primary">{label}</p>
+      <p className="mt-1 text-xs text-muted">{description}</p>
+    </Link>
   );
 }

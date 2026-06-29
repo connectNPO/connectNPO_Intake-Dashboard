@@ -11,13 +11,13 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const variants: Record<Variant, string> = {
   primary:
-    'bg-primary text-white hover:bg-[var(--primary-hover)] disabled:opacity-60 shadow-[0_0_0_1px_var(--primary)]',
+    'bg-primary text-white hover:bg-[var(--primary-hover)] hover:text-white disabled:opacity-60',
   secondary:
-    'bg-[var(--surface-elevated)] text-main border border-border hover:bg-primary-soft disabled:opacity-60 shadow-[0_0_0_1px_var(--ring)]',
+    'bg-[var(--surface-elevated)] text-main border border-border hover:bg-primary-soft hover:text-main disabled:opacity-60',
   ghost:
     'bg-transparent text-muted hover:bg-primary-soft hover:text-main disabled:opacity-60',
   danger:
-    'bg-danger text-white hover:brightness-95 disabled:opacity-60 shadow-[0_0_0_1px_var(--danger)]',
+    'bg-danger text-white hover:brightness-95 hover:text-white disabled:opacity-60',
 };
 
 const sizes: Record<Size, string> = {
@@ -33,7 +33,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         ref={ref}
-        className={`inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-colors disabled:cursor-not-allowed ${variants[variant]} ${sizes[size]} ${className}`}
+        className={`inline-flex items-center justify-center gap-2 rounded-[5px] font-medium transition-colors disabled:cursor-not-allowed ${variants[variant]} ${sizes[size]} ${className}`}
         {...props}
       />
     );

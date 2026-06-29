@@ -62,29 +62,16 @@ export default async function AdminPlatformHome() {
   const awaitingCount = activeCount - submittedCount;
 
   return (
-    <div className="flex flex-col gap-8">
-      <header className="rounded-[1.75rem] border border-border bg-surface p-6 shadow-[var(--shadow-soft)] md:p-8">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-2xl">
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted">
-              connectNPO Operations
-            </p>
-            <h1 className="mt-2 font-editorial text-3xl text-main md:text-[2.5rem]">
-              Main operations dashboard
-            </h1>
-            <p className="mt-3 text-sm leading-6 text-muted md:text-base">
-              A central place to manage connectNPO apps, nonprofit clients, reports,
-              and future managed Hermes workspaces.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Link href="/admin/apps/growth-readiness">
-              <Button>Open Growth Readiness</Button>
-            </Link>
-            <Link href="/request-review" target="_blank">
-              <Button variant="secondary">Public request form</Button>
-            </Link>
-          </div>
+    <div className="flex flex-col gap-6">
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
+        <div>
+          <h1 className="text-xl font-semibold text-main">Overview</h1>
+          <p className="mt-0.5 text-sm text-muted">connectNPO platform home</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/admin/apps/growth-readiness">
+            <Button size="sm">Open Growth Readiness</Button>
+          </Link>
         </div>
       </header>
 
@@ -94,61 +81,21 @@ export default async function AdminPlatformHome() {
         <MetricCard label="Awaiting submission" value={error ? '—' : awaitingCount} />
       </section>
 
-      <section className="flex flex-col gap-4">
-        <div>
-          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted">
-            Apps
-          </p>
-          <h2 className="mt-1 text-xl font-semibold text-main">Workspace modules</h2>
-          <p className="mt-1 text-sm text-muted">
-            Growth Readiness is live now. The other modules define the platform direction.
-          </p>
+      <section className="flex flex-col gap-3">
+        <div className="flex items-end justify-between">
+          <div>
+            <h2 className="text-base font-semibold text-main">Apps</h2>
+            <p className="mt-0.5 text-sm text-muted">
+              Growth Readiness is live. Other modules define the platform direction.
+            </p>
+          </div>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
           {apps.map((app) => (
             <AppModuleCard key={app.title} app={app} />
           ))}
         </div>
-      </section>
-
-      <section className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-        <Card>
-          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted">
-            Recommended next step
-          </p>
-          <h2 className="mt-2 text-lg font-semibold text-main">
-            Keep intake work inside Growth Readiness
-          </h2>
-          <p className="mt-2 text-sm leading-6 text-muted">
-            Use the main dashboard as the connectNPO control center. Keep detailed nonprofit intake
-            workflows inside the Growth Readiness app so future tools can be added without making
-            the admin home crowded.
-          </p>
-          <div className="mt-4">
-            <Link href="/admin/apps/growth-readiness">
-              <Button variant="secondary" size="sm">Go to intake dashboard</Button>
-            </Link>
-          </div>
-        </Card>
-
-        <Card>
-          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted">
-            System
-          </p>
-          <h2 className="mt-2 text-lg font-semibold text-main">Operational checks</h2>
-          <p className="mt-2 text-sm leading-6 text-muted">
-            Use system checks and workflow docs before sending customer links or launching new modules.
-          </p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Link href="/admin/system-check">
-              <Button variant="secondary" size="sm">System check</Button>
-            </Link>
-            <Link href="/admin/operations-checklist">
-              <Button variant="ghost" size="sm">Checklist</Button>
-            </Link>
-          </div>
-        </Card>
       </section>
     </div>
   );
@@ -156,7 +103,7 @@ export default async function AdminPlatformHome() {
 
 function MetricCard({ label, value }: { label: string; value: number | string }) {
   return (
-    <div className="rounded-xl border border-border bg-surface px-4 py-3 shadow-[var(--shadow-soft)]">
+    <div className="rounded-[5px] border border-border bg-surface px-4 py-3">
       <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">
         {label}
       </p>
@@ -168,16 +115,16 @@ function MetricCard({ label, value }: { label: string; value: number | string })
 function AppModuleCard({ app }: { app: AppCard }) {
   const isLive = app.status === 'live';
   const content = (
-    <Card className="h-full transition hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-[0_18px_50px_rgba(73,55,43,0.12)]">
+    <Card className="h-full transition hover:border-primary/40">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">
             {app.eyebrow}
           </p>
-          <h3 className="mt-2 text-lg font-semibold text-main">{app.title}</h3>
+          <h3 className="mt-2 text-base font-semibold text-main">{app.title}</h3>
         </div>
         <span
-          className={`rounded-full border px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.12em] ${
+          className={`rounded-[5px] border px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.12em] ${
             isLive
               ? 'border-primary/30 bg-primary-soft text-primary'
               : 'border-border bg-background text-muted'
@@ -187,7 +134,7 @@ function AppModuleCard({ app }: { app: AppCard }) {
         </span>
       </div>
       <p className="mt-3 text-sm leading-6 text-muted">{app.description}</p>
-      <p className="mt-5 text-sm font-medium text-primary">{app.action} →</p>
+      <p className="mt-4 text-sm font-medium text-primary">{app.action} →</p>
     </Card>
   );
 

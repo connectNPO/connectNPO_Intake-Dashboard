@@ -1,14 +1,13 @@
 import Link from 'next/link';
 import { signOut } from '@/app/login/actions';
 import { Logo } from '@/components/Logo';
-import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/Button';
 
 type NavItem = {
   href: string;
   label: string;
   target?: string;
-  icon: 'overview' | 'intake' | 'request' | 'checklist' | 'template' | 'writer' | 'research' | 'system';
+  icon: 'overview' | 'intake' | 'app' | 'system';
 };
 
 type NavGroup = { label: string; items: NavItem[] };
@@ -22,23 +21,7 @@ const navGroups: NavGroup[] = [
     label: 'Apps',
     items: [
       { href: '/admin/apps/growth-readiness', label: 'Growth Readiness', icon: 'intake' },
-      { href: '/admin#client-hermes-workspaces', label: 'Client Hermes', icon: 'system' },
-    ],
-  },
-  {
-    label: 'Growth Review',
-    items: [
-      { href: '/admin/organizations/new', label: 'New intake', icon: 'intake' },
-      { href: '/request-review', label: 'Public request form', icon: 'request', target: '_blank' },
-      { href: '/admin/operations-checklist', label: 'Checklist', icon: 'checklist' },
-    ],
-  },
-  {
-    label: 'Reports',
-    items: [
-      { href: '/admin/report-template', label: 'Report template', icon: 'template' },
-      { href: '/admin/report-writer-prompt', label: 'Writer prompt', icon: 'writer' },
-      { href: '/admin/research-agent-prompt', label: 'Research prompt', icon: 'research' },
+      { href: '/admin#client-hermes-workspaces', label: 'Client Hermes', icon: 'app' },
     ],
   },
   {
@@ -62,42 +45,16 @@ function NavIcon({ name }: { name: NavItem['icon'] }) {
     case 'intake':
       return (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={common} aria-hidden="true">
-          <path d="M12 5v14M5 12h14" />
+          <path d="M4 6h16M4 12h16M4 18h10" />
         </svg>
       );
-    case 'request':
+    case 'app':
       return (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={common} aria-hidden="true">
-          <path d="M7 17 17 7M9 7h8v8" />
-        </svg>
-      );
-    case 'checklist':
-      return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={common} aria-hidden="true">
-          <path d="m4 7 2 2 4-4" />
-          <path d="m4 15 2 2 4-4" />
-          <path d="M13 8h7M13 16h7" />
-        </svg>
-      );
-    case 'template':
-      return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={common} aria-hidden="true">
-          <rect x="4" y="4" width="16" height="16" rx="2" />
-          <path d="M4 9h16M9 9v11" />
-        </svg>
-      );
-    case 'writer':
-      return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={common} aria-hidden="true">
-          <path d="M4 20h4l10-10-4-4L4 16v4Z" />
-          <path d="m13 7 4 4" />
-        </svg>
-      );
-    case 'research':
-      return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={common} aria-hidden="true">
-          <circle cx="11" cy="11" r="6" />
-          <path d="m20 20-4.5-4.5" />
+          <rect x="4" y="4" width="7" height="7" rx="1.2" />
+          <rect x="13" y="4" width="7" height="7" rx="1.2" />
+          <rect x="4" y="13" width="7" height="7" rx="1.2" />
+          <rect x="13" y="13" width="7" height="7" rx="1.2" />
         </svg>
       );
     case 'system':
@@ -143,7 +100,7 @@ export default function AdminLayout({
                       key={item.href}
                       href={item.href}
                       target={item.target}
-                      className="group inline-flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm text-muted transition-colors hover:bg-primary-soft hover:text-main"
+                      className="group inline-flex items-center gap-2.5 rounded-[5px] px-2 py-1.5 text-sm text-muted transition-colors hover:bg-primary-soft hover:text-main"
                     >
                       <span className="text-muted/80 group-hover:text-primary">
                         <NavIcon name={item.icon} />
@@ -165,7 +122,7 @@ export default function AdminLayout({
                 key={item.href}
                 href={item.href}
                 target={item.target}
-                className="whitespace-nowrap rounded-full border border-border bg-surface px-3 py-1.5 text-sm text-muted hover:bg-primary-soft hover:text-main"
+                className="whitespace-nowrap rounded-[5px] border border-border bg-surface px-3 py-1.5 text-sm text-muted hover:bg-primary-soft hover:text-main"
               >
                 {item.label}
               </Link>
@@ -173,7 +130,6 @@ export default function AdminLayout({
           </nav>
 
           <div className="flex items-center gap-2 lg:mt-auto lg:flex-col lg:items-stretch lg:gap-1.5 lg:border-t lg:border-border lg:pt-4">
-            <ThemeToggle />
             <form action={signOut} className="lg:w-full">
               <Button type="submit" variant="ghost" size="sm" className="w-full lg:justify-start lg:px-2">
                 Sign out
@@ -183,8 +139,8 @@ export default function AdminLayout({
         </div>
       </aside>
 
-      <main className="w-full flex-1 px-4 py-8 lg:ml-60 lg:px-10 lg:py-10">
-        <div className="mx-auto w-full max-w-[1040px]">{children}</div>
+      <main className="w-full flex-1 px-4 py-8 lg:ml-60 lg:px-8 lg:py-8">
+        <div className="w-full max-w-none">{children}</div>
       </main>
     </div>
   );
