@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { signOut } from '@/app/login/actions';
 import { Logo } from '@/components/Logo';
 import { Button } from '@/components/ui/Button';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 type NavItem = {
   href: string;
@@ -130,6 +131,7 @@ export default function AdminLayout({
           </nav>
 
           <div className="flex items-center gap-2 lg:mt-auto lg:flex-col lg:items-stretch lg:gap-1.5 lg:border-t lg:border-border lg:pt-4">
+            <ThemeToggle />
             <form action={signOut} className="lg:w-full">
               <Button type="submit" variant="ghost" size="sm" className="w-full lg:justify-start lg:px-2">
                 Sign out
@@ -139,8 +141,8 @@ export default function AdminLayout({
         </div>
       </aside>
 
-      <main className="w-full flex-1 px-4 py-8 lg:ml-60 lg:px-8 lg:py-8">
-        <div className="w-full max-w-none">{children}</div>
+      <main className="w-full flex-1 overflow-x-hidden px-4 py-8 sm:px-6 lg:ml-60 lg:w-[calc(100%-15rem)] lg:px-[65px] lg:py-8">
+        <div className="mx-auto w-full max-w-[1500px]">{children}</div>
       </main>
     </div>
   );

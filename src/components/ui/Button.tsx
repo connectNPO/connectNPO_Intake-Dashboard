@@ -11,13 +11,13 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const variants: Record<Variant, string> = {
   primary:
-    'bg-primary text-white hover:bg-[var(--primary-hover)] hover:text-white disabled:opacity-60',
+    'bg-primary text-white hover:bg-[var(--primary-hover)] hover:text-white disabled:opacity-60 shadow-[0_0_0_1px_var(--primary)]',
   secondary:
-    'bg-[var(--surface-elevated)] text-main border border-border hover:bg-primary-soft hover:text-main disabled:opacity-60',
+    'bg-[var(--surface-elevated)] text-main border border-border hover:bg-primary-soft hover:text-main disabled:opacity-60 shadow-[0_0_0_1px_var(--ring)]',
   ghost:
     'bg-transparent text-muted hover:bg-primary-soft hover:text-main disabled:opacity-60',
   danger:
-    'bg-danger text-white hover:brightness-95 hover:text-white disabled:opacity-60',
+    'bg-danger text-white hover:brightness-95 hover:text-white disabled:opacity-60 shadow-[0_0_0_1px_var(--danger)]',
 };
 
 const sizes: Record<Size, string> = {
