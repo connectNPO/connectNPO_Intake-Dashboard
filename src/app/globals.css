@@ -51,3 +51,54 @@ button:disabled,
   outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
+
+.client-report h1,
+.client-report h2,
+.client-report h3 {
+  color: var(--main-text);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.client-report h1 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  line-height: 1;
+  margin-bottom: 1rem;
+}
+
+.client-report h2 {
+  border-top: 1px solid var(--border);
+  font-size: clamp(1.35rem, 2.5vw, 2rem);
+  line-height: 1.15;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+}
+
+.client-report h3 {
+  font-size: 1.05rem;
+  margin-top: 1.25rem;
+}
+
+.client-report p,
+.client-report li {
+  color: var(--muted-text);
+  line-height: 1.7;
+}
+
+.client-report p {
+  margin-top: 0.75rem;
+}
+
+.client-report ul,
+.client-report ol {
+  margin-top: 0.75rem;
+  padding-left: 1.25rem;
+}
+
+.client-report li {
+  margin-top: 0.35rem;
+}
+
+.client-report strong {
+  color: var(--main-text);
+}

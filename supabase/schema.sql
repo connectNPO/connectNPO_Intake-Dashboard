@@ -69,6 +69,33 @@ create index if not exists admin_notes_organization_id_idx
 create index if not exists admin_notes_created_at_idx
   on public.admin_notes (created_at desc);
 
+-- Table: client_reports -----------------------------------------------------
+-- Approved, customer-facing Growth Advisor reports. Public access happens only
+-- through /reports/[token], which looks up approved/client_ready reports by the
+-- unguessable secure_token. Drafts and disabled reports should not render.
+create table if not exists public.client_reports (
+  id uuid primary key default gen_random_uuid(),
+  organization_id uuid references public.organizations(id) on delete set null,
+  secure_token text not null,
+  title text not null,
+  report_html text not null,
+  report_markdown text,
+  status text not null default 'draft',
+  approved_at timestamptz,
+  disabled_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create unique index if not exists client_reports_secure_token_idx
+  on public.client_reports (secure_token);
+
+create index if not exists client_reports_organization_id_idx
+  on public.client_reports (organization_id);
+
+create index if not exists client_reports_status_idx
+  on public.client_reports (status);
+
 -- updated_at trigger --------------------------------------------------------
 create or replace function public.set_updated_at()
 returns trigger as $$
@@ -88,10 +115,16 @@ create trigger set_intake_responses_updated_at
   before update on public.intake_responses
   for each row execute function public.set_updated_at();
 
+drop trigger if exists set_client_reports_updated_at on public.client_reports;
+create trigger set_client_reports_updated_at
+  before update on public.client_reports
+  for each row execute function public.set_updated_at();
+
 -- Row Level Security --------------------------------------------------------
 alter table public.organizations enable row level security;
 alter table public.intake_responses enable row level security;
 alter table public.admin_notes enable row level security;
+alter table public.client_reports enable row level security;
 
 -- RLS policies (MVP: any authenticated user is treated as an admin) ----------
 drop policy if exists "Authenticated users can manage organizations" on public.organizations;
@@ -113,6 +146,14 @@ create policy "Authenticated users can manage intake responses"
 drop policy if exists "Authenticated users can manage admin notes" on public.admin_notes;
 create policy "Authenticated users can manage admin notes"
   on public.admin_notes
+  for all
+  to authenticated
+  using (true)
+  with check (true);
+
+drop policy if exists "Authenticated users can manage client reports" on public.client_reports;
+create policy "Authenticated users can manage client reports"
+  on public.client_reports
   for all
   to authenticated
   using (true)
