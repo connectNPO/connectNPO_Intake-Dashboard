@@ -209,11 +209,15 @@ async function main() {
         const previewUrl = sameOriginUrl(loginUrl, previewHref);
         await page.goto(previewUrl, { waitUntil: 'domcontentloaded' });
         await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
-        const previewText = await page.locator('body').innerText();
         const previewDownloadName = await page.locator('a[download][href$="/export"]').first().getAttribute('download').catch(() => null);
         report.checks.push(status('Preview Download JSON link has download filename', Boolean(previewDownloadName?.endsWith('-agent-packet.json')), previewDownloadName ?? 'missing'));
         const answeredText = await safeText(page.locator('text=Answered questions').locator('..'));
         const missingText = await safeText(page.locator('text=Missing required').locator('..'));
+        const rawJsonToggle = page.getByText('Show raw JSON').first();
+        if (await rawJsonToggle.isVisible().catch(() => false)) {
+          await rawJsonToggle.click();
+        }
+        const previewText = await page.locator('body').innerText();
         const rawJsonText = await page.locator('pre').first().innerText({ timeout: 5000 }).catch(() => '');
         report.metrics.answered_questions = answeredText;
         report.metrics.missing_required = missingText;
