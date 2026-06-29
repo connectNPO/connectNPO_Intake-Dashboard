@@ -90,3 +90,47 @@ export type AdminNote = {
   created_by: string | null;
   created_at: string;
 };
+
+/** Lifecycle state of a Hermes workspace record. */
+export type HermesWorkspaceStatus =
+  | 'planning'
+  | 'setup'
+  | 'active'
+  | 'paused'
+  | 'retired';
+
+/** Operator-tracked support status for a Hermes workspace. */
+export type HermesWorkspaceSupportStatus =
+  | 'not_started'
+  | 'needs_setup'
+  | 'monitoring'
+  | 'issue'
+  | 'ok';
+
+/** Who the workspace is for. */
+export type HermesWorkspaceType = 'internal' | 'client' | 'staff' | 'pilot';
+
+/** How the workspace is isolated from other tenants. */
+export type HermesWorkspaceIsolationModel =
+  | 'dedicated_vps'
+  | 'shared_vps_profile';
+
+/** Row shape of the `hermes_workspaces` table. */
+export type HermesWorkspace = {
+  id: string;
+  client_name: string;
+  workspace_key: string;
+  workspace_type: HermesWorkspaceType;
+  isolation_model: HermesWorkspaceIsolationModel;
+  vps_hostname: string | null;
+  hermes_profile: string | null;
+  dashboard_port: number | null;
+  discord_bot_name: string | null;
+  discord_channel_name: string | null;
+  status: HermesWorkspaceStatus;
+  support_status: HermesWorkspaceSupportStatus;
+  monthly_cost: number | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+};

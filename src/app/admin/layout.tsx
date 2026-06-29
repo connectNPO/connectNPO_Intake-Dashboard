@@ -22,7 +22,7 @@ const navGroups: NavGroup[] = [
     label: 'Apps',
     items: [
       { href: '/admin/apps/growth-readiness', label: 'Growth Readiness', icon: 'intake' },
-      { href: '/admin#client-hermes-workspaces', label: 'Client Hermes', icon: 'app' },
+      { href: '/admin/apps/hermes-workspaces', label: 'Client Hermes', icon: 'app' },
     ],
   },
   {

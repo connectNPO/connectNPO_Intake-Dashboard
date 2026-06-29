@@ -69,6 +69,38 @@ create index if not exists admin_notes_organization_id_idx
 create index if not exists admin_notes_created_at_idx
   on public.admin_notes (created_at desc);
 
+-- Table: hermes_workspaces --------------------------------------------------
+-- Operator-managed records for client/staff Hermes environments. No bot
+-- tokens, API keys, or .env values are stored here.
+create table if not exists public.hermes_workspaces (
+  id uuid primary key default gen_random_uuid(),
+  client_name text not null,
+  workspace_key text not null unique,
+  workspace_type text not null default 'client'
+    check (workspace_type in ('internal','client','staff','pilot')),
+  isolation_model text not null default 'dedicated_vps'
+    check (isolation_model in ('dedicated_vps','shared_vps_profile')),
+  vps_hostname text,
+  hermes_profile text,
+  dashboard_port integer,
+  discord_bot_name text,
+  discord_channel_name text,
+  status text not null default 'planning'
+    check (status in ('planning','setup','active','paused','retired')),
+  support_status text not null default 'not_started'
+    check (support_status in ('not_started','needs_setup','monitoring','issue','ok')),
+  monthly_cost numeric(10,2),
+  notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists hermes_workspaces_status_idx
+  on public.hermes_workspaces (status);
+
+create index if not exists hermes_workspaces_updated_at_idx
+  on public.hermes_workspaces (updated_at desc);
+
 -- Table: client_reports -----------------------------------------------------
 -- Approved, customer-facing Growth Advisor reports. Public access happens only
 -- through /reports/[token], which looks up approved/client_ready reports by the
@@ -120,11 +152,17 @@ create trigger set_client_reports_updated_at
   before update on public.client_reports
   for each row execute function public.set_updated_at();
 
+drop trigger if exists set_hermes_workspaces_updated_at on public.hermes_workspaces;
+create trigger set_hermes_workspaces_updated_at
+  before update on public.hermes_workspaces
+  for each row execute function public.set_updated_at();
+
 -- Row Level Security --------------------------------------------------------
 alter table public.organizations enable row level security;
 alter table public.intake_responses enable row level security;
 alter table public.admin_notes enable row level security;
 alter table public.client_reports enable row level security;
+alter table public.hermes_workspaces enable row level security;
 
 -- RLS policies (MVP: any authenticated user is treated as an admin) ----------
 drop policy if exists "Authenticated users can manage organizations" on public.organizations;
@@ -154,6 +192,14 @@ create policy "Authenticated users can manage admin notes"
 drop policy if exists "Authenticated users can manage client reports" on public.client_reports;
 create policy "Authenticated users can manage client reports"
   on public.client_reports
+  for all
+  to authenticated
+  using (true)
+  with check (true);
+
+drop policy if exists "Authenticated users can manage hermes workspaces" on public.hermes_workspaces;
+create policy "Authenticated users can manage hermes workspaces"
+  on public.hermes_workspaces
   for all
   to authenticated
   using (true)

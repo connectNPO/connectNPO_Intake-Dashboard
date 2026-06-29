@@ -25,11 +25,11 @@ const apps: AppCard[] = [
   },
   {
     title: 'Client Hermes Workspaces',
-    description: 'Future home for dedicated client VPS/Hermes workspace monitoring.',
-    href: '#client-hermes-workspaces',
+    description: 'Track staff and client Hermes environments — VPS, profile, Discord, and support state.',
+    href: '/admin/apps/hermes-workspaces',
     eyebrow: 'Managed AI',
-    status: 'planned',
-    action: 'Coming soon',
+    status: 'live',
+    action: 'Open workspace manager',
   },
   {
     title: 'Website Review',
