@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { buildGrowthReadinessAgentPacket } from '@/lib/agent-packet';
+import { getAgentPacketFilename } from '@/lib/agent-packet-filename';
 import { createClient } from '@/lib/supabase/server';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -77,10 +78,7 @@ export default async function AgentPacketPreviewPage({
   const hasSubmittedMissingRequired =
     packet.organization.workflow_status === 'submitted' && missingRequiredQuestions.length > 0;
   const packetJson = JSON.stringify(packet, null, 2);
-  const agentPacketFilename = `${packet.organization.name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '') || 'organization'}-agent-packet.json`;
+  const agentPacketFilename = getAgentPacketFilename(packet.organization.name);
 
   return (
     <div className="flex flex-col gap-6">
@@ -161,16 +159,31 @@ export default async function AgentPacketPreviewPage({
       </Card>
 
       <Card className="flex flex-col gap-3">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <SectionHeader
-            title="Raw JSON preview"
-            description="Visible to admins only. Contact email and private intake token are intentionally excluded."
-          />
-          <CopyButton value={packetJson} label="Copy JSON" />
-        </div>
-        <pre className="max-h-[640px] overflow-auto rounded-[7px] border border-border bg-[#1f2937] p-4 text-xs leading-relaxed text-[#f9fafb]">
-          {packetJson}
-        </pre>
+        <details className="group">
+          <summary className="flex cursor-pointer list-none flex-wrap items-start justify-between gap-3">
+            <SectionHeader
+              title="Advanced: Raw JSON preview"
+              description="Optional technical view for debugging or copying. Most operators can use Download JSON instead."
+            />
+            <span className="rounded-full border border-border px-3 py-1 text-xs font-medium text-muted group-open:hidden">
+              Show raw JSON
+            </span>
+            <span className="hidden rounded-full border border-border px-3 py-1 text-xs font-medium text-muted group-open:inline-flex">
+              Hide raw JSON
+            </span>
+          </summary>
+          <div className="mt-4 flex flex-col gap-3">
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-[7px] border border-dashed border-border bg-[#faf9f5] px-3 py-2 text-xs text-muted">
+              <p>
+                Admin-only packet preview. Contact email and private intake token are intentionally excluded.
+              </p>
+              <CopyButton value={packetJson} label="Copy JSON" />
+            </div>
+            <pre className="max-h-[640px] overflow-auto rounded-[7px] border border-border bg-[#1f2937] p-4 text-xs leading-relaxed text-[#f9fafb]">
+              {packetJson}
+            </pre>
+          </div>
+        </details>
       </Card>
     </div>
   );

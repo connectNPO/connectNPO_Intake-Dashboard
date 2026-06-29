@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { getAgentPacketFilename } from '@/lib/agent-packet-filename';
 import { buildGrowthReadinessAgentPacket } from '@/lib/agent-packet';
 import { createClient } from '@/lib/supabase/server';
 import type { AdminNote, IntakeResponse, Organization } from '@/lib/types';
@@ -89,13 +90,11 @@ export async function GET(
     responses: (responses ?? []) as IntakeResponse[],
     notes: (notes ?? []) as Pick<AdminNote, 'note' | 'created_at'>[],
   });
+  const filename = getAgentPacketFilename(org.name);
 
   return NextResponse.json(packet, {
     headers: {
-      'Content-Disposition': `attachment; filename="${org.name
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)/g, '') || 'organization'}-agent-packet.json"`,
+      'Content-Disposition': `attachment; filename="${filename}"`,
     },
   });
 }

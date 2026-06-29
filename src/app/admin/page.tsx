@@ -22,7 +22,8 @@ export default async function AdminHomePage({
     .select(
       'id, name, website_url, contact_email, status, created_at, submitted_at',
     )
-    .order('created_at', { ascending: false });
+    // Sort by most recent activity so newly submitted older intake links rise to the top.
+    .order('updated_at', { ascending: false });
 
   query = showArchived ? query.eq('status', 'archived') : query.neq('status', 'archived');
 

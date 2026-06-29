@@ -1,38 +1,48 @@
 # Growth Readiness Report — Internal Template
 
-Internal template used by connectNPO operators and the future report writer
-agent to draft a Growth Readiness Report for one nonprofit organization.
+Internal template used by connectNPO operators and the report-writer
+agent to draft a Growth Readiness Report for one nonprofit
+organization.
 
-This file is a **template**, not a finished report. It defines the sections,
-the per-item format, the allowed evidence labels, and the writing rules. No
-specific organization facts are encoded here. Anywhere a real report would
-name an organization, this template uses `{{organization_name}}` or a short
-placeholder in square brackets.
+This file is a **template**, not a finished report. It defines the
+sections, the per-item format, the allowed evidence labels, and the
+writing rules. No specific organization facts are encoded here.
+Anywhere a real report would name an organization, this template uses
+`{{organization_name}}` or a short placeholder in square brackets.
+
+The report follows the same fourteen categories as the intake form, in
+the same order the nonprofit answered them. The intent is that a
+reader of the report can scan it next to their own intake responses
+without translating between two different layouts.
 
 Tone is public-facing English: warm, plain, practical, and grounded in
-evidence. The report is read by nonprofit leaders, not by engineers. It is
-supportive but honest, and avoids generic praise.
+evidence. The report is read by nonprofit leaders, not by engineers.
+It is supportive but honest, and avoids generic praise.
 
 ---
 
 ## How to Use This Template
 
-1. Copy this file into a working draft. Do not edit the template itself.
+1. Copy this file into a working draft. Do not edit the template
+   itself.
 2. Fill each section using only:
    - the organization's own intake answers, or
    - public, citable sources the operator can re-open in a browser.
 3. For every analysis item, use the repeatable item format below.
-4. Leave the **Status** field blank only if you have not yet looked. Never
-   guess a status.
-5. Treat the draft as internal until a connectNPO human reviewer signs off.
-   See [Writing Rules](#writing-rules).
+4. Leave the **Status** field blank only if you have not yet looked.
+   Never guess a status.
+5. Keep the fourteen intake-category sections in order, even when a
+   section has no findings yet — note "no material items" rather than
+   deleting the heading.
+6. Treat the draft as internal until a connectNPO human reviewer signs
+   off. See [Writing Rules](#writing-rules).
 
 ---
 
 ## Repeatable Item Format
 
-Every finding inside an analysis section uses this five-field block. One
-claim per block. Do not bundle multiple claims into one item.
+Every finding inside an analysis section uses this five-field block.
+One claim per block. Do not bundle multiple claims into one item.
 
 ```
 ### [Short, specific item title]
@@ -48,21 +58,22 @@ claim per block. Do not bundle multiple claims into one item.
 
 ### Allowed Statuses
 
-Use exactly one of these values in the **Status** field. Do not invent new
-ones.
+Use exactly one of these values in the **Status** field. Do not invent
+new ones.
 
-- `Found in intake` — the claim restates something the nonprofit told us in
-  their intake form.
-- `Found on website` — the claim is visible on a page on the nonprofit's own
-  website that the nonprofit listed in intake.
-- `Found in public source` — the claim is visible on a public page outside
-  the nonprofit's own site (e.g., a public program directory the nonprofit
-  themselves linked us to).
-- `Not found` — the operator looked for this signal in the expected place
-  and it was not there. Record where you looked in **Evidence / Source URL**.
-- `Needs confirmation` — the signal might exist but the operator could not
-  verify it from the sources available. The finding does not go into a
-  final report until a human confirms.
+- `Found in intake` — the claim restates something the nonprofit told
+  us in their intake form.
+- `Found on website` — the claim is visible on a page on the
+  nonprofit's own website that the nonprofit listed in intake.
+- `Found in public source` — the claim is visible on a public page
+  outside the nonprofit's own site (e.g., a public program directory
+  the nonprofit themselves linked us to).
+- `Not found` — the operator looked for this signal in the expected
+  place and it was not there. Record where you looked in **Evidence /
+  Source URL**.
+- `Needs confirmation` — the signal might exist but the operator could
+  not verify it from the sources available. The finding does not go
+  into a final report until a human confirms.
 
 ### Priority Guidance
 
@@ -77,334 +88,348 @@ ones.
 
 These rules apply to every section. They override stylistic preference.
 
-1. **No invented claims.** If there is no intake answer and no public source
-   URL backing the statement, do not write it.
-2. **No legal, tax, or accounting advice.** Do not tell a nonprofit whether
-   they qualify for a status, deduction, or filing. Point at the relevant
-   public resource and recommend they confirm with a qualified professional.
+1. **No invented claims.** If there is no intake answer and no public
+   source URL backing the statement, do not write it.
+2. **No legal, tax, accounting, grant-eligibility, HR, or compliance
+   advice.** This applies most strongly to Sections 12 (Accounting &
+   Financial Operations) and 13 (Grant Readiness). Restate what the
+   intake or public source says, and route any open question to
+   **Human Review Flags & Missing Information** with a one-sentence
+   note recommending a qualified professional.
 3. **Cite source URLs for any public claim.** If the finding describes
-   something visible on the open web, the **Evidence / Source URL** field
-   must contain a real, openable URL.
+   something visible on the open web, the **Evidence / Source URL**
+   field must contain a real, openable URL.
 4. **Draft only until human review.** Every report produced from this
-   template is a draft. A connectNPO human reviewer must sign off before it
-   is shared with the nonprofit. Mark the working file as `DRAFT` until
-   sign-off.
-5. **Plain language.** Prefer short sentences. Avoid jargon. If a technical
-   term is unavoidable, define it in one short clause.
-6. **Supportive, not flattering.** Praise is only useful when it is specific
-   and tied to evidence. Avoid generic openers like "You are doing amazing
-   work."
-7. **No sensitive data.** Do not restate or repeat EIN, bank details, donor
-   names, employee names, private financials, or anything from a document
-   the nonprofit did not publish themselves.
+   template is a draft. A connectNPO human reviewer must sign off
+   before it is shared with the nonprofit. Mark the working file as
+   `DRAFT` until sign-off. Test / sample reports must additionally
+   carry an explicit "test/sample — human review draft" notice at the
+   top.
+5. **Plain language.** Prefer short sentences. Avoid jargon. If a
+   technical term is unavoidable, define it in one short clause.
+6. **Supportive, not flattering.** Praise is only useful when it is
+   specific and tied to evidence. Avoid generic openers like "You are
+   doing amazing work."
+7. **No sensitive data.** Do not restate or repeat EIN, bank details,
+   donor names, employee names, private financials, or anything from a
+   document the nonprofit did not publish themselves.
 8. **One claim per item.** If you find two things, write two items.
-9. **Show your work.** Every section's items should be reproducible from the
-   Evidence Log appendix.
+9. **Show your work.** Every section's items should be reproducible
+   from the Evidence Log appendix.
+10. **Keep the intake-category order.** The fourteen analysis sections
+    appear in the order the nonprofit answered them in intake — do not
+    re-sort by importance.
 
 ---
 
-## 1. Executive Summary
+## 1. Overall Overview
 
-A short, plain-language overview written **after** the analysis sections are
-filled in, not before. Three to six sentences. Names the organization, what
-they told us they do, and the two or three highest-impact opportunities the
-report will recommend. No new claims appear here — every point must already
-exist in a later section.
+A short, plain-language overview written **after** the analysis
+sections are filled in, not before. Three to seven sentences. Names
+the organization, restates what they said they do, and explains the
+headline diagnosis the report will support. End with one sentence
+stating what the rest of the report will walk through (the fourteen
+intake categories, then an overall result and plan).
+
+No new claims appear here — every point must already exist in a later
+section.
 
 **Example wording (placeholder org):**
 
 > {{organization_name}} is a small community-focused nonprofit serving
-> [population] in [region], based on what the team shared in intake. Their
-> website clearly states their mission and offers a working donation path.
-> The biggest near-term opportunities are clarifying how donations are used,
-> adding a board / leadership page for donor trust, and tightening the
-> homepage so first-time visitors can find the "how to help" path in one
-> click. A detailed 30-day and 90-day action plan follows.
+> [population] in [region], based on what the team shared in intake.
+> Their website states the mission clearly and offers a working
+> donation path. The headline diagnosis is that the organization is
+> not held back by a missing mission story — it is held back by
+> uneven donor and volunteer pathways around that story. The rest of
+> this report walks the fourteen intake categories and ends with a
+> practical 30-day and 90-day plan.
 
-Do not write the executive summary until the rest of the report is filled
-in.
-
----
-
-## 2. Evidence Snapshot
-
-A compact, scannable table or list summarizing what evidence the report is
-built on. This is not analysis — it is a receipt.
-
-Include:
-
-- Intake submission date (from the intake record).
-- Website URL(s) the nonprofit listed in intake.
-- Public social profiles the nonprofit listed in intake.
-- Any other public URLs the nonprofit listed (program directories, public
-  partner pages, etc.).
-- A count of intake questions answered vs. left blank.
-
-**Example wording (placeholder org):**
-
-> - Intake submitted: [YYYY-MM-DD]
-> - Website reviewed: [https://example.org]
-> - Public socials reviewed: [list any the nonprofit shared]
-> - Other public sources reviewed: [list any the nonprofit linked]
-> - Intake completeness: [X of Y core questions answered]
-
-Do not include any source the nonprofit did not point us to.
+Do not write this section until the rest of the report is filled in.
 
 ---
 
-## 3. Website Clarity
+## 2. Organization Profile
 
-Is the website readable, focused, and oriented to a first-time visitor? Use
-the repeatable item format for each finding.
+Fed by intake section `organization_basics`. Restate the
+organization's name, public website, geographic base, primary service
+area, and primary focus category exactly as the team answered. Do not
+reclassify their category. If a field is blank in intake, note it.
 
-Suggested items to check (each becomes its own item block if relevant):
+Use the repeatable item format for any finding that needs evidence
+beyond a simple restatement (for example, if the website URL in
+intake does not match what is publicly resolvable).
 
-- Mission statement is visible above the fold on the homepage.
-- "What we do" is described in plain language without jargon.
+---
+
+## 3. Mission & Community
+
+Fed by intake section `mission_community` plus any verified website
+findings that confirm mission language or community served. Restate
+the mission, the primary community served, and the team's
+self-identified priority audience.
+
+Use the repeatable item format for each verified observation.
+
+---
+
+## 4. Programs & Services
+
+Fed by intake section `programs_services` plus verified findings that
+describe how programs run, who they serve, or how participants engage.
+
+Use the repeatable item format. Keep the description grounded in what
+the nonprofit told us about delivery method and rough scale — do not
+infer program design from the website alone.
+
+---
+
+## 5. Goals & Growth Priorities
+
+Fed by intake section `current_goals`. Restate the team's stated
+priorities for the next 6–12 months, their definition of meaningful
+growth, and their success indicators.
+
+Do not introduce growth goals the team did not name.
+
+---
+
+## 6. Current Challenges
+
+Fed by intake section `challenges`. Restate the biggest constraints
+the team named, the recurring tasks that consume time, and where
+outside help would matter most.
+
+Note any verified findings that line up with — or quietly contradict
+— what the team said. Quiet contradictions belong in **Human Review
+Flags & Missing Information**, not here, unless they are well
+supported.
+
+---
+
+## 7. Website & Digital Presence
+
+Fed by intake section `website_digital_presence` plus verified
+findings in categories `website_clarity`, `seo`, and `geo_ai_search`.
+
+SEO and AI-search readiness live here in the new structure. Use the
+repeatable item format. Keep SEO recommendations small and concrete —
+generic SEO advice scales badly.
+
+Suggested signals to consider when findings support them:
+
+- The homepage clearly states who the organization is and what they do
+  above the fold.
 - A clear primary call to action exists (donate, volunteer, contact).
 - Navigation labels are obvious to a non-staff reader.
-- Mobile layout is usable.
-- Contact information is present and reachable.
-
-**Example item (placeholder, illustrative):**
-
-```
-### Homepage mission statement is visible without scrolling
-
-- **Status:** Found on website
-- **Evidence / Source URL:** [https://example.org]
-- **Finding:** The homepage opens with a one-line mission statement and a
-  short supporting sentence above the fold.
-- **Recommendation:** Keep the mission line; consider moving the donate
-  button to the same band so visitors see purpose and action together.
-- **Priority:** Low
-```
+- The homepage `<title>` and meta description read like sentences a
+  human would write.
+- Key facts are in plain text, not only in images or PDFs (so AI
+  summarizers can lift them).
+- Any public profile the nonprofit linked us to matches the language
+  on their own site.
 
 ---
 
-## 4. Donor Trust
+## 8. Donor & Supporter Readiness
 
-Signals that help a prospective donor decide whether to give. Use the
-repeatable item format.
+Fed by intake section `donor_supporter_readiness` plus verified
+findings in category `donor_trust`. Restate whether online donations
+are accepted, the experience of the donation page, monthly giving
+posture, and supporter communication cadence.
 
-Suggested signals to check:
-
-- Public statement of how donations are used.
-- Named leadership or board page (no private details — only what the org
-  has chosen to publish).
-- Visible nonprofit / tax-status statement on the site (note: do **not**
-  advise on tax law; just record whether the statement is present).
-- Secure-looking donation flow (HTTPS, recognizable processor).
-- Annual impact summary or recent program update.
-
-**Example item (placeholder, illustrative):**
-
-```
-### Public "where your gift goes" explanation
-
-- **Status:** Not found
-- **Evidence / Source URL:** Looked on [https://example.org/donate] and
-  [https://example.org/about] on [YYYY-MM-DD]; no breakdown found.
-- **Finding:** The donation page accepts gifts but does not describe how
-  funds are used.
-- **Recommendation:** Add a short three-bullet "how your gift is used"
-  block near the donate button.
-- **Priority:** High
-```
+Use the repeatable item format. Where intake describes a process (for
+example, manual thank-yous) and findings confirm or contradict it,
+write both as separate items.
 
 ---
 
-## 5. Volunteer Readiness
+## 9. Volunteer Readiness
 
-Is it easy for a willing stranger to volunteer? Use the repeatable item
-format.
+Fed by intake section `volunteer_readiness` plus verified findings in
+category `volunteer_readiness`. Restate whether volunteers are used,
+how they sign up, and what volunteer help would matter most.
 
-Suggested signals to check:
-
-- A volunteer page exists and is linked from the main navigation.
-- The page names real opportunities, not only a generic "get involved" form.
-- A way to contact the volunteer coordinator (form, email, or scheduled
-  signup).
-- Expectations of volunteers (time, skills, location) are stated.
+Use the repeatable item format.
 
 ---
 
-## 6. Transparency Signals
+## 10. Trust & Transparency Signals
 
-Public-facing signals that the organization operates in the open. Use the
-repeatable item format.
+Fed by intake section `trust_transparency` plus verified findings in
+category `transparency`.
 
-Suggested signals to check:
-
-- Named leadership on the website (names + roles only — do not pull personal
-  info from elsewhere).
-- A published annual or impact report, if the nonprofit has chosen to
-  publish one.
-- A clear privacy statement on forms that collect personal data.
-- A working contact path (form, email, or phone).
-
-Do **not** comment on filings, financials, or compliance status that
-require a tax-advisor judgment. If the nonprofit asks, point them to the
-relevant public resource and recommend they confirm with a qualified
-professional. See [Writing Rules](#writing-rules) item 2.
+Do **not** comment on filings, audits, or compliance status that
+require a tax-advisor judgment. Point at the relevant public resource
+and recommend the nonprofit confirm with a qualified professional. See
+[Writing Rules](#writing-rules) item 2.
 
 ---
 
-## 7. SEO Readiness
+## 11. Content & Messaging
 
-Search-engine readability for a small nonprofit site. This is a practical,
-non-exhaustive check, not a full SEO audit. Use the repeatable item format.
-
-Suggested signals to check:
-
-- The homepage has a descriptive `<title>` (e.g., "{{org_name}} — short
-  description of what they do") rather than a default like "Home".
-- The homepage has a meta description that reads like a sentence a human
-  would write.
-- Headings on key pages use real, descriptive text (not "Welcome").
-- Image alt text is present on important images, where reasonable.
-- Page URLs are readable (`/donate`, `/programs/tutoring`) rather than
-  numeric IDs.
-
-Keep recommendations small and concrete. SEO advice scales badly when it is
-generic.
+Fed by intake section `content_messaging` plus verified findings in
+category `content_messaging`. Restate message clarity, who owns
+content creation, target audiences for content, the content types the
+team wants to improve, and the cadence they would like.
 
 ---
 
-## 8. GEO / AI Search Readiness
+## 12. Accounting & Financial Operations
 
-How likely is this nonprofit to be represented accurately when a person
-asks an AI assistant about them or about their cause? Use the repeatable
-item format.
+Fed by intake section `accounting_operations`.
 
-Suggested signals to check:
-
-- The homepage clearly states who the organization is and what they do in a
-  single readable paragraph (this is what AI summarizers tend to lift).
-- Key facts (location served, population served, programs offered) are
-  written in plain text on the site, not only in images or PDFs.
-- The organization has a stable, canonical name used consistently across
-  their own site and the public profiles they shared with us.
-- Any public profile the nonprofit linked us to (e.g., a program directory
-  they themselves listed) matches the language on their own site.
-
-Do **not** speculate about how a specific AI model will rank or summarize
-the org. Stick to whether the on-page facts are clear, consistent, and in
-plain text.
+**Do not give legal, tax, or accounting advice in this section.**
+Restate who manages bookkeeping, whether books are monthly, and the
+team's self-rated confidence around financial transparency for
+grants. If the team named a specific topic (catching up books,
+restricted funds, Form 990 timing, etc.), restate the topic and add a
+human-review flag recommending a qualified bookkeeper, CPA, or
+accountant. The flag also belongs in **Human Review Flags & Missing
+Information**.
 
 ---
 
-## 9. Grant Readiness
+## 13. Grant Readiness
 
-Practical signals that the org is in a position to apply for grants. This
-section gives orientation, not legal or compliance advice. Use the
-repeatable item format.
+Fed by intake section `grant_readiness` plus verified intake-sourced
+findings only.
 
-Suggested signals to check:
+**Do not assess eligibility, deadlines, or specific funder fit.**
+Restate whether the organization currently receives grants, the
+team's stated timeline for applying, what would make them feel more
+ready, and what feels hardest about grants right now.
 
-- Mission and programs are described in plain language a grant reviewer
-  could quote.
-- The organization has a public way to demonstrate impact (a short story,
-  a number, a recent update — whatever the org has chosen to publish).
-- Contact information is current.
-- The website does not contradict what the nonprofit said in intake.
-
-If the nonprofit asks about specific grants, eligibility, or filings, do
-**not** answer in the report. Recommend they consult a qualified grants
-advisor or the funder directly. See [Writing Rules](#writing-rules) item 2.
+If a question arises that requires eligibility or funder-specific
+judgment, restate the question and add a one-sentence flag
+recommending a qualified grants advisor or the funder directly.
 
 ---
 
-## 10. Operations & Automation Opportunities
+## 14. Operations & Automation Opportunities
 
-Where could light tooling save the team real hours? Use the repeatable item
-format. Keep this grounded in what the nonprofit told us about their
-day-to-day work in intake — not in generic SaaS recommendations.
+Fed by intake section `operations_automation` plus verified findings
+in category `operations_automation`. Restate the tools the team
+already uses, the manual tasks they want to simplify, the automation
+ideas they marked as useful, their willingness, and team size.
 
-Suggested signals to check:
-
-- Intake mentions repetitive manual tasks (e.g., copy-pasting volunteer
-  signups into a spreadsheet).
-- Intake mentions tools that already exist but are underused.
-- Intake mentions a communication bottleneck (e.g., one person answers all
-  email).
-
-Each recommendation should name the specific manual step it would replace.
-Avoid recommending a tool the org did not ask about unless the benefit is
-obvious and the cost is low.
+Each recommendation should name the specific manual step it would
+replace. Avoid recommending a tool the org did not ask about unless
+the benefit is obvious and the cost is low.
 
 ---
 
-## 11. Missing / Needs Confirmation
+## 15. Final Context
+
+Fed by intake section `final_context`. Restate, in the team's own
+words where possible, anything else they wanted us to understand and
+what they are most hoping connectNPO can help them improve.
+
+This is not a place to add new claims — it is the section where the
+team's framing closes the analysis.
+
+---
+
+## 16. Overall Result & Practical Plan
+
+The closing section of the report. Four sub-blocks, in this order.
+
+### Overall result
+
+One short paragraph (three to five sentences) restating the diagnosis
+as a practical takeaway for the operator. No new claims; this is the
+plain-language version of the Executive Overview, written for the
+person who is about to act on the report.
+
+### Where to focus first / what can wait
+
+A short bulleted list with two parts:
+
+- **Focus first** — the one to three areas the report recommends
+  treating as the primary work, drawn from
+  `strategic_diagnosis.primary_focus` (or equivalent).
+- **What can wait** — the items the report explicitly recommends
+  delaying, drawn from `strategic_diagnosis.what_can_wait` (or
+  equivalent).
+
+Each bullet should name the intake category it ties back to.
+
+### 30-day direction
+
+Three to five concrete actions drawn from `priority_for_30_day` in the
+readiness assessment. Each action should:
+
+- Reference the intake category section it comes from (by name).
+- Be small enough that a non-technical staff member can do it or
+  commission it.
+- Have a clear "done when" condition.
+
+### 90-day direction
+
+Three to five actions for the next quarter, drawn from
+`priority_for_90_day`. Same format as the 30-day block. These can be
+larger than the 30-day items but should still be specific and tied to
+intake categories.
+
+Do not pad either list. Fewer real actions beats a long generic list.
+
+---
+
+## 17. Recommended connectNPO Next Services
+
+Exactly mirrors `recommended_connectnpo_services` in the readiness
+assessment. If that array is empty, omit this section. Do not invent
+a reason to recommend a service.
+
+---
+
+## 18. Human Review Flags & Missing Information
 
 A bulleted list of things the operator could not verify from intake or
-public sources. Each bullet should name:
+public sources, plus every legal / tax / accounting /
+grant-eligibility / HR / compliance topic that came up in any
+section. Each bullet should name:
 
 - the question we still have,
 - where we looked,
-- what the nonprofit could share (or confirm) to resolve it.
+- what the nonprofit could share (or confirm) to resolve it,
+- which qualified professional should weigh in if the topic is
+  regulated.
 
-This is the polite handoff back to the nonprofit. It is the only place in
-the report where it is appropriate to ask the nonprofit a direct question.
+This is the polite handoff back to the nonprofit. It is the only
+place in the report where it is appropriate to ask the nonprofit a
+direct question.
 
 **Example wording (placeholder):**
 
 > - We could not confirm whether the volunteer signup form sends a
->   confirmation email. Looked at [https://example.org/volunteer]. Could
->   you confirm what happens after a signup is submitted?
+>   confirmation email. Looked at [https://example.org/volunteer].
+>   Could you confirm what happens after a signup is submitted?
+> - The Accounting & Financial Operations section mentioned Form 990
+>   preparation timing. We did not give an answer here — please
+>   confirm timing with your bookkeeper or CPA.
 
 ---
 
-## 12. 30-Day Action Plan
+## 19. Appendix: Evidence Log
 
-Three to five concrete actions the nonprofit can take in the next 30 days,
-drawn directly from the High and Medium priority items above. Each action
-should:
-
-- Reference the item it comes from (by section + title).
-- Be small enough that a non-technical staff member can do it or commission
-  it.
-- Have a clear "done when" condition.
-
-**Example wording (placeholder):**
-
-> 1. Add a three-bullet "how your gift is used" block to the donate page.
->    *(From: Donor Trust → Public "where your gift goes" explanation.)*
->    Done when: the block is visible on the live donate page.
-
-Do not pad this list. Fewer real actions beats a long generic list.
-
----
-
-## 13. 90-Day Action Plan
-
-Three to five actions for the next quarter. These can be larger than the
-30-day items (e.g., publish a short annual update, add a board page,
-rewrite the homepage hero) but should still be specific and tied to items
-from the analysis sections.
-
-Format matches the 30-day plan: reference the source item, describe the
-action, and define "done when."
-
----
-
-## 14. Appendix: Evidence Log
-
-A full list of every source consulted while writing the report. This is
-the reproducibility backbone of the report — anyone re-reading it should be
-able to re-open the same sources.
+A full list of every source consulted while writing the report. This
+is the reproducibility backbone of the report — anyone re-reading it
+should be able to re-open the same sources.
 
 Suggested columns / fields:
 
-- **Source URL or intake reference** — full URL, or `intake:<question_id>`.
+- **Source URL or intake reference** — full URL, or
+  `intake:<section_key>.<question_key>`.
 - **Date reviewed** — `YYYY-MM-DD`.
 - **What it supported** — the section + item title(s) that cite this
   source.
-- **Notes** — short note if the page was unstable, partially loaded, or
-  later moved.
+- **Notes** — short note if the page was unstable, partially loaded,
+  or later moved.
 
-Every public-claim item in sections 3–10 must point at a row in this log.
-If a source is not in the log, the claim cannot stay in the report.
+Every public-claim item in sections 2–14 must point at a row in this
+log. If a source is not in the log, the claim cannot stay in the
+report.
 
 ---
 
@@ -420,8 +445,33 @@ If a source is not in the log, the claim cannot stay in the report.
 
 ---
 
+## Intake Category Order (Quick Reference)
+
+The fourteen analysis sections follow the intake form exactly:
+
+1. Organization Profile
+2. Mission & Community
+3. Programs & Services
+4. Goals & Growth Priorities
+5. Current Challenges
+6. Website & Digital Presence
+7. Donor & Supporter Readiness
+8. Volunteer Readiness
+9. Trust & Transparency Signals
+10. Content & Messaging
+11. Accounting & Financial Operations
+12. Grant Readiness
+13. Operations & Automation Opportunities
+14. Final Context
+
+Keep this order even when a category has no material findings. Write
+a single short sentence in that case rather than removing the
+heading.
+
+---
+
 ## Template Version
 
-- Template version: 0.1 (internal draft)
+- Template version: 0.2 (intake-category order)
 - Owner: connectNPO operations
 - Related planning doc: [docs/REPORT_AGENT_WORKFLOW.md](./REPORT_AGENT_WORKFLOW.md)

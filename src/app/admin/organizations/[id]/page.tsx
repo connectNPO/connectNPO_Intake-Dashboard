@@ -12,6 +12,7 @@ import { CopyButton } from '@/components/ui/CopyButton';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { STATUS_ORDER, statusLabel } from '@/lib/status';
 import { INTAKE_SECTIONS } from '@/lib/intake/questions';
+import { getAgentPacketFilename } from '@/lib/agent-packet-filename';
 import { formatDate, formatAnswer } from '@/lib/format';
 import type { AdminNote, IntakeResponse, Organization, OrganizationStatus } from '@/lib/types';
 import { updateStatus, addNote, archiveOrganization, restoreOrganization } from './actions';
@@ -63,10 +64,7 @@ export default async function OrganizationDetailPage({
   const baseUrl = await getBaseUrl();
   const intakeUrl = `${baseUrl}/intake/${organization.intake_token}`;
   const nextOperatorStep = getNextOperatorStep(organization.status);
-  const agentPacketFilename = `${organization.name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '') || 'organization'}-agent-packet.json`;
+  const agentPacketFilename = getAgentPacketFilename(organization.name);
 
   // Group responses by section, ordered by the question config.
   const responsesBySection = INTAKE_SECTIONS.map((section) => {
@@ -216,7 +214,7 @@ export default async function OrganizationDetailPage({
           <Card className="flex flex-col gap-3">
             <SectionHeader
               title="Agent packet"
-              description="Evidence-first JSON for the future Growth Readiness Report workflow."
+              description="Evidence-first JSON that Hermes/Claude Code can use to draft a Growth Advisor Report."
             />
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               <Link
@@ -234,29 +232,28 @@ export default async function OrganizationDetailPage({
               </Link>
             </div>
             <div className="rounded-[7px] border border-dashed border-border bg-[#faf9f5] px-3 py-2 text-xs text-muted">
-              <p className="font-medium text-main">Report template</p>
+              <p className="font-medium text-main">Report drafting resources</p>
               <p className="mt-1">
-                Use the internal Growth Readiness Report template when turning
-                this packet into a human-reviewed draft.
+                These are internal instructions for Hermes/Claude Code. Operators usually ask Hermes to draft the report instead of copying prompts manually.
               </p>
               <div className="mt-2 flex flex-wrap gap-3">
                 <Link
                   href="/admin/report-template"
                   className="inline-flex text-primary hover:underline"
                 >
-                  Open report template
+                  Report structure
                 </Link>
                 <Link
                   href="/admin/research-agent-prompt"
                   className="inline-flex text-primary hover:underline"
                 >
-                  Open research prompt
+                  Website research instructions
                 </Link>
                 <Link
                   href="/admin/report-writer-prompt"
                   className="inline-flex text-primary hover:underline"
                 >
-                  Open report writer prompt
+                  Report drafting instructions
                 </Link>
               </div>
             </div>
@@ -266,36 +263,36 @@ export default async function OrganizationDetailPage({
           <Card className="flex flex-col gap-4">
             <SectionHeader
               title="Report workflow"
-              description="Preparation steps for a human-reviewed Growth Readiness Report."
+              description="MVP workflow: operator reviews intake, asks Hermes to draft, then approves the client-ready link."
             />
             <ol className="flex flex-col gap-3 text-sm">
               <WorkflowStep
                 status="Ready"
-                title="Agent packet"
-                description="Intake answers, organization context, evidence rules, and report scope are ready for research."
+                title="Review intake and packet"
+                description="Confirm responses, missing answers, admin notes, and the Download JSON packet before report work starts."
               />
               <WorkflowStep
                 status="Next"
-                title="Website & public research"
-                description="Future research agent should review the website, public sources, SEO/GEO visibility, donor trust signals, and grant readiness evidence."
+                title="Ask Hermes to draft the report"
+                description="Tell Hermes: “Create a Growth Advisor Report for this organization.” Hermes will direct Claude Code to research and draft from the packet."
               />
               <WorkflowStep
                 status="Required"
-                title="Fact-check log"
-                description="Each finding should be labeled as found in intake, found on website, found in public source, not found, or needs confirmation."
+                title="Hermes reviews the draft"
+                description="Hermes checks the category order, evidence, risky wording, missing context, and whether the report avoids legal/tax/accounting advice."
               />
               <WorkflowStep
                 status="Required"
-                title="Human final review"
-                description="A connectNPO reviewer should approve the draft before anything is delivered to the organization."
+                title="Human approval before client link"
+                description="Jay reviews the browser preview. Only after approval should a client-ready report link be created and sent."
               />
             </ol>
             <div className="grid grid-cols-1 gap-2 text-xs sm:grid-cols-2">
               <span className="rounded-[7px] border border-dashed border-border bg-[#faf9f5] px-3 py-2 text-center text-muted">
-                Research agent — future step
+                Draft automation button — later
               </span>
               <span className="rounded-[7px] border border-dashed border-border bg-[#faf9f5] px-3 py-2 text-center text-muted">
-                Draft report — future step
+                API/job queue — later when needed
               </span>
             </div>
           </Card>

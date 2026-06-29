@@ -126,6 +126,8 @@ async function main() {
     await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
     const adminTitle = await safeText(page.locator('h1').first());
     const checklistNavLink = await page.locator('a[href="/admin/operations-checklist"]').first().getAttribute('href').catch(() => null);
+    const publicRequestLink = await page.locator('a[href="/request-review"]').first().getAttribute('href').catch(() => null);
+    const publicRequestTarget = await page.locator('a[href="/request-review"]').first().getAttribute('target').catch(() => null);
     const organizationHrefs = await page.locator('a[href^="/admin/organizations/"]').evaluateAll((links) =>
       links
         .map((link) => link.getAttribute('href'))
@@ -135,6 +137,7 @@ async function main() {
     report.metrics.organization_link_count = orgRows;
     report.checks.push(status('Admin dashboard loads', Boolean(adminTitle?.includes('Organizations')) || orgRows > 0, `title=${adminTitle ?? 'missing'}, organization_links=${orgRows}`));
     report.checks.push(status('Operations checklist nav link exists', checklistNavLink === '/admin/operations-checklist', checklistNavLink ?? 'missing'));
+    report.checks.push(status('Public request form link exists in left navigation', publicRequestLink === '/request-review' && publicRequestTarget === '_blank', `href=${publicRequestLink ?? 'missing'}, target=${publicRequestTarget ?? 'missing'}`));
 
     const checklistUrl = sameOriginUrl(loginUrl, '/admin/operations-checklist');
     await page.goto(checklistUrl, { waitUntil: 'domcontentloaded' });
@@ -152,8 +155,10 @@ async function main() {
       await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
       const detailTitle = await safeText(page.locator('h1').first());
       const detailText = await page.locator('body').innerText();
+      const sidebarPosition = await page.locator('aside').first().evaluate((node) => getComputedStyle(node).position).catch(() => null);
       const previewHref = await page.locator('a[href$="/agent-packet"]').first().getAttribute('href').catch(() => null);
       report.checks.push(status('Organization detail loads', Boolean(detailTitle), `title=${detailTitle ?? 'missing'}`));
+      report.checks.push(status('Organization detail keeps left navigation fixed on desktop', sidebarPosition === 'fixed', `position=${sidebarPosition ?? 'missing'}`));
       report.checks.push(status('Organization detail shows next operator step', detailText.includes('Next operator step') && detailText.toLowerCase().includes('current status')));
       report.checks.push(status('Preview packet link exists', Boolean(previewHref), previewHref ?? 'missing'));
 

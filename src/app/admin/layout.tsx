@@ -8,6 +8,7 @@ const navGroups = [
     label: 'Operations',
     items: [
       { href: '/admin', label: 'Organizations' },
+      { href: '/request-review', label: 'Public request form', target: '_blank' },
       { href: '/admin/organizations/new', label: 'New Intake' },
       { href: '/admin/operations-checklist', label: 'Checklist' },
     ],
@@ -24,9 +25,9 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-1 flex-col bg-[#f7f5ef] lg:flex-row">
-      <aside className="border-b border-border bg-surface lg:sticky lg:top-0 lg:flex lg:min-h-screen lg:w-64 lg:flex-col lg:border-b-0 lg:border-r">
-        <div className="flex min-h-16 items-center justify-between gap-4 px-4 lg:min-h-screen lg:flex-col lg:items-stretch lg:justify-start lg:gap-10 lg:px-5 lg:py-5">
+    <div className="flex flex-1 flex-col bg-[#f7f5ef] lg:block">
+      <aside className="border-b border-border bg-surface lg:fixed lg:inset-y-0 lg:left-0 lg:z-20 lg:flex lg:w-64 lg:flex-col lg:overflow-y-auto lg:border-b-0 lg:border-r">
+        <div className="flex min-h-16 items-center justify-between gap-4 px-4 lg:min-h-0 lg:flex-1 lg:flex-col lg:items-stretch lg:justify-start lg:gap-10 lg:px-5 lg:py-5">
           <div className="flex items-center justify-between gap-3 lg:block">
             <Logo />
             <p className="hidden text-xs uppercase tracking-[0.18em] text-muted lg:mt-3 lg:block">
@@ -45,6 +46,7 @@ export default function AdminLayout({
                     <Link
                       key={item.href}
                       href={item.href}
+                      target={'target' in item ? item.target : undefined}
                       className="rounded-[7px] px-3 py-2 text-sm font-medium text-muted transition-colors hover:bg-primary-soft hover:text-main"
                     >
                       {item.label}
@@ -63,6 +65,7 @@ export default function AdminLayout({
               <Link
                 key={item.href}
                 href={item.href}
+                target={'target' in item ? item.target : undefined}
                 className="whitespace-nowrap rounded-[7px] px-3 py-2 text-sm font-medium text-muted hover:bg-primary-soft hover:text-main"
               >
                 {item.label}
@@ -78,7 +81,7 @@ export default function AdminLayout({
         </div>
       </aside>
 
-      <main className="w-full flex-1 px-4 py-8 lg:px-8">
+      <main className="w-full flex-1 px-4 py-8 lg:ml-64 lg:px-8">
         <div className="mx-auto w-full max-w-[1200px]">{children}</div>
       </main>
     </div>

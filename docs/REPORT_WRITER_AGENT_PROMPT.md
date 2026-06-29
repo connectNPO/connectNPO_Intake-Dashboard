@@ -132,10 +132,11 @@ Make recommendations concrete and small enough to act on.
 - **Priority:** <High | Medium | Low>
 ```
 
-13. Write the Executive Summary last, using the top strategic priorities from the internal diagnosis.
-14. Add a Missing / Needs Confirmation section for unresolved questions.
-15. Add a 30-Day Action Plan and 90-Day Action Plan based only on High and Medium priority items.
-16. End with an Evidence Log appendix.
+13. Follow the report template's required section order exactly. The analysis sections must follow the fourteen intake categories in the order the nonprofit answered them — Organization Profile, Mission & Community, Programs & Services, Goals & Growth Priorities, Current Challenges, Website & Digital Presence, Donor & Supporter Readiness, Volunteer Readiness, Trust & Transparency Signals, Content & Messaging, Accounting & Financial Operations, Grant Readiness, Operations & Automation Opportunities, Final Context. Keep the heading for every category even when there are no material findings.
+14. Open the report with an Overall Overview written last, using the top strategic priorities from the internal diagnosis.
+15. Close the report with an "Overall Result & Practical Plan" section that contains: a one-paragraph overall result, a short "focus first / what can wait" list, a 30-day direction (3–5 actions), and a 90-day direction (3–5 actions). Each action must tie back to the intake category section it comes from and have a "done when" condition.
+16. Add a Human Review Flags & Missing Information section for unresolved questions and for any legal / tax / accounting / grant-eligibility / HR / compliance topic that came up in any section.
+17. End with an Evidence Log appendix.
 
 ## Output Format
 
