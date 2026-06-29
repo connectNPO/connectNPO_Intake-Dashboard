@@ -40,35 +40,59 @@ export default async function AdminHomePage({
     | 'submitted_at'
   >[];
 
+  const submittedCount = organizations.filter((org) => org.submitted_at).length;
+  const activeCount = organizations.filter((org) => org.status !== 'archived').length;
+
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold text-main">
-            {showArchived ? 'Archived organizations' : 'Organizations'}
-          </h1>
-          <p className="mt-1 text-sm text-muted">
-            {showArchived
-              ? 'Review organizations that have been archived and restore them if needed.'
-              : 'Review nonprofit intake submissions and track their status.'}
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Link href={showArchived ? '/admin' : '/admin?archived=1'}>
-            <Button variant="ghost">
-              {showArchived ? 'View active' : 'View archived'}
-            </Button>
-          </Link>
-          {!showArchived && (
-            <Link href="/admin/organizations/new">
-              <Button>New Organization</Button>
+      <section className="overflow-hidden rounded-[28px] border border-border bg-surface p-6 shadow-[var(--shadow-soft)] md:p-8">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-2xl">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-border bg-[var(--surface-elevated)] px-3 py-1.5 text-xs font-medium text-muted shadow-[0_0_0_1px_var(--ring)]">
+              <span className="text-primary">✽</span>
+              connectNPO Growth Readiness
+            </div>
+            <h1 className="font-editorial text-4xl leading-[1.05] text-main md:text-5xl">
+              {showArchived ? 'Archived organizations' : 'Evening, Jay'}
+            </h1>
+            <p className="mt-4 max-w-xl text-sm leading-6 text-muted md:text-base">
+              {showArchived
+                ? 'Review organizations that have been archived and restore them if needed.'
+                : 'Review nonprofit intake submissions, prepare advisor reports, and move approved reports into client-ready links.'}
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Link href={showArchived ? '/admin' : '/admin?archived=1'}>
+              <Button variant="secondary">
+                {showArchived ? 'View active' : 'View archived'}
+              </Button>
             </Link>
-          )}
+            {!showArchived && (
+              <Link href="/admin/organizations/new">
+                <Button>New Organization</Button>
+              </Link>
+            )}
+          </div>
         </div>
-      </div>
+
+        <div className="mt-8 grid gap-3 md:grid-cols-3">
+          <div className="rounded-2xl border border-border bg-[var(--surface-elevated)] p-4 shadow-[0_0_0_1px_var(--ring)]">
+            <p className="text-xs uppercase tracking-[0.16em] text-muted">Organizations</p>
+            <p className="mt-3 font-editorial text-3xl text-main">{organizations.length}</p>
+          </div>
+          <div className="rounded-2xl border border-border bg-[var(--surface-elevated)] p-4 shadow-[0_0_0_1px_var(--ring)]">
+            <p className="text-xs uppercase tracking-[0.16em] text-muted">Submitted</p>
+            <p className="mt-3 font-editorial text-3xl text-main">{submittedCount}</p>
+          </div>
+          <div className="rounded-2xl border border-border bg-[var(--surface-elevated)] p-4 shadow-[0_0_0_1px_var(--ring)]">
+            <p className="text-xs uppercase tracking-[0.16em] text-muted">Active</p>
+            <p className="mt-3 font-editorial text-3xl text-main">{activeCount}</p>
+          </div>
+        </div>
+      </section>
 
       {error && (
-        <Card className="border-[#eccaca] bg-[#f7e3e3]">
+        <Card className="border-[#b53333]/30 bg-[#b53333]/10">
           <p className="text-sm text-danger">
             We couldn’t load organizations. Please check your Supabase
             configuration and try again.
@@ -100,6 +124,13 @@ export default async function AdminHomePage({
 
       {organizations.length > 0 && (
         <Card className="overflow-hidden p-0">
+          <div className="flex items-center justify-between border-b border-border px-5 py-4">
+            <div>
+              <h2 className="font-editorial text-2xl text-main">Organizations</h2>
+              <p className="mt-1 text-sm text-muted">Latest nonprofit intake activity</p>
+            </div>
+          </div>
+
           {/* Desktop table */}
           <div className="hidden overflow-x-auto md:block">
             <table className="w-full text-left text-sm">
@@ -117,7 +148,7 @@ export default async function AdminHomePage({
                 {organizations.map((org) => (
                   <tr
                     key={org.id}
-                    className="border-b border-border last:border-0 hover:bg-[#faf9f5]"
+                    className="border-b border-border last:border-0 hover:bg-primary-soft/60"
                   >
                     <td className="px-5 py-3">
                       <div className="font-medium text-main">{org.name}</div>

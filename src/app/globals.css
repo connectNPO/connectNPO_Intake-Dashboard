@@ -1,17 +1,66 @@
 @import "tailwindcss";
 
-/* connectNPO palette */
+/* Claude-inspired warm editorial palette for connectNPO */
 :root {
-  --background: #faf9f5;
-  --surface: #ffffff;
-  --primary: #7182ff;
-  --primary-soft: #ececff;
-  --muted-text: #6f6a63;
-  --main-text: #111111;
-  --border: #e8e4dc;
-  --success: #2f9e6d;
-  --warning: #c88719;
-  --danger: #c24141;
+  color-scheme: light;
+  --background: #f5f4ed;
+  --surface: #faf9f5;
+  --surface-elevated: #ffffff;
+  --sidebar: #eeece3;
+  --primary: #c96442;
+  --primary-hover: #b75637;
+  --primary-soft: #f1dfd5;
+  --muted-text: #6b6961;
+  --main-text: #141413;
+  --border: #e4e1d6;
+  --border-strong: #d1cfc5;
+  --success: #3f7d5c;
+  --warning: #a66b1f;
+  --danger: #b53333;
+  --ring: #cfcac0;
+  --shadow-soft: 0 12px 40px rgba(20, 20, 19, 0.07);
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+  --background: #191918;
+  --surface: #232321;
+  --surface-elevated: #2d2d2a;
+  --sidebar: #141413;
+  --primary: #d97757;
+  --primary-hover: #e68b68;
+  --primary-soft: #3a2a24;
+  --muted-text: #b0aea5;
+  --main-text: #f3f0e8;
+  --border: #30302e;
+  --border-strong: #44433f;
+  --success: #7bb891;
+  --warning: #d8a657;
+  --danger: #e07a71;
+  --ring: #494842;
+  --shadow-soft: 0 18px 50px rgba(0, 0, 0, 0.28);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --background: #191918;
+    --surface: #232321;
+    --surface-elevated: #2d2d2a;
+    --sidebar: #141413;
+    --primary: #d97757;
+    --primary-hover: #e68b68;
+    --primary-soft: #3a2a24;
+    --muted-text: #b0aea5;
+    --main-text: #f3f0e8;
+    --border: #30302e;
+    --border-strong: #44433f;
+    --success: #7bb891;
+    --warning: #d8a657;
+    --danger: #e07a71;
+    --ring: #494842;
+    --shadow-soft: 0 18px 50px rgba(0, 0, 0, 0.28);
+  }
 }
 
 @theme inline {
@@ -28,11 +77,23 @@
   --font-sans: var(--font-geist-sans);
 }
 
-body {
+html {
   background: var(--background);
+}
+
+body {
+  background:
+    radial-gradient(circle at 50% -20%, color-mix(in srgb, var(--primary) 10%, transparent), transparent 34rem),
+    var(--background);
   color: var(--main-text);
   font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system,
     "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+.font-editorial {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 500;
+  letter-spacing: -0.035em;
 }
 
 button,
@@ -52,12 +113,18 @@ button:disabled,
   outline-offset: 2px;
 }
 
+::selection {
+  background: var(--primary-soft);
+  color: var(--main-text);
+}
+
 .client-report h1,
 .client-report h2,
 .client-report h3 {
   color: var(--main-text);
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 500;
+  letter-spacing: -0.035em;
 }
 
 .client-report h1 {

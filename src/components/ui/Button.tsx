@@ -11,11 +11,13 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const variants: Record<Variant, string> = {
   primary:
-    'bg-primary text-white hover:bg-[#5d6ef0] disabled:bg-[#b8c0ff] shadow-sm',
+    'bg-primary text-white hover:bg-[var(--primary-hover)] disabled:opacity-60 shadow-[0_0_0_1px_var(--primary)]',
   secondary:
-    'bg-surface text-main border border-border hover:bg-[#f3f1ec] disabled:opacity-60',
-  ghost: 'bg-transparent text-muted hover:bg-[#f0eee8] disabled:opacity-60',
-  danger: 'bg-danger text-white hover:bg-[#a93636] disabled:opacity-60 shadow-sm',
+    'bg-[var(--surface-elevated)] text-main border border-border hover:bg-primary-soft disabled:opacity-60 shadow-[0_0_0_1px_var(--ring)]',
+  ghost:
+    'bg-transparent text-muted hover:bg-primary-soft hover:text-main disabled:opacity-60',
+  danger:
+    'bg-danger text-white hover:brightness-95 disabled:opacity-60 shadow-[0_0_0_1px_var(--danger)]',
 };
 
 const sizes: Record<Size, string> = {
@@ -31,7 +33,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         ref={ref}
-        className={`inline-flex items-center justify-center gap-2 rounded-[7px] font-medium transition-colors disabled:cursor-not-allowed ${variants[variant]} ${sizes[size]} ${className}`}
+        className={`inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-colors disabled:cursor-not-allowed ${variants[variant]} ${sizes[size]} ${className}`}
         {...props}
       />
     );
