@@ -25,7 +25,7 @@ const apps: AppCard[] = [
   },
   {
     title: 'Hermes Operations HQ',
-    description: 'Internal ops console for every Hermes workspace — connectNPO, GivingArc, Wife CPA, clients, and internal tooling.',
+    description: 'Internal ops console for every Hermes workspace — connectNPO, GivingArc, NPO Accounting, clients, and internal tooling.',
     href: '/admin/apps/hermes-workspaces',
     eyebrow: 'Internal operations',
     status: 'live',

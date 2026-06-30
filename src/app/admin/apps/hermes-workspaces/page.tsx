@@ -52,7 +52,7 @@ const SUPPORT_CLASS: Record<HermesWorkspaceSupportStatus, string> = {
 const ORGANIZATION_LABEL: Record<HermesWorkspaceOrganization, string> = {
   connectnpo: 'connectNPO',
   givingarc: 'GivingArc',
-  wife_cpa: 'Wife CPA',
+  wife_cpa: 'NPO Accounting',
   client: 'Client',
   internal: 'Internal',
 };
@@ -100,7 +100,7 @@ const buildOrderSteps = [
   {
     n: 1,
     title: 'Internal Hermes Operations HQ',
-    body: 'Use this console first for connectNPO, GivingArc, Wife CPA, staff bots, profiles, VPS notes, Discord channels, and support status.',
+    body: 'Use this console first for connectNPO, GivingArc, NPO Accounting, staff bots, profiles, VPS notes, Discord channels, and support status.',
   },
   {
     n: 2,
@@ -153,7 +153,7 @@ const setupSteps = [
   {
     n: 1,
     title: 'Record the workspace',
-    body: 'Capture the organization (connectNPO, GivingArc, Wife CPA, client, or internal), purpose, and naming so operators see one source of truth.',
+    body: 'Capture the organization (connectNPO, GivingArc, NPO Accounting, client, or internal), purpose, and naming so operators see one source of truth.',
   },
   {
     n: 2,
@@ -377,7 +377,7 @@ export default async function HermesOperationsPage({
           </h1>
           <p className="mt-1 max-w-2xl text-sm text-muted">
             One console for every Hermes workspace we run — connectNPO,
-            GivingArc, Wife CPA, client deployments, and internal tooling.
+            GivingArc, NPO Accounting, client deployments, and internal tooling.
             Bot tokens, API keys, and .env values stay on each VPS.
           </p>
         </div>
@@ -397,7 +397,7 @@ export default async function HermesOperationsPage({
             Run <code className="rounded bg-[#f7edc8] px-1 py-0.5 text-xs">supabase/hermes_workspaces.sql</code>{' '}
             in the Supabase SQL Editor to create the table and policies. Then optionally run{' '}
             <code className="rounded bg-[#f7edc8] px-1 py-0.5 text-xs">supabase/hermes_workspaces_internal_seed.sql</code>{' '}
-            to prefill our known connectNPO, GivingArc, and Wife CPA operating records.
+            to prefill our known connectNPO, GivingArc, and NPO Accounting operating records.
           </p>
         </Card>
       )}
@@ -614,7 +614,7 @@ export default async function HermesOperationsPage({
       {!tableMissing && !workspaceError && allWorkspaces.length === 0 && (
         <EmptyState
           title="No workspaces yet"
-          description="Add your first workspace — start with connectNPO, GivingArc, or Wife CPA — so the team has a shared view of who runs on which VPS and profile."
+          description="Add your first workspace — start with connectNPO, GivingArc, or NPO Accounting — so the team has a shared view of who runs on which VPS and profile."
           action={
             <Link href="/admin/apps/hermes-workspaces/new">
               <Button>Add workspace</Button>

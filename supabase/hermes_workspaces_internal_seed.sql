@@ -60,7 +60,7 @@ values
     true,
     true,
     true,
-    'Internal command center for managing connectNPO, GivingArc, Wife CPA, staff, and future client Hermes workspaces. This should be proven internally before a customer-facing dashboard is split out.'
+    'Internal command center for managing connectNPO, GivingArc, NPO Accounting, staff, and future client Hermes workspaces. This should be proven internally before a customer-facing dashboard is split out.'
   ),
   (
     'connectNPO ContentBot',
@@ -147,7 +147,7 @@ values
     'Giving Arc content workspace. Keep separate from CPA/tax/Form 990 work.'
   ),
   (
-    'Wife CPA Nonprofit Accounting',
+    'NPO Accounting',
     'wife-cpa-accounting',
     'internal',
     'wife_cpa',

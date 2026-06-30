@@ -276,7 +276,7 @@ export default async function HermesWorkspaceDetailPage({
             <Field
               htmlFor="organization"
               label="Organization"
-              helper="connectNPO, GivingArc, Wife CPA, a client, or internal tooling."
+              helper="connectNPO, GivingArc, NPO Accounting, a client, or internal tooling."
             >
               <Select
                 id="organization"
@@ -285,7 +285,7 @@ export default async function HermesWorkspaceDetailPage({
               >
                 <option value="connectnpo">connectNPO</option>
                 <option value="givingarc">GivingArc</option>
-                <option value="wife_cpa">Wife CPA</option>
+                <option value="wife_cpa">NPO Accounting</option>
                 <option value="client">Client</option>
                 <option value="internal">Internal</option>
               </Select>

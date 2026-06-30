@@ -1,5 +1,5 @@
 -- Hermes Operations HQ records for the connectNPO internal operations console.
--- Tracks workspaces for connectNPO, GivingArc, Wife CPA, clients, and internal tools.
+-- Tracks workspaces for connectNPO, GivingArc, NPO Accounting, clients, and internal tools.
 -- Stores operator-managed metadata only — no bot tokens, API keys, or .env values.
 -- Run this once in the Supabase SQL Editor. Safe to re-run.
 

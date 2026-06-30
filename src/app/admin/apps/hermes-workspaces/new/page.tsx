@@ -38,7 +38,7 @@ export default async function NewHermesWorkspacePage({
         </h1>
         <p className="mt-1 text-sm text-muted">
           Record metadata only. Examples: connectNPO ops dashboard, GivingArc
-          content bot, Wife CPA accounting helper. Do not enter Discord
+          content bot, NPO Accounting helper. Do not enter Discord
           tokens, API keys, passwords, or .env values — those stay on the VPS.
         </p>
       </div>
@@ -82,7 +82,7 @@ export default async function NewHermesWorkspacePage({
             <Field
               htmlFor="organization"
               label="Organization"
-              helper="connectNPO, GivingArc, Wife CPA, a client, or internal tooling."
+              helper="connectNPO, GivingArc, NPO Accounting, a client, or internal tooling."
             >
               <Select
                 id="organization"
@@ -91,7 +91,7 @@ export default async function NewHermesWorkspacePage({
               >
                 <option value="connectnpo">connectNPO</option>
                 <option value="givingarc">GivingArc</option>
-                <option value="wife_cpa">Wife CPA</option>
+                <option value="wife_cpa">NPO Accounting</option>
                 <option value="client">Client</option>
                 <option value="internal">Internal</option>
               </Select>
