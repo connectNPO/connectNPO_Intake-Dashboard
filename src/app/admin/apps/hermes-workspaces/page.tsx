@@ -90,6 +90,12 @@ const SUPPORT_FILTER_VALUES: HermesWorkspaceSupportStatus[] = [
   'ok',
 ];
 
+const CURRENT_WORKSPACE_COLUMNS =
+  'id, client_name, workspace_key, workspace_type, organization, purpose, environment, isolation_model, vps_hostname, hermes_profile, service_name, dashboard_port, status, support_status, checklist_profile_exists, checklist_dashboard_running, checklist_discord_connected, checklist_message_content_intent_on, checklist_service_restarted, checklist_test_message_passed, updated_at';
+
+const LEGACY_WORKSPACE_COLUMNS =
+  'id, client_name, workspace_key, workspace_type, isolation_model, vps_hostname, hermes_profile, dashboard_port, status, support_status, updated_at';
+
 const buildOrderSteps = [
   {
     n: 1,
@@ -191,13 +197,53 @@ type WorkspaceRow = Pick<
   | 'updated_at'
 >;
 
+type RawWorkspaceRow = Partial<WorkspaceRow> &
+  Pick<
+    WorkspaceRow,
+    | 'id'
+    | 'client_name'
+    | 'workspace_key'
+    | 'workspace_type'
+    | 'isolation_model'
+    | 'status'
+    | 'support_status'
+    | 'updated_at'
+  >;
+
+function normalizeWorkspace(row: RawWorkspaceRow): WorkspaceRow {
+  const legacyInternal = row.workspace_type === 'internal';
+  return {
+    id: row.id,
+    client_name: row.client_name,
+    workspace_key: row.workspace_key,
+    workspace_type: row.workspace_type,
+    organization: row.organization ?? (legacyInternal ? 'internal' : 'client'),
+    purpose: row.purpose ?? 'other',
+    environment: row.environment ?? (legacyInternal ? 'internal' : 'client'),
+    isolation_model: row.isolation_model,
+    vps_hostname: row.vps_hostname ?? null,
+    hermes_profile: row.hermes_profile ?? null,
+    service_name: row.service_name ?? null,
+    dashboard_port: row.dashboard_port ?? null,
+    status: row.status,
+    support_status: row.support_status,
+    checklist_profile_exists: row.checklist_profile_exists ?? false,
+    checklist_dashboard_running: row.checklist_dashboard_running ?? false,
+    checklist_discord_connected: row.checklist_discord_connected ?? false,
+    checklist_message_content_intent_on:
+      row.checklist_message_content_intent_on ?? false,
+    checklist_service_restarted: row.checklist_service_restarted ?? false,
+    checklist_test_message_passed: row.checklist_test_message_passed ?? false,
+    updated_at: row.updated_at,
+  };
+}
+
 function checklistDone(w: WorkspaceRow): number {
-  return HERMES_CHECKLIST_KEYS.reduce(
+  return HERMES_CHECKLIST_KEYS.reduce<number>(
     (acc, key) => acc + (w[`checklist_${key}`] ? 1 : 0),
     0,
   );
 }
-
 
 function nextOperatorAction(w: WorkspaceRow): string {
   if (w.support_status === 'issue') return 'Open notes and resolve the active issue';
@@ -242,16 +288,32 @@ export default async function HermesOperationsPage({
   const attentionFilter = sp.attention === '1';
 
   const supabase = await createClient();
-  const { data, error } = await supabase
+  let legacySchema = false;
+  let workspaceData: RawWorkspaceRow[] | null = null;
+  let workspaceError = null;
+
+  const currentResult = await supabase
     .from('hermes_workspaces')
-    .select(
-      'id, client_name, workspace_key, workspace_type, organization, purpose, environment, isolation_model, vps_hostname, hermes_profile, service_name, dashboard_port, status, support_status, checklist_profile_exists, checklist_dashboard_running, checklist_discord_connected, checklist_message_content_intent_on, checklist_service_restarted, checklist_test_message_passed, updated_at',
-    )
+    .select(CURRENT_WORKSPACE_COLUMNS)
     .order('updated_at', { ascending: false });
 
-  const allWorkspaces = (data ?? []) as WorkspaceRow[];
+  workspaceData = currentResult.data as RawWorkspaceRow[] | null;
+  workspaceError = currentResult.error;
+
+  if (workspaceError?.code === '42703') {
+    legacySchema = true;
+    const legacyResult = await supabase
+      .from('hermes_workspaces')
+      .select(LEGACY_WORKSPACE_COLUMNS)
+      .order('updated_at', { ascending: false });
+    workspaceData = legacyResult.data as RawWorkspaceRow[] | null;
+    workspaceError = legacyResult.error;
+  }
+
+  const allWorkspaces = (workspaceData ?? []).map(normalizeWorkspace);
   const tableMissing =
-    error && /relation .*hermes_workspaces.* does not exist/i.test(error.message);
+    workspaceError &&
+    /relation .*hermes_workspaces.* does not exist/i.test(workspaceError.message);
 
   const workspaces = allWorkspaces.filter((w) => {
     if (organizationFilter && w.organization !== organizationFilter) return false;
@@ -340,11 +402,26 @@ export default async function HermesOperationsPage({
         </Card>
       )}
 
-      {error && !tableMissing && (
+      {workspaceError && !tableMissing && !legacySchema && (
         <Card className="border-[#b53333]/30 bg-[#b53333]/10">
           <p className="text-sm text-danger">
             We couldn’t load Hermes workspaces. Check your Supabase
             configuration and try again.
+          </p>
+        </Card>
+      )}
+
+      {legacySchema && !workspaceError && (
+        <Card className="border-[#f0e2a6] bg-[#fff8e1]">
+          <p className="text-sm font-medium text-[#8a6d1f]">
+            Supabase schema update needed
+          </p>
+          <p className="mt-1 text-sm text-[#8a6d1f]">
+            This page is showing the older Hermes workspace table safely. Run{' '}
+            <code className="rounded bg-[#f7edc8] px-1 py-0.5 text-xs">supabase/hermes_workspaces.sql</code>{' '}
+            and then{' '}
+            <code className="rounded bg-[#f7edc8] px-1 py-0.5 text-xs">supabase/hermes_workspaces_internal_seed.sql</code>{' '}
+            in Supabase SQL Editor to enable the full Operations HQ fields.
           </p>
         </Card>
       )}
@@ -534,7 +611,7 @@ export default async function HermesOperationsPage({
         </Card>
       )}
 
-      {!tableMissing && !error && allWorkspaces.length === 0 && (
+      {!tableMissing && !workspaceError && allWorkspaces.length === 0 && (
         <EmptyState
           title="No workspaces yet"
           description="Add your first workspace — start with connectNPO, GivingArc, or Wife CPA — so the team has a shared view of who runs on which VPS and profile."
@@ -547,7 +624,7 @@ export default async function HermesOperationsPage({
       )}
 
       {!tableMissing &&
-        !error &&
+        !workspaceError &&
         allWorkspaces.length > 0 &&
         workspaces.length === 0 && (
           <EmptyState
