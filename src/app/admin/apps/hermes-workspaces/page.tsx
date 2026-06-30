@@ -145,6 +145,19 @@ function checklistDone(w: WorkspaceRow): number {
   );
 }
 
+
+function nextOperatorAction(w: WorkspaceRow): string {
+  if (w.support_status === 'issue') return 'Open notes and resolve the active issue';
+  if (!w.checklist_profile_exists) return 'Create or confirm the Hermes profile';
+  if (!w.checklist_dashboard_running) return 'Start or verify the Hermes dashboard';
+  if (!w.checklist_discord_connected) return 'Connect the Discord bot to the right channel';
+  if (!w.checklist_message_content_intent_on) return 'Enable Message Content Intent';
+  if (!w.checklist_service_restarted) return 'Restart the profile service after config changes';
+  if (!w.checklist_test_message_passed) return 'Send and confirm a test message';
+  if (w.support_status === 'needs_setup') return 'Mark support OK after final review';
+  return 'Monitor';
+}
+
 function isOrganization(value: string): value is HermesWorkspaceOrganization {
   return (ORGANIZATION_ORDER as string[]).includes(value);
 }
@@ -419,12 +432,14 @@ export default async function HermesOperationsPage({
                   <th className="px-5 py-3 font-medium">Status</th>
                   <th className="px-5 py-3 font-medium">Support</th>
                   <th className="px-5 py-3 font-medium">Checklist</th>
+                  <th className="px-5 py-3 font-medium">Next action</th>
                   <th className="px-5 py-3 font-medium">Updated</th>
                 </tr>
               </thead>
               <tbody>
                 {workspaces.map((w) => {
                   const done = checklistDone(w);
+                  const nextAction = nextOperatorAction(w);
                   return (
                     <tr
                       key={w.id}
@@ -474,6 +489,9 @@ export default async function HermesOperationsPage({
                           {done}/{HERMES_CHECKLIST_KEYS.length}
                         </span>
                       </td>
+                      <td className="max-w-[220px] px-5 py-3 text-xs leading-5 text-muted">
+                        {nextAction}
+                      </td>
                       <td className="px-5 py-3 text-right text-muted">
                         <div>{formatDate(w.updated_at)}</div>
                         <Link
@@ -493,6 +511,7 @@ export default async function HermesOperationsPage({
           <ul className="divide-y divide-border md:hidden">
             {workspaces.map((w) => {
               const done = checklistDone(w);
+              const nextAction = nextOperatorAction(w);
               return (
                 <li key={w.id}>
                   <Link
@@ -516,6 +535,9 @@ export default async function HermesOperationsPage({
                       {w.vps_hostname ?? 'No host'}
                       {w.hermes_profile ? ` · ${w.hermes_profile}` : ''}
                       {w.dashboard_port ? ` · :${w.dashboard_port}` : ''}
+                    </div>
+                    <div className="text-xs leading-5 text-muted">
+                      Next: {nextAction}
                     </div>
                     <div className="flex items-center justify-between text-xs text-muted">
                       <Badge className={SUPPORT_CLASS[w.support_status]}>

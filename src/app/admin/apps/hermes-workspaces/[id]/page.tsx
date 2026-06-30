@@ -17,6 +17,34 @@ import { updateHermesWorkspace } from './actions';
 
 export const dynamic = 'force-dynamic';
 
+
+function nextOperatorAction(workspace: HermesWorkspace): string {
+  if (workspace.support_status === 'issue') return 'Open the notes, resolve the active issue, then update support status.';
+  if (!workspace.checklist_profile_exists) return 'Create or confirm the Hermes profile on the VPS.';
+  if (!workspace.checklist_dashboard_running) return 'Start or verify the Hermes dashboard for this profile.';
+  if (!workspace.checklist_discord_connected) return 'Connect the Discord bot to the correct server and channel.';
+  if (!workspace.checklist_message_content_intent_on) return 'Enable Message Content Intent in the Discord Developer Portal.';
+  if (!workspace.checklist_service_restarted) return 'Restart the profile service after config or token changes.';
+  if (!workspace.checklist_test_message_passed) return 'Send a test message and confirm Hermes replies end-to-end.';
+  if (workspace.support_status === 'needs_setup') return 'Do a final review, then mark support status OK.';
+  return 'Monitor this workspace during normal operations.';
+}
+
+function buildRunbookCommands(workspace: HermesWorkspace): string[] {
+  const commands: string[] = [];
+  if (workspace.service_name) {
+    commands.push(`systemctl status ${workspace.service_name}`);
+    commands.push(`journalctl -u ${workspace.service_name} -n 80 --no-pager`);
+  }
+  if (workspace.hermes_profile) {
+    commands.push(`hermes --profile ${workspace.hermes_profile} status`);
+  }
+  if (workspace.dashboard_port) {
+    commands.push(`curl -I http://127.0.0.1:${workspace.dashboard_port}`);
+  }
+  return commands;
+}
+
 const CHECKLIST_LABEL: Record<HermesWorkspaceChecklistKey, string> = {
   profile_exists: 'Profile exists on VPS',
   dashboard_running: 'Dashboard running',
@@ -57,6 +85,8 @@ export default async function HermesWorkspaceDetailPage({
     (workspace.dashboard_port
       ? `http://127.0.0.1:${workspace.dashboard_port}`
       : null);
+  const nextAction = nextOperatorAction(workspace);
+  const runbookCommands = buildRunbookCommands(workspace);
 
   return (
     <div className="mx-auto flex w-full max-w-[900px] flex-col gap-6">
@@ -106,6 +136,13 @@ export default async function HermesWorkspaceDetailPage({
             </p>
           </div>
         </div>
+        <div className="rounded-[5px] border border-primary/30 bg-surface px-3 py-2">
+          <p className="text-[10px] uppercase tracking-[0.16em] text-muted">
+            Next operator action
+          </p>
+          <p className="mt-1 text-sm font-medium text-main">{nextAction}</p>
+        </div>
+
         <dl className="grid gap-3 sm:grid-cols-2">
           <OperatorRow label="VPS host" value={workspace.vps_hostname} mono />
           <OperatorRow
@@ -166,6 +203,28 @@ export default async function HermesWorkspaceDetailPage({
             </code>
           </div>
         )}
+        {runbookCommands.length > 0 && (
+          <div className="flex flex-col gap-2">
+            <p className="text-xs uppercase tracking-wide text-muted">
+              Safe check commands
+            </p>
+            <div className="flex flex-col gap-2">
+              {runbookCommands.map((command) => (
+                <code
+                  key={command}
+                  className="break-all rounded-[5px] border border-border bg-surface px-3 py-2 font-mono text-xs text-main"
+                >
+                  {command}
+                </code>
+              ))}
+            </div>
+            <p className="text-xs text-muted">
+              Run these manually over SSH. This dashboard does not execute shell
+              commands or restart services.
+            </p>
+          </div>
+        )}
+
         <div className="rounded-[5px] border border-danger/30 bg-[#f7e3e3] px-3 py-2 text-sm text-danger">
           <p className="font-semibold">Tokens, API keys, and passwords stay on the VPS .env only.</p>
           <p className="mt-0.5 text-xs">

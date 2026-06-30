@@ -10,16 +10,17 @@ What this app does today:
 
 - Records workspace metadata in the `public.hermes_workspaces` Supabase table
   (RLS: any authenticated admin can manage).
-- Lists workspaces with lifecycle status, support status, and the basics
-  operators want at a glance (client, key, type, isolation, host, profile,
-  dashboard port).
+- Lists workspaces with lifecycle status, support status, checklist progress,
+  and the next operator action at a glance (client, key, type, isolation, host,
+  profile, dashboard port).
 - Offers an `Add workspace` form with type-checked enums and a per-workspace
   notes field for context.
 - Lets operators click any row to open a per-workspace detail/edit page that
   re-uses the same validation as the create form. The detail page also shows
   a read-only **connection helper** (remote URL, SSH tunnel command template,
-  Hermes profile name) when those fields are populated — these are operator
-  notes, not secrets, and nothing is executed from the dashboard.
+  Hermes profile name), a next-action callout, and safe manual check commands
+  when those fields are populated — these are operator notes, not secrets, and
+  nothing is executed from the dashboard.
 - Surfaces a four-step setup workflow (record → provision → connect Discord →
   verify) so new operators know the path.
 
