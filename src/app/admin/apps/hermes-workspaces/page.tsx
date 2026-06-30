@@ -267,8 +267,9 @@ export default async function HermesOperationsPage({
           </p>
           <p className="mt-1 text-sm text-[#8a6d1f]">
             Run <code className="rounded bg-[#f7edc8] px-1 py-0.5 text-xs">supabase/hermes_workspaces.sql</code>{' '}
-            in the Supabase SQL Editor to create the table and policies, then
-            reload this page.
+            in the Supabase SQL Editor to create the table and policies. Then optionally run{' '}
+            <code className="rounded bg-[#f7edc8] px-1 py-0.5 text-xs">supabase/hermes_workspaces_internal_seed.sql</code>{' '}
+            to prefill our known connectNPO, GivingArc, and Wife CPA operating records.
           </p>
         </Card>
       )}
