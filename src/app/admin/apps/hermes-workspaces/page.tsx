@@ -185,10 +185,15 @@ export default async function HermesWorkspacesPage() {
                 {workspaces.map((w) => (
                   <tr
                     key={w.id}
-                    className="border-b border-border last:border-0"
+                    className="group relative border-b border-border transition-colors last:border-0 hover:bg-primary-soft/40"
                   >
-                    <td className="px-5 py-3">
-                      <div className="font-medium text-main">{w.client_name}</div>
+                    <td className="relative px-5 py-3">
+                      <Link
+                        href={`/admin/apps/hermes-workspaces/${w.id}`}
+                        className="font-medium text-main outline-none before:absolute before:inset-0 before:content-[''] focus-visible:underline"
+                      >
+                        {w.client_name}
+                      </Link>
                       <div className="text-xs text-muted">
                         {w.workspace_key} · {w.workspace_type} ·{' '}
                         {w.isolation_model === 'dedicated_vps'
@@ -213,8 +218,14 @@ export default async function HermesWorkspacesPage() {
                         {SUPPORT_LABEL[w.support_status]}
                       </Badge>
                     </td>
-                    <td className="px-5 py-3 text-muted">
-                      {formatDate(w.updated_at)}
+                    <td className="px-5 py-3 text-right text-muted">
+                      <div>{formatDate(w.updated_at)}</div>
+                      <Link
+                        href={`/admin/apps/hermes-workspaces/${w.id}`}
+                        className="relative z-10 mt-0.5 inline-flex text-[11px] text-muted/80 hover:text-primary focus-visible:text-primary focus-visible:underline focus-visible:outline-none"
+                      >
+                        View / edit →
+                      </Link>
                     </td>
                   </tr>
                 ))}
@@ -224,30 +235,37 @@ export default async function HermesWorkspacesPage() {
 
           <ul className="divide-y divide-border md:hidden">
             {workspaces.map((w) => (
-              <li key={w.id} className="flex flex-col gap-2 p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <span className="font-medium text-main">{w.client_name}</span>
-                  <Badge className={STATUS_CLASS[w.status]}>
-                    {STATUS_LABEL[w.status]}
-                  </Badge>
-                </div>
-                <div className="text-xs text-muted">
-                  {w.workspace_key} · {w.workspace_type} ·{' '}
-                  {w.isolation_model === 'dedicated_vps'
-                    ? 'Dedicated VPS'
-                    : 'Shared profile'}
-                </div>
-                <div className="text-xs text-muted">
-                  {w.vps_hostname ?? 'No host'}
-                  {w.hermes_profile ? ` · ${w.hermes_profile}` : ''}
-                  {w.dashboard_port ? ` · :${w.dashboard_port}` : ''}
-                </div>
-                <div className="flex items-center justify-between text-xs text-muted">
-                  <Badge className={SUPPORT_CLASS[w.support_status]}>
-                    {SUPPORT_LABEL[w.support_status]}
-                  </Badge>
-                  <span>Updated {formatDate(w.updated_at)}</span>
-                </div>
+              <li key={w.id}>
+                <Link
+                  href={`/admin/apps/hermes-workspaces/${w.id}`}
+                  className="flex flex-col gap-2 p-4 transition-colors hover:bg-primary-soft/40 focus:bg-primary-soft/40 focus:outline-none"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="font-medium text-main">
+                      {w.client_name}
+                    </span>
+                    <Badge className={STATUS_CLASS[w.status]}>
+                      {STATUS_LABEL[w.status]}
+                    </Badge>
+                  </div>
+                  <div className="text-xs text-muted">
+                    {w.workspace_key} · {w.workspace_type} ·{' '}
+                    {w.isolation_model === 'dedicated_vps'
+                      ? 'Dedicated VPS'
+                      : 'Shared profile'}
+                  </div>
+                  <div className="text-xs text-muted">
+                    {w.vps_hostname ?? 'No host'}
+                    {w.hermes_profile ? ` · ${w.hermes_profile}` : ''}
+                    {w.dashboard_port ? ` · :${w.dashboard_port}` : ''}
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-muted">
+                    <Badge className={SUPPORT_CLASS[w.support_status]}>
+                      {SUPPORT_LABEL[w.support_status]}
+                    </Badge>
+                    <span>Updated {formatDate(w.updated_at)} · View / edit →</span>
+                  </div>
+                </Link>
               </li>
             ))}
           </ul>
