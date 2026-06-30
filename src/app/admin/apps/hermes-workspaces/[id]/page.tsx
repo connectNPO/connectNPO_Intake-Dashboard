@@ -564,14 +564,6 @@ export default async function HermesWorkspaceDetailPage({
         </form>
       </Card>
 
-      <Card className="border-primary/30 bg-primary-soft/40">
-        <p className="text-sm font-semibold text-main">Safety note</p>
-        <p className="mt-1 text-sm text-muted">
-          Never paste Discord bot tokens, API keys, passwords, or .env values
-          into Hermes Operations HQ. They belong only on the VPS that runs
-          this Hermes profile.
-        </p>
-      </Card>
     </div>
   );
 }

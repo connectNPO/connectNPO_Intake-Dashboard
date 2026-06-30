@@ -96,29 +96,6 @@ const CURRENT_WORKSPACE_COLUMNS =
 const LEGACY_WORKSPACE_COLUMNS =
   'id, client_name, workspace_key, workspace_type, isolation_model, vps_hostname, hermes_profile, dashboard_port, status, support_status, updated_at';
 
-const setupSteps = [
-  {
-    n: 1,
-    title: 'Record the workspace',
-    body: 'Capture the organization (connectNPO, GivingArc, NPO Accounting, client, or internal), purpose, and naming so operators see one source of truth.',
-  },
-  {
-    n: 2,
-    title: 'Provision VPS or profile',
-    body: 'Stand up the dedicated VPS or add a Hermes profile on a shared box. No commands run from this console.',
-  },
-  {
-    n: 3,
-    title: 'Connect Discord safely',
-    body: 'Create the bot, invite it, and store the bot token in the VPS .env. Tokens never live here.',
-  },
-  {
-    n: 4,
-    title: 'Verify health',
-    body: 'Open the Hermes dashboard via SSH tunnel, confirm Discord traffic, then flip support status to OK.',
-  },
-];
-
 type WorkspaceRow = Pick<
   HermesWorkspace,
   | 'id'
@@ -640,38 +617,6 @@ export default async function HermesOperationsPage({
         </Card>
       )}
 
-      <section className="flex flex-col gap-3">
-        <div>
-          <h2 className="text-base font-semibold text-main">Setup workflow</h2>
-          <p className="mt-0.5 text-sm text-muted">
-            Walk a new workspace through these four steps. Each step happens
-            outside this console — operators just record progress here.
-          </p>
-        </div>
-
-        <div className="grid gap-3 sm:grid-cols-2">
-          {setupSteps.map((step) => (
-            <Card key={step.n}>
-              <div className="flex items-baseline gap-3">
-                <span className="font-editorial text-2xl text-primary">
-                  {step.n}
-                </span>
-                <h3 className="text-sm font-semibold text-main">{step.title}</h3>
-              </div>
-              <p className="mt-2 text-sm leading-6 text-muted">{step.body}</p>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      <Card className="border-primary/30 bg-primary-soft/40">
-        <p className="text-sm font-semibold text-main">Safety note</p>
-        <p className="mt-1 text-sm text-muted">
-          No Discord bot tokens, API keys, passwords, or .env values are stored
-          in Hermes Operations HQ. Keep secrets on the VPS that runs each
-          Hermes profile.
-        </p>
-      </Card>
     </div>
   );
 }
