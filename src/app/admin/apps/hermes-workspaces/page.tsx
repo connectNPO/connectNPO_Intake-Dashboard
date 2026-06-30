@@ -90,6 +90,29 @@ const SUPPORT_FILTER_VALUES: HermesWorkspaceSupportStatus[] = [
   'ok',
 ];
 
+const buildOrderSteps = [
+  {
+    n: 1,
+    title: 'Internal Hermes Operations HQ',
+    body: 'Use this console first for connectNPO, GivingArc, Wife CPA, staff bots, profiles, VPS notes, Discord channels, and support status.',
+  },
+  {
+    n: 2,
+    title: 'Staff operating workflow',
+    body: 'Turn repeated setup, support, and health-check steps into a simple staff workflow before exposing anything to customers.',
+  },
+  {
+    n: 3,
+    title: 'Client VPS template',
+    body: 'Standardize the per-client VPS/profile/bot pattern only after our internal records, checklist, and runbooks are reliable.',
+  },
+  {
+    n: 4,
+    title: 'Customer dashboard',
+    body: 'Split out a customer-facing dashboard later with only safe client status, reports, requests, and files — never internal ops data.',
+  },
+];
+
 const setupSteps = [
   {
     n: 1,
@@ -309,6 +332,38 @@ export default async function HermesOperationsPage({
           accent={attentionCount > 0}
         />
       </section>
+
+      <Card className="border-primary/30 bg-primary-soft/35">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-main">Build order decision</p>
+            <p className="mt-1 max-w-2xl text-sm leading-6 text-muted">
+              This dashboard is intentionally internal-first. We prove our own
+              Hermes operations here before creating a lighter customer
+              dashboard for separate client VPS deployments.
+            </p>
+          </div>
+          <span className="rounded-full border border-primary/30 bg-surface px-3 py-1 text-xs text-primary">
+            Internal first
+          </span>
+        </div>
+        <div className="mt-4 grid gap-2 lg:grid-cols-4">
+          {buildOrderSteps.map((step) => (
+            <div
+              key={step.n}
+              className="rounded-[5px] border border-border bg-surface px-3 py-3"
+            >
+              <div className="flex items-center gap-2">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary-soft text-xs font-semibold text-primary">
+                  {step.n}
+                </span>
+                <p className="text-sm font-medium text-main">{step.title}</p>
+              </div>
+              <p className="mt-2 text-xs leading-5 text-muted">{step.body}</p>
+            </div>
+          ))}
+        </div>
+      </Card>
 
       {!tableMissing && orgBreakdown.length > 0 && (
         <Card className="flex flex-col gap-3">
