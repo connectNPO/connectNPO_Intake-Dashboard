@@ -24,12 +24,12 @@ const apps: AppCard[] = [
     action: 'Open intake dashboard',
   },
   {
-    title: 'Client Hermes Workspaces',
-    description: 'Track staff and client Hermes environments — VPS, profile, Discord, and support state.',
+    title: 'Hermes Operations HQ',
+    description: 'Internal ops console for every Hermes workspace — connectNPO, GivingArc, Wife CPA, clients, and internal tooling.',
     href: '/admin/apps/hermes-workspaces',
-    eyebrow: 'Managed AI',
+    eyebrow: 'Internal operations',
     status: 'live',
-    action: 'Open workspace manager',
+    action: 'Open Hermes Operations HQ',
   },
   {
     title: 'Website Review',

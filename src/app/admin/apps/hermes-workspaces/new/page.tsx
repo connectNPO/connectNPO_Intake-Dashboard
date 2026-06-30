@@ -5,7 +5,17 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { Button } from '@/components/ui/Button';
+import { HERMES_CHECKLIST_KEYS } from '@/lib/types';
 import { createHermesWorkspace } from './actions';
+
+const CHECKLIST_LABEL: Record<(typeof HERMES_CHECKLIST_KEYS)[number], string> = {
+  profile_exists: 'Profile exists on VPS',
+  dashboard_running: 'Dashboard running',
+  discord_connected: 'Discord bot connected',
+  message_content_intent_on: 'Message Content Intent enabled',
+  service_restarted: 'Service restarted after config change',
+  test_message_passed: 'Test message passed end-to-end',
+};
 
 export default async function NewHermesWorkspacePage({
   searchParams,
@@ -21,14 +31,15 @@ export default async function NewHermesWorkspacePage({
           href="/admin/apps/hermes-workspaces"
           className="text-sm text-muted hover:text-main"
         >
-          ← Back to Hermes workspaces
+          ← Back to Hermes Operations HQ
         </Link>
         <h1 className="mt-2 text-2xl font-semibold text-main">
           Add Hermes workspace
         </h1>
         <p className="mt-1 text-sm text-muted">
-          Record metadata only. Do not enter Discord tokens, API keys,
-          passwords, or .env values — those stay on the VPS.
+          Record metadata only. Examples: connectNPO ops dashboard, GivingArc
+          content bot, Wife CPA accounting helper. Do not enter Discord
+          tokens, API keys, passwords, or .env values — those stay on the VPS.
         </p>
       </div>
 
@@ -45,7 +56,12 @@ export default async function NewHermesWorkspacePage({
         <form action={createHermesWorkspace} className="flex flex-col gap-5">
           <div className="grid gap-5 sm:grid-cols-2">
             <Field htmlFor="client_name" label="Client or team name" required>
-              <Input id="client_name" name="client_name" required />
+              <Input
+                id="client_name"
+                name="client_name"
+                placeholder="e.g. connectNPO Ops"
+                required
+              />
             </Field>
             <Field
               htmlFor="workspace_key"
@@ -56,15 +72,58 @@ export default async function NewHermesWorkspacePage({
               <Input
                 id="workspace_key"
                 name="workspace_key"
-                placeholder="e.g. acme-foundation"
+                placeholder="e.g. connectnpo-ops"
                 required
               />
             </Field>
           </div>
 
+          <div className="grid gap-5 sm:grid-cols-3">
+            <Field
+              htmlFor="organization"
+              label="Organization"
+              helper="connectNPO, GivingArc, Wife CPA, a client, or internal tooling."
+            >
+              <Select
+                id="organization"
+                name="organization"
+                defaultValue="connectnpo"
+              >
+                <option value="connectnpo">connectNPO</option>
+                <option value="givingarc">GivingArc</option>
+                <option value="wife_cpa">Wife CPA</option>
+                <option value="client">Client</option>
+                <option value="internal">Internal</option>
+              </Select>
+            </Field>
+            <Field htmlFor="purpose" label="Workspace purpose">
+              <Select id="purpose" name="purpose" defaultValue="dashboard">
+                <option value="dashboard">Dashboard</option>
+                <option value="content">Content</option>
+                <option value="meeting_intel">Meeting intel</option>
+                <option value="accounting">Accounting</option>
+                <option value="customer_support">Customer support</option>
+                <option value="automation">Automation</option>
+                <option value="client_ops">Client ops</option>
+                <option value="other">Other</option>
+              </Select>
+            </Field>
+            <Field htmlFor="environment" label="Environment">
+              <Select
+                id="environment"
+                name="environment"
+                defaultValue="internal"
+              >
+                <option value="internal">Internal</option>
+                <option value="client">Client</option>
+                <option value="pilot">Pilot</option>
+              </Select>
+            </Field>
+          </div>
+
           <div className="grid gap-5 sm:grid-cols-2">
             <Field htmlFor="workspace_type" label="Workspace type">
-              <Select id="workspace_type" name="workspace_type" defaultValue="client">
+              <Select id="workspace_type" name="workspace_type" defaultValue="internal">
                 <option value="internal">Internal</option>
                 <option value="client">Client</option>
                 <option value="staff">Staff</option>
@@ -96,13 +155,13 @@ export default async function NewHermesWorkspacePage({
               <Input
                 id="vps_hostname"
                 name="vps_hostname"
-                placeholder="e.g. hermes-acme.example.com"
+                placeholder="e.g. hermes-connectnpo.example.com"
               />
             </Field>
             <Field
               htmlFor="hermes_profile"
               label="Hermes profile"
-              helper="Profile name on the VPS (e.g. connectnpo, acme)."
+              helper="Profile name on the VPS (e.g. connectnpo, givingarc, wife-cpa)."
             >
               <Input
                 id="hermes_profile"
@@ -113,6 +172,42 @@ export default async function NewHermesWorkspacePage({
           </div>
 
           <div className="grid gap-5 sm:grid-cols-2">
+            <Field
+              htmlFor="profile_path"
+              label="Profile path"
+              helper="Filesystem path on the VPS (e.g. /opt/hermes/connectnpo)."
+            >
+              <Input
+                id="profile_path"
+                name="profile_path"
+                placeholder="/opt/hermes/connectnpo"
+              />
+            </Field>
+            <Field
+              htmlFor="service_name"
+              label="systemd service name"
+              helper="e.g. hermes-connectnpo.service"
+            >
+              <Input
+                id="service_name"
+                name="service_name"
+                placeholder="hermes-connectnpo.service"
+              />
+            </Field>
+          </div>
+
+          <div className="grid gap-5 sm:grid-cols-2">
+            <Field
+              htmlFor="dashboard_url"
+              label="Dashboard URL"
+              helper="Optional. If empty, we derive http://127.0.0.1:PORT from the port below."
+            >
+              <Input
+                id="dashboard_url"
+                name="dashboard_url"
+                placeholder="http://127.0.0.1:9120"
+              />
+            </Field>
             <Field htmlFor="dashboard_port" label="Dashboard port">
               <Input
                 id="dashboard_port"
@@ -123,19 +218,20 @@ export default async function NewHermesWorkspacePage({
                 placeholder="9120"
               />
             </Field>
-            <Field htmlFor="monthly_cost" label="Monthly cost (USD)">
-              <Input
-                id="monthly_cost"
-                name="monthly_cost"
-                type="number"
-                min={0}
-                step="0.01"
-                placeholder="e.g. 18.00"
-              />
-            </Field>
           </div>
 
           <div className="grid gap-5 sm:grid-cols-2">
+            <Field
+              htmlFor="discord_server_name"
+              label="Discord server"
+              helper="Server / guild display name only."
+            >
+              <Input
+                id="discord_server_name"
+                name="discord_server_name"
+                placeholder="connectNPO Ops"
+              />
+            </Field>
             <Field
               htmlFor="discord_bot_name"
               label="Discord bot name"
@@ -143,11 +239,25 @@ export default async function NewHermesWorkspacePage({
             >
               <Input id="discord_bot_name" name="discord_bot_name" />
             </Field>
+          </div>
+
+          <div className="grid gap-5 sm:grid-cols-2">
             <Field htmlFor="discord_channel_name" label="Discord channel">
               <Input
                 id="discord_channel_name"
                 name="discord_channel_name"
-                placeholder="#hermes-acme"
+                placeholder="#hermes-connectnpo"
+              />
+            </Field>
+            <Field
+              htmlFor="discord_channel_id"
+              label="Discord channel ID"
+              helper="Numeric channel ID. Public identifier only."
+            >
+              <Input
+                id="discord_channel_id"
+                name="discord_channel_id"
+                placeholder="123456789012345678"
               />
             </Field>
           </div>
@@ -176,6 +286,42 @@ export default async function NewHermesWorkspacePage({
               </Select>
             </Field>
           </div>
+
+          <Field htmlFor="monthly_cost" label="Monthly cost (USD)">
+            <Input
+              id="monthly_cost"
+              name="monthly_cost"
+              type="number"
+              min={0}
+              step="0.01"
+              placeholder="e.g. 18.00"
+            />
+          </Field>
+
+          <fieldset className="flex flex-col gap-2 rounded-[5px] border border-border bg-surface p-4">
+            <legend className="px-1 text-sm font-semibold text-main">
+              Operations checklist
+            </legend>
+            <p className="text-xs text-muted">
+              Tick what is already true on the VPS. You can keep updating
+              these later from the workspace detail page.
+            </p>
+            <div className="mt-1 grid gap-2 sm:grid-cols-2">
+              {HERMES_CHECKLIST_KEYS.map((key) => (
+                <label
+                  key={key}
+                  className="flex items-start gap-2 text-sm text-main"
+                >
+                  <input
+                    type="checkbox"
+                    name={`checklist_${key}`}
+                    className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                  />
+                  <span>{CHECKLIST_LABEL[key]}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
 
           <Field htmlFor="notes" label="Operator notes">
             <Textarea

@@ -115,20 +115,68 @@ export type HermesWorkspaceIsolationModel =
   | 'dedicated_vps'
   | 'shared_vps_profile';
 
+/** Which connectNPO-side organization the workspace serves. */
+export type HermesWorkspaceOrganization =
+  | 'connectnpo'
+  | 'givingarc'
+  | 'wife_cpa'
+  | 'client'
+  | 'internal';
+
+/** What the workspace is primarily used for. */
+export type HermesWorkspacePurpose =
+  | 'dashboard'
+  | 'content'
+  | 'meeting_intel'
+  | 'accounting'
+  | 'customer_support'
+  | 'automation'
+  | 'client_ops'
+  | 'other';
+
+/** Where the workspace sits on the internal/client spectrum. */
+export type HermesWorkspaceEnvironment = 'internal' | 'client' | 'pilot';
+
+/** Operations checklist items tracked per workspace. */
+export const HERMES_CHECKLIST_KEYS = [
+  'profile_exists',
+  'dashboard_running',
+  'discord_connected',
+  'message_content_intent_on',
+  'service_restarted',
+  'test_message_passed',
+] as const;
+
+export type HermesWorkspaceChecklistKey = (typeof HERMES_CHECKLIST_KEYS)[number];
+
 /** Row shape of the `hermes_workspaces` table. */
 export type HermesWorkspace = {
   id: string;
   client_name: string;
   workspace_key: string;
   workspace_type: HermesWorkspaceType;
+  organization: HermesWorkspaceOrganization;
+  purpose: HermesWorkspacePurpose;
+  environment: HermesWorkspaceEnvironment;
   isolation_model: HermesWorkspaceIsolationModel;
   vps_hostname: string | null;
   hermes_profile: string | null;
+  profile_path: string | null;
+  service_name: string | null;
+  dashboard_url: string | null;
   dashboard_port: number | null;
   discord_bot_name: string | null;
+  discord_server_name: string | null;
   discord_channel_name: string | null;
+  discord_channel_id: string | null;
   status: HermesWorkspaceStatus;
   support_status: HermesWorkspaceSupportStatus;
+  checklist_profile_exists: boolean;
+  checklist_dashboard_running: boolean;
+  checklist_discord_connected: boolean;
+  checklist_message_content_intent_on: boolean;
+  checklist_service_restarted: boolean;
+  checklist_test_message_passed: boolean;
   monthly_cost: number | null;
   notes: string | null;
   created_at: string;

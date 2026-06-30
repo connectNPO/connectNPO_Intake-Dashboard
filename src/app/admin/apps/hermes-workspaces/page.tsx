@@ -5,10 +5,14 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { formatDate } from '@/lib/format';
-import type {
-  HermesWorkspace,
-  HermesWorkspaceStatus,
-  HermesWorkspaceSupportStatus,
+import {
+  HERMES_CHECKLIST_KEYS,
+  type HermesWorkspace,
+  type HermesWorkspaceEnvironment,
+  type HermesWorkspaceOrganization,
+  type HermesWorkspacePurpose,
+  type HermesWorkspaceStatus,
+  type HermesWorkspaceSupportStatus,
 } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -45,21 +49,62 @@ const SUPPORT_CLASS: Record<HermesWorkspaceSupportStatus, string> = {
   ok: 'bg-[#e2f0e6] text-[#2f6b46] border-[#c6dccd]',
 };
 
+const ORGANIZATION_LABEL: Record<HermesWorkspaceOrganization, string> = {
+  connectnpo: 'connectNPO',
+  givingarc: 'GivingArc',
+  wife_cpa: 'Wife CPA',
+  client: 'Client',
+  internal: 'Internal',
+};
+
+const ORGANIZATION_ORDER: HermesWorkspaceOrganization[] = [
+  'connectnpo',
+  'givingarc',
+  'wife_cpa',
+  'client',
+  'internal',
+];
+
+const PURPOSE_LABEL: Record<HermesWorkspacePurpose, string> = {
+  dashboard: 'Dashboard',
+  content: 'Content',
+  meeting_intel: 'Meeting intel',
+  accounting: 'Accounting',
+  customer_support: 'Customer support',
+  automation: 'Automation',
+  client_ops: 'Client ops',
+  other: 'Other',
+};
+
+const ENVIRONMENT_LABEL: Record<HermesWorkspaceEnvironment, string> = {
+  internal: 'Internal',
+  client: 'Client',
+  pilot: 'Pilot',
+};
+
+const SUPPORT_FILTER_VALUES: HermesWorkspaceSupportStatus[] = [
+  'not_started',
+  'needs_setup',
+  'monitoring',
+  'issue',
+  'ok',
+];
+
 const setupSteps = [
   {
     n: 1,
-    title: 'Create or record workspace',
-    body: 'Capture the client, isolation model, and key naming so operators see a single source of truth.',
+    title: 'Record the workspace',
+    body: 'Capture the organization (connectNPO, GivingArc, Wife CPA, client, or internal), purpose, and naming so operators see one source of truth.',
   },
   {
     n: 2,
     title: 'Provision VPS or profile',
-    body: 'Stand up a dedicated VPS or add a Hermes profile on a shared box. No commands run from this dashboard.',
+    body: 'Stand up the dedicated VPS or add a Hermes profile on a shared box. No commands run from this console.',
   },
   {
     n: 3,
     title: 'Connect Discord safely',
-    body: 'Create the bot in Discord, invite it, and store the bot token in the VPS .env. Tokens never live here.',
+    body: 'Create the bot, invite it, and store the bot token in the VPS .env. Tokens never live here.',
   },
   {
     n: 4,
@@ -74,48 +119,138 @@ type WorkspaceRow = Pick<
   | 'client_name'
   | 'workspace_key'
   | 'workspace_type'
+  | 'organization'
+  | 'purpose'
+  | 'environment'
   | 'isolation_model'
   | 'vps_hostname'
   | 'hermes_profile'
+  | 'service_name'
   | 'dashboard_port'
   | 'status'
   | 'support_status'
+  | 'checklist_profile_exists'
+  | 'checklist_dashboard_running'
+  | 'checklist_discord_connected'
+  | 'checklist_message_content_intent_on'
+  | 'checklist_service_restarted'
+  | 'checklist_test_message_passed'
   | 'updated_at'
 >;
 
-export default async function HermesWorkspacesPage() {
+function checklistDone(w: WorkspaceRow): number {
+  return HERMES_CHECKLIST_KEYS.reduce(
+    (acc, key) => acc + (w[`checklist_${key}`] ? 1 : 0),
+    0,
+  );
+}
+
+function isOrganization(value: string): value is HermesWorkspaceOrganization {
+  return (ORGANIZATION_ORDER as string[]).includes(value);
+}
+
+function isSupportStatus(
+  value: string,
+): value is HermesWorkspaceSupportStatus {
+  return (SUPPORT_FILTER_VALUES as string[]).includes(value);
+}
+
+export default async function HermesOperationsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    organization?: string;
+    support_status?: string;
+    attention?: string;
+  }>;
+}) {
+  const sp = await searchParams;
+  const organizationFilter =
+    sp.organization && isOrganization(sp.organization)
+      ? sp.organization
+      : null;
+  const supportFilter =
+    sp.support_status && isSupportStatus(sp.support_status)
+      ? sp.support_status
+      : null;
+  const attentionFilter = sp.attention === '1';
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('hermes_workspaces')
     .select(
-      'id, client_name, workspace_key, workspace_type, isolation_model, vps_hostname, hermes_profile, dashboard_port, status, support_status, updated_at',
+      'id, client_name, workspace_key, workspace_type, organization, purpose, environment, isolation_model, vps_hostname, hermes_profile, service_name, dashboard_port, status, support_status, checklist_profile_exists, checklist_dashboard_running, checklist_discord_connected, checklist_message_content_intent_on, checklist_service_restarted, checklist_test_message_passed, updated_at',
     )
     .order('updated_at', { ascending: false });
 
-  const workspaces = (data ?? []) as WorkspaceRow[];
+  const allWorkspaces = (data ?? []) as WorkspaceRow[];
   const tableMissing =
     error && /relation .*hermes_workspaces.* does not exist/i.test(error.message);
 
-  const total = workspaces.length;
-  const activeCount = workspaces.filter((w) => w.status === 'active').length;
-  const attentionCount = workspaces.filter(
+  const workspaces = allWorkspaces.filter((w) => {
+    if (organizationFilter && w.organization !== organizationFilter) return false;
+    if (supportFilter && w.support_status !== supportFilter) return false;
+    if (
+      attentionFilter &&
+      w.support_status !== 'needs_setup' &&
+      w.support_status !== 'issue'
+    )
+      return false;
+    return true;
+  });
+
+  const total = allWorkspaces.length;
+  const internalCount = allWorkspaces.filter(
+    (w) => w.environment === 'internal',
+  ).length;
+  const activeCount = allWorkspaces.filter((w) => w.status === 'active').length;
+  const attentionCount = allWorkspaces.filter(
     (w) => w.support_status === 'needs_setup' || w.support_status === 'issue',
   ).length;
+  const orgBreakdown = ORGANIZATION_ORDER.map((org) => ({
+    org,
+    label: ORGANIZATION_LABEL[org],
+    count: allWorkspaces.filter((w) => w.organization === org).length,
+  })).filter((row) => row.count > 0);
+
+  const baseHref = '/admin/apps/hermes-workspaces';
+  function filterHref(
+    patch: Partial<{
+      organization: HermesWorkspaceOrganization | null;
+      support_status: HermesWorkspaceSupportStatus | null;
+      attention: boolean;
+    }>,
+  ): string {
+    const next = new URLSearchParams();
+    const org =
+      patch.organization === undefined ? organizationFilter : patch.organization;
+    const sup =
+      patch.support_status === undefined ? supportFilter : patch.support_status;
+    const att = patch.attention === undefined ? attentionFilter : patch.attention;
+    if (org) next.set('organization', org);
+    if (sup) next.set('support_status', sup);
+    if (att) next.set('attention', '1');
+    const qs = next.toString();
+    return qs ? `${baseHref}?${qs}` : baseHref;
+  }
+
+  const hasActiveFilter =
+    Boolean(organizationFilter) || Boolean(supportFilter) || attentionFilter;
 
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
         <div>
           <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted">
-            Managed AI
+            Internal operations
           </p>
           <h1 className="mt-0.5 text-xl font-semibold text-main">
-            Hermes Workspaces
+            Hermes Operations HQ
           </h1>
           <p className="mt-1 max-w-2xl text-sm text-muted">
-            Manage staff and client Hermes environments without storing secrets
-            here. This dashboard tracks records and workflow — bot tokens, API
-            keys, and .env values stay on each VPS.
+            One console for every Hermes workspace we run — connectNPO,
+            GivingArc, Wife CPA, client deployments, and internal tooling.
+            Bot tokens, API keys, and .env values stay on each VPS.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -128,7 +263,7 @@ export default async function HermesWorkspacesPage() {
       {tableMissing && (
         <Card className="border-[#f0e2a6] bg-[#fff8e1]">
           <p className="text-sm font-medium text-[#8a6d1f]">
-            Hermes Workspaces table not found
+            Hermes Operations HQ table not found
           </p>
           <p className="mt-1 text-sm text-[#8a6d1f]">
             Run <code className="rounded bg-[#f7edc8] px-1 py-0.5 text-xs">supabase/hermes_workspaces.sql</code>{' '}
@@ -147,19 +282,107 @@ export default async function HermesWorkspacesPage() {
         </Card>
       )}
 
-      <section className="grid gap-3 sm:grid-cols-3">
+      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatTile label="Total workspaces" value={tableMissing ? '—' : total} />
+        <StatTile
+          label="Internal environments"
+          value={tableMissing ? '—' : internalCount}
+        />
         <StatTile label="Active" value={tableMissing ? '—' : activeCount} />
         <StatTile
           label="Needs setup or issue"
           value={tableMissing ? '—' : attentionCount}
+          accent={attentionCount > 0}
         />
       </section>
 
-      {!tableMissing && !error && workspaces.length === 0 && (
+      {!tableMissing && orgBreakdown.length > 0 && (
+        <Card className="flex flex-col gap-3">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-sm font-semibold text-main">By organization</p>
+            <p className="text-xs text-muted">Counts across all environments</p>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+            {orgBreakdown.map((row) => (
+              <Link
+                key={row.org}
+                href={filterHref({ organization: row.org })}
+                className={`flex items-center justify-between rounded-[5px] border px-3 py-2 text-sm transition-colors ${
+                  organizationFilter === row.org
+                    ? 'border-primary/40 bg-primary-soft text-main'
+                    : 'border-border bg-surface text-muted hover:border-primary/30 hover:bg-primary-soft/40'
+                }`}
+              >
+                <span>{row.label}</span>
+                <span className="font-editorial text-lg text-main">
+                  {row.count}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </Card>
+      )}
+
+      {!tableMissing && (
+        <Card className="flex flex-col gap-3 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-sm font-semibold text-main">Filters</p>
+            {hasActiveFilter && (
+              <Link
+                href={baseHref}
+                className="text-xs text-muted hover:text-primary"
+              >
+                Clear all
+              </Link>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-2 text-xs">
+            <FilterPill
+              href={filterHref({ organization: null })}
+              active={!organizationFilter}
+            >
+              All organizations
+            </FilterPill>
+            {ORGANIZATION_ORDER.map((org) => (
+              <FilterPill
+                key={org}
+                href={filterHref({ organization: org })}
+                active={organizationFilter === org}
+              >
+                {ORGANIZATION_LABEL[org]}
+              </FilterPill>
+            ))}
+          </div>
+          <div className="flex flex-wrap gap-2 text-xs">
+            <FilterPill
+              href={filterHref({ support_status: null })}
+              active={!supportFilter}
+            >
+              All support states
+            </FilterPill>
+            {SUPPORT_FILTER_VALUES.map((status) => (
+              <FilterPill
+                key={status}
+                href={filterHref({ support_status: status })}
+                active={supportFilter === status}
+              >
+                {SUPPORT_LABEL[status]}
+              </FilterPill>
+            ))}
+            <FilterPill
+              href={filterHref({ attention: !attentionFilter })}
+              active={attentionFilter}
+            >
+              Needs attention
+            </FilterPill>
+          </div>
+        </Card>
+      )}
+
+      {!tableMissing && !error && allWorkspaces.length === 0 && (
         <EmptyState
           title="No workspaces yet"
-          description="Add your first workspace record so the team has a shared view of who is running on which VPS and profile."
+          description="Add your first workspace — start with connectNPO, GivingArc, or Wife CPA — so the team has a shared view of who runs on which VPS and profile."
           action={
             <Link href="/admin/apps/hermes-workspaces/new">
               <Button>Add workspace</Button>
@@ -168,6 +391,21 @@ export default async function HermesWorkspacesPage() {
         />
       )}
 
+      {!tableMissing &&
+        !error &&
+        allWorkspaces.length > 0 &&
+        workspaces.length === 0 && (
+          <EmptyState
+            title="No workspaces match these filters"
+            description="Try clearing one of the filters above to widen the list."
+            action={
+              <Link href={baseHref}>
+                <Button variant="ghost">Clear filters</Button>
+              </Link>
+            }
+          />
+        )}
+
       {workspaces.length > 0 && (
         <Card className="overflow-hidden p-0">
           <div className="hidden overflow-x-auto md:block">
@@ -175,99 +413,122 @@ export default async function HermesWorkspacesPage() {
               <thead>
                 <tr className="border-b border-border text-[11px] uppercase tracking-[0.12em] text-muted">
                   <th className="px-5 py-3 font-medium">Workspace</th>
+                  <th className="px-5 py-3 font-medium">Org / purpose</th>
                   <th className="px-5 py-3 font-medium">Host / profile</th>
                   <th className="px-5 py-3 font-medium">Status</th>
                   <th className="px-5 py-3 font-medium">Support</th>
+                  <th className="px-5 py-3 font-medium">Checklist</th>
                   <th className="px-5 py-3 font-medium">Updated</th>
                 </tr>
               </thead>
               <tbody>
-                {workspaces.map((w) => (
-                  <tr
-                    key={w.id}
-                    className="group relative border-b border-border transition-colors last:border-0 hover:bg-primary-soft/40"
-                  >
-                    <td className="relative px-5 py-3">
-                      <Link
-                        href={`/admin/apps/hermes-workspaces/${w.id}`}
-                        className="font-medium text-main outline-none before:absolute before:inset-0 before:content-[''] focus-visible:underline"
-                      >
-                        {w.client_name}
-                      </Link>
-                      <div className="text-xs text-muted">
-                        {w.workspace_key} · {w.workspace_type} ·{' '}
-                        {w.isolation_model === 'dedicated_vps'
-                          ? 'Dedicated VPS'
-                          : 'Shared VPS profile'}
-                      </div>
-                    </td>
-                    <td className="px-5 py-3 text-muted">
-                      <div>{w.vps_hostname ?? '—'}</div>
-                      <div className="text-xs">
-                        {w.hermes_profile ?? '—'}
-                        {w.dashboard_port ? ` · :${w.dashboard_port}` : ''}
-                      </div>
-                    </td>
-                    <td className="px-5 py-3">
-                      <Badge className={STATUS_CLASS[w.status]}>
-                        {STATUS_LABEL[w.status]}
-                      </Badge>
-                    </td>
-                    <td className="px-5 py-3">
-                      <Badge className={SUPPORT_CLASS[w.support_status]}>
-                        {SUPPORT_LABEL[w.support_status]}
-                      </Badge>
-                    </td>
-                    <td className="px-5 py-3 text-right text-muted">
-                      <div>{formatDate(w.updated_at)}</div>
-                      <Link
-                        href={`/admin/apps/hermes-workspaces/${w.id}`}
-                        className="relative z-10 mt-0.5 inline-flex text-[11px] text-muted/80 hover:text-primary focus-visible:text-primary focus-visible:underline focus-visible:outline-none"
-                      >
-                        View / edit →
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
+                {workspaces.map((w) => {
+                  const done = checklistDone(w);
+                  return (
+                    <tr
+                      key={w.id}
+                      className="group relative border-b border-border transition-colors last:border-0 hover:bg-primary-soft/40"
+                    >
+                      <td className="relative px-5 py-3">
+                        <Link
+                          href={`/admin/apps/hermes-workspaces/${w.id}`}
+                          className="font-medium text-main outline-none before:absolute before:inset-0 before:content-[''] focus-visible:underline"
+                        >
+                          {w.client_name}
+                        </Link>
+                        <div className="text-xs text-muted">
+                          {w.workspace_key} ·{' '}
+                          {ENVIRONMENT_LABEL[w.environment]} ·{' '}
+                          {w.isolation_model === 'dedicated_vps'
+                            ? 'Dedicated VPS'
+                            : 'Shared VPS profile'}
+                        </div>
+                      </td>
+                      <td className="px-5 py-3 text-muted">
+                        <div>{ORGANIZATION_LABEL[w.organization]}</div>
+                        <div className="text-xs">
+                          {PURPOSE_LABEL[w.purpose]}
+                        </div>
+                      </td>
+                      <td className="px-5 py-3 text-muted">
+                        <div>{w.vps_hostname ?? '—'}</div>
+                        <div className="text-xs">
+                          {w.hermes_profile ?? '—'}
+                          {w.dashboard_port ? ` · :${w.dashboard_port}` : ''}
+                          {w.service_name ? ` · ${w.service_name}` : ''}
+                        </div>
+                      </td>
+                      <td className="px-5 py-3">
+                        <Badge className={STATUS_CLASS[w.status]}>
+                          {STATUS_LABEL[w.status]}
+                        </Badge>
+                      </td>
+                      <td className="px-5 py-3">
+                        <Badge className={SUPPORT_CLASS[w.support_status]}>
+                          {SUPPORT_LABEL[w.support_status]}
+                        </Badge>
+                      </td>
+                      <td className="px-5 py-3 text-muted">
+                        <span className="font-mono text-xs">
+                          {done}/{HERMES_CHECKLIST_KEYS.length}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3 text-right text-muted">
+                        <div>{formatDate(w.updated_at)}</div>
+                        <Link
+                          href={`/admin/apps/hermes-workspaces/${w.id}`}
+                          className="relative z-10 mt-0.5 inline-flex text-[11px] text-muted/80 hover:text-primary focus-visible:text-primary focus-visible:underline focus-visible:outline-none"
+                        >
+                          View / edit →
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
 
           <ul className="divide-y divide-border md:hidden">
-            {workspaces.map((w) => (
-              <li key={w.id}>
-                <Link
-                  href={`/admin/apps/hermes-workspaces/${w.id}`}
-                  className="flex flex-col gap-2 p-4 transition-colors hover:bg-primary-soft/40 focus:bg-primary-soft/40 focus:outline-none"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <span className="font-medium text-main">
-                      {w.client_name}
-                    </span>
-                    <Badge className={STATUS_CLASS[w.status]}>
-                      {STATUS_LABEL[w.status]}
-                    </Badge>
-                  </div>
-                  <div className="text-xs text-muted">
-                    {w.workspace_key} · {w.workspace_type} ·{' '}
-                    {w.isolation_model === 'dedicated_vps'
-                      ? 'Dedicated VPS'
-                      : 'Shared profile'}
-                  </div>
-                  <div className="text-xs text-muted">
-                    {w.vps_hostname ?? 'No host'}
-                    {w.hermes_profile ? ` · ${w.hermes_profile}` : ''}
-                    {w.dashboard_port ? ` · :${w.dashboard_port}` : ''}
-                  </div>
-                  <div className="flex items-center justify-between text-xs text-muted">
-                    <Badge className={SUPPORT_CLASS[w.support_status]}>
-                      {SUPPORT_LABEL[w.support_status]}
-                    </Badge>
-                    <span>Updated {formatDate(w.updated_at)} · View / edit →</span>
-                  </div>
-                </Link>
-              </li>
-            ))}
+            {workspaces.map((w) => {
+              const done = checklistDone(w);
+              return (
+                <li key={w.id}>
+                  <Link
+                    href={`/admin/apps/hermes-workspaces/${w.id}`}
+                    className="flex flex-col gap-2 p-4 transition-colors hover:bg-primary-soft/40 focus:bg-primary-soft/40 focus:outline-none"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <span className="font-medium text-main">
+                        {w.client_name}
+                      </span>
+                      <Badge className={STATUS_CLASS[w.status]}>
+                        {STATUS_LABEL[w.status]}
+                      </Badge>
+                    </div>
+                    <div className="text-xs text-muted">
+                      {w.workspace_key} ·{' '}
+                      {ORGANIZATION_LABEL[w.organization]} ·{' '}
+                      {PURPOSE_LABEL[w.purpose]}
+                    </div>
+                    <div className="text-xs text-muted">
+                      {w.vps_hostname ?? 'No host'}
+                      {w.hermes_profile ? ` · ${w.hermes_profile}` : ''}
+                      {w.dashboard_port ? ` · :${w.dashboard_port}` : ''}
+                    </div>
+                    <div className="flex items-center justify-between text-xs text-muted">
+                      <Badge className={SUPPORT_CLASS[w.support_status]}>
+                        {SUPPORT_LABEL[w.support_status]}
+                      </Badge>
+                      <span>
+                        Checklist {done}/{HERMES_CHECKLIST_KEYS.length} ·
+                        Updated {formatDate(w.updated_at)} →
+                      </span>
+                    </div>
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </Card>
       )}
@@ -277,7 +538,7 @@ export default async function HermesWorkspacesPage() {
           <h2 className="text-base font-semibold text-main">Setup workflow</h2>
           <p className="mt-0.5 text-sm text-muted">
             Walk a new workspace through these four steps. Each step happens
-            outside this dashboard — operators just record progress here.
+            outside this console — operators just record progress here.
           </p>
         </div>
 
@@ -300,21 +561,68 @@ export default async function HermesWorkspacesPage() {
         <p className="text-sm font-semibold text-main">Safety note</p>
         <p className="mt-1 text-sm text-muted">
           No Discord bot tokens, API keys, passwords, or .env values are stored
-          in this dashboard. Keep secrets on the VPS that runs each Hermes
-          profile.
+          in Hermes Operations HQ. Keep secrets on the VPS that runs each
+          Hermes profile.
         </p>
       </Card>
     </div>
   );
 }
 
-function StatTile({ label, value }: { label: string; value: number | string }) {
+function StatTile({
+  label,
+  value,
+  accent,
+}: {
+  label: string;
+  value: number | string;
+  accent?: boolean;
+}) {
   return (
-    <div className="rounded-[5px] border border-border bg-surface px-4 py-3">
-      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted">
+    <div
+      className={`rounded-[5px] border px-4 py-3 ${
+        accent
+          ? 'border-[#eccaca] bg-[#f7e3e3]'
+          : 'border-border bg-surface'
+      }`}
+    >
+      <p
+        className={`text-[11px] font-medium uppercase tracking-[0.16em] ${
+          accent ? 'text-danger' : 'text-muted'
+        }`}
+      >
         {label}
       </p>
-      <p className="mt-1 font-editorial text-2xl text-main">{value}</p>
+      <p
+        className={`mt-1 font-editorial text-2xl ${
+          accent ? 'text-danger' : 'text-main'
+        }`}
+      >
+        {value}
+      </p>
     </div>
+  );
+}
+
+function FilterPill({
+  href,
+  active,
+  children,
+}: {
+  href: string;
+  active: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      className={`inline-flex items-center rounded-full border px-3 py-1 transition-colors ${
+        active
+          ? 'border-primary/40 bg-primary-soft text-main'
+          : 'border-border bg-surface text-muted hover:border-primary/30 hover:bg-primary-soft/40'
+      }`}
+    >
+      {children}
+    </Link>
   );
 }
