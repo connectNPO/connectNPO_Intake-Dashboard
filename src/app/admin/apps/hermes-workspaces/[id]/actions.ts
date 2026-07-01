@@ -187,6 +187,7 @@ export async function updateHermesWorkspace(formData: FormData) {
       service_name: clean(formData.get('service_name')),
       dashboard_url: dashboardUrl,
       dashboard_port: dashboardPort,
+      soul_md_content: clean(formData.get('soul_md_content')),
       discord_bot_name: clean(formData.get('discord_bot_name')),
       discord_server_name: clean(formData.get('discord_server_name')),
       discord_channel_name: clean(formData.get('discord_channel_name')),

@@ -2,12 +2,11 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { Card } from '@/components/ui/Card';
-import { Field } from '@/components/ui/Field';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { Button } from '@/components/ui/Button';
-import { formatDate } from '@/lib/format';
+import { CopyButton } from '@/components/ui/CopyButton';
 import {
   HERMES_CHECKLIST_KEYS,
   type HermesWorkspace,
@@ -17,42 +16,73 @@ import { updateHermesWorkspace } from './actions';
 
 export const dynamic = 'force-dynamic';
 
-
 function nextOperatorAction(workspace: HermesWorkspace): string {
-  if (workspace.support_status === 'issue') return 'Open the notes, resolve the active issue, then update support status.';
-  if (!workspace.checklist_profile_exists) return 'Create or confirm the Hermes profile on the VPS.';
-  if (!workspace.checklist_dashboard_running) return 'Start or verify the Hermes dashboard for this profile.';
-  if (!workspace.checklist_discord_connected) return 'Connect the Discord bot to the correct server and channel.';
-  if (!workspace.checklist_message_content_intent_on) return 'Enable Message Content Intent in the Discord Developer Portal.';
-  if (!workspace.checklist_service_restarted) return 'Restart the profile service after config or token changes.';
-  if (!workspace.checklist_test_message_passed) return 'Send a test message and confirm Hermes replies end-to-end.';
-  if (workspace.support_status === 'needs_setup') return 'Do a final review, then mark support status OK.';
-  return 'Monitor this workspace during normal operations.';
+  if (workspace.support_status === 'issue')
+    return 'Resolve the active issue, then update support status.';
+  if (!workspace.checklist_profile_exists)
+    return 'Create or confirm the Hermes profile on the VPS.';
+  if (!workspace.checklist_discord_connected)
+    return 'Connect the Discord bot to the channel.';
+  if (!workspace.checklist_message_content_intent_on)
+    return 'Enable Message Content Intent in the Discord portal.';
+  if (!workspace.checklist_service_restarted)
+    return 'Restart the gateway service after the latest change.';
+  if (!workspace.checklist_test_message_passed)
+    return 'Send a test message and confirm Hermes replies.';
+  if (workspace.support_status === 'needs_setup')
+    return 'Final review, then mark support status OK.';
+  return 'Monitor during normal operations.';
 }
 
-function buildRunbookCommands(workspace: HermesWorkspace): string[] {
-  const commands: string[] = [];
-  if (workspace.service_name) {
-    commands.push(`systemctl status ${workspace.service_name}`);
-    commands.push(`journalctl -u ${workspace.service_name} -n 80 --no-pager`);
-  }
-  if (workspace.hermes_profile) {
-    commands.push(`hermes --profile ${workspace.hermes_profile} status`);
-  }
-  if (workspace.dashboard_port) {
-    commands.push(`curl -I http://127.0.0.1:${workspace.dashboard_port}`);
-  }
-  return commands;
-}
-
-const CHECKLIST_LABEL: Record<HermesWorkspaceChecklistKey, string> = {
-  profile_exists: 'Profile exists on VPS',
-  dashboard_running: 'Dashboard running',
-  discord_connected: 'Discord bot connected',
-  message_content_intent_on: 'Message Content Intent enabled',
-  service_restarted: 'Service restarted after config change',
-  test_message_passed: 'Test message passed end-to-end',
+type CommandGroup = {
+  title: string;
+  commands: string[];
 };
+
+function buildCommandGroups(workspace: HermesWorkspace): CommandGroup[] {
+  const groups: CommandGroup[] = [];
+
+  if (workspace.hermes_profile) {
+    groups.push({
+      title: 'Open profile on VPS',
+      commands: [`hermes --profile ${workspace.hermes_profile}`],
+    });
+  }
+
+  if (workspace.service_name) {
+    groups.push({
+      title: 'Gateway service',
+      commands: [
+        `systemctl --user status ${workspace.service_name}`,
+        `journalctl --user -u ${workspace.service_name} -n 80 --no-pager`,
+        `systemctl --user restart ${workspace.service_name}`,
+      ],
+    });
+  }
+
+  if (workspace.dashboard_port) {
+    const host = workspace.vps_hostname ?? '<vps-host>';
+    groups.push({
+      title: 'Dashboard tunnel',
+      commands: [
+        `ssh -N -L ${workspace.dashboard_port}:127.0.0.1:${workspace.dashboard_port} <user>@${host}`,
+      ],
+    });
+  }
+
+  return groups;
+}
+
+const PRIMARY_CHECKLIST: {
+  key: HermesWorkspaceChecklistKey;
+  label: string;
+}[] = [
+  { key: 'profile_exists', label: 'Profile exists on VPS' },
+  { key: 'discord_connected', label: 'Discord bot connected' },
+  { key: 'message_content_intent_on', label: 'Message Content Intent on' },
+  { key: 'service_restarted', label: 'Gateway restarted after change' },
+  { key: 'test_message_passed', label: 'Test message passed' },
+];
 
 export default async function HermesWorkspaceDetailPage({
   params,
@@ -74,348 +104,249 @@ export default async function HermesWorkspaceDetailPage({
   if (!data) notFound();
   const workspace = data as HermesWorkspace;
 
-  const tunnelHost = workspace.vps_hostname ?? '<vps-host>';
   const checklistDone = HERMES_CHECKLIST_KEYS.reduce(
     (acc, key) => acc + (workspace[`checklist_${key}`] ? 1 : 0),
     0,
   );
   const checklistTotal = HERMES_CHECKLIST_KEYS.length;
-  const derivedDashboardUrl =
-    workspace.dashboard_url ??
-    (workspace.dashboard_port
-      ? `http://127.0.0.1:${workspace.dashboard_port}`
-      : null);
   const nextAction = nextOperatorAction(workspace);
-  const runbookCommands = buildRunbookCommands(workspace);
+  const commandGroups = buildCommandGroups(workspace);
 
   return (
-    <div className="mx-auto flex w-full max-w-[900px] flex-col gap-6">
-      <div>
-        <Link
-          href="/admin/apps/hermes-workspaces"
-          className="text-sm text-muted hover:text-main"
-        >
-          ← Back to Hermes Operations HQ
-        </Link>
-        <h1 className="mt-2 text-2xl font-semibold text-main">
-          {workspace.client_name}
-        </h1>
-        <p className="mt-1 text-sm text-muted">
-          {workspace.workspace_key} · Updated {formatDate(workspace.updated_at)}
-        </p>
-        <p className="mt-2 text-sm text-muted">
-          Edit workspace metadata only. Do not enter Discord tokens, API keys,
-          passwords, or .env values — those stay on the VPS.
-        </p>
+    <div className="flex w-full max-w-none flex-col gap-3">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <Link
+            href="/admin/apps/hermes-workspaces"
+            className="text-xs text-muted hover:text-main"
+          >
+            ← Back
+          </Link>
+          <h1 className="text-xl font-semibold text-main">
+            {workspace.client_name}
+          </h1>
+          {workspace.hermes_profile && (
+            <span className="font-mono text-xs text-muted">
+              {workspace.hermes_profile}
+            </span>
+          )}
+          <span className="font-mono text-[11px] text-muted/80">
+            {workspace.workspace_key}
+          </span>
+        </div>
+        <span className="text-[11px] text-muted">
+          {checklistDone}/{checklistTotal} checks · {workspace.status} ·{' '}
+          {workspace.support_status.replace('_', ' ')}
+        </span>
       </div>
 
       {saved && (
         <div
           role="status"
-          className="rounded-[5px] border border-primary/30 bg-primary-soft px-3.5 py-2.5 text-sm text-main"
+          className="rounded-[5px] border border-primary/30 bg-primary-soft px-3 py-1.5 text-xs text-main"
         >
           Workspace saved.
         </div>
       )}
-
-      <Card className="flex flex-col gap-4 border-primary/20 bg-primary-soft/40">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <p className="text-sm font-semibold text-main">Operator card</p>
-            <p className="mt-0.5 text-xs text-muted">
-              Read-only summary for whoever is on call. No secrets are stored
-              or executed from this console.
-            </p>
-          </div>
-          <div className="rounded-[5px] border border-primary/40 bg-surface px-3 py-2 text-right">
-            <p className="text-[10px] uppercase tracking-[0.16em] text-muted">
-              Checklist
-            </p>
-            <p className="font-editorial text-lg text-main">
-              {checklistDone}/{checklistTotal} complete
-            </p>
-          </div>
+      {error && (
+        <div
+          role="alert"
+          className="rounded-[5px] border border-[#eccaca] bg-[#f7e3e3] px-3 py-1.5 text-xs text-danger"
+        >
+          {error}
         </div>
-        <div className="rounded-[5px] border border-primary/30 bg-surface px-3 py-2">
-          <p className="text-[10px] uppercase tracking-[0.16em] text-muted">
-            Next operator action
-          </p>
-          <p className="mt-1 text-sm font-medium text-main">{nextAction}</p>
-        </div>
+      )}
 
-        <dl className="grid gap-3 sm:grid-cols-2">
-          <OperatorRow label="VPS host" value={workspace.vps_hostname} mono />
-          <OperatorRow
-            label="Hermes profile"
-            value={workspace.hermes_profile}
-            mono
-          />
-          <OperatorRow
-            label="Profile path"
-            value={workspace.profile_path}
-            mono
-          />
-          <OperatorRow
-            label="systemd service"
-            value={workspace.service_name}
-            mono
-          />
-          <OperatorRow
-            label="Dashboard URL"
-            value={derivedDashboardUrl}
-            mono
-          />
-          <OperatorRow
-            label="Dashboard port"
-            value={
-              workspace.dashboard_port !== null
-                ? String(workspace.dashboard_port)
-                : null
-            }
-            mono
-          />
-          <OperatorRow
-            label="Discord server"
-            value={workspace.discord_server_name}
-          />
-          <OperatorRow
-            label="Discord bot"
-            value={workspace.discord_bot_name}
-          />
-          <OperatorRow
-            label="Discord channel"
-            value={workspace.discord_channel_name}
-          />
-          <OperatorRow
-            label="Discord channel ID"
-            value={workspace.discord_channel_id}
-            mono
-          />
-        </dl>
-        {workspace.dashboard_port !== null && (
-          <div className="flex flex-col gap-1">
-            <p className="text-xs uppercase tracking-wide text-muted">
-              SSH tunnel
-            </p>
-            <code className="break-all rounded-[5px] border border-border bg-surface px-3 py-2 font-mono text-xs text-main">
-              ssh -L {workspace.dashboard_port}:127.0.0.1:
-              {workspace.dashboard_port} &lt;user&gt;@{tunnelHost}
-            </code>
-          </div>
-        )}
-        {runbookCommands.length > 0 && (
-          <div className="flex flex-col gap-2">
-            <p className="text-xs uppercase tracking-wide text-muted">
-              Safe check commands
-            </p>
-            <div className="flex flex-col gap-2">
-              {runbookCommands.map((command) => (
-                <code
-                  key={command}
-                  className="break-all rounded-[5px] border border-border bg-surface px-3 py-2 font-mono text-xs text-main"
-                >
-                  {command}
-                </code>
-              ))}
+      <form action={updateHermesWorkspace} className="flex flex-col gap-3">
+        <input type="hidden" name="id" value={workspace.id} />
+        {/* Preserve fields the action expects but we no longer expose. */}
+        <input
+          type="hidden"
+          name="client_name"
+          value={workspace.client_name}
+        />
+        <input
+          type="hidden"
+          name="workspace_key"
+          value={workspace.workspace_key}
+        />
+        <input
+          type="hidden"
+          name="workspace_type"
+          value={workspace.workspace_type}
+        />
+        <input
+          type="hidden"
+          name="organization"
+          value={workspace.organization}
+        />
+        <input type="hidden" name="purpose" value={workspace.purpose} />
+        <input
+          type="hidden"
+          name="environment"
+          value={workspace.environment}
+        />
+        <input
+          type="hidden"
+          name="isolation_model"
+          value={workspace.isolation_model}
+        />
+        <input
+          type="hidden"
+          name="vps_hostname"
+          value={workspace.vps_hostname ?? ''}
+        />
+        <input
+          type="hidden"
+          name="hermes_profile"
+          value={workspace.hermes_profile ?? ''}
+        />
+        <input
+          type="hidden"
+          name="profile_path"
+          value={workspace.profile_path ?? ''}
+        />
+        <input
+          type="hidden"
+          name="dashboard_url"
+          value={workspace.dashboard_url ?? ''}
+        />
+        <input
+          type="hidden"
+          name="discord_server_name"
+          value={workspace.discord_server_name ?? ''}
+        />
+        <input
+          type="hidden"
+          name="monthly_cost"
+          value={workspace.monthly_cost ?? ''}
+        />
+        <input
+          type="hidden"
+          name="checklist_dashboard_running"
+          value={workspace.checklist_dashboard_running ? 'on' : ''}
+        />
+
+        <div className="grid gap-3 lg:grid-cols-3">
+          {/* Col 1: Next action + checklist + status + notes + save */}
+          <Card className="flex flex-col gap-3 border-primary/30 bg-primary-soft/40 p-3">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.16em] text-muted">
+                Next action
+              </p>
+              <p className="text-sm font-medium text-main">{nextAction}</p>
             </div>
-            <p className="text-xs text-muted">
-              Run these manually over SSH. This dashboard does not execute shell
-              commands or restart services.
+
+            <div className="grid grid-cols-2 gap-2">
+              <TinyField htmlFor="status" label="Status">
+                <Select
+                  id="status"
+                  name="status"
+                  defaultValue={workspace.status}
+                >
+                  <option value="planning">Planning</option>
+                  <option value="setup">Setup</option>
+                  <option value="active">Active</option>
+                  <option value="paused">Paused</option>
+                  <option value="retired">Retired</option>
+                </Select>
+              </TinyField>
+              <TinyField htmlFor="support_status" label="Support">
+                <Select
+                  id="support_status"
+                  name="support_status"
+                  defaultValue={workspace.support_status}
+                >
+                  <option value="not_started">Not started</option>
+                  <option value="needs_setup">Needs setup</option>
+                  <option value="monitoring">Monitoring</option>
+                  <option value="issue">Issue</option>
+                  <option value="ok">OK</option>
+                </Select>
+              </TinyField>
+            </div>
+
+            <fieldset className="rounded-[5px] border border-border bg-surface p-2">
+              <legend className="px-1 text-[10px] uppercase tracking-[0.16em] text-muted">
+                Setup checklist · {checklistDone}/{checklistTotal}
+              </legend>
+              <div className="flex flex-col gap-1">
+                {PRIMARY_CHECKLIST.map(({ key, label }) => (
+                  <label
+                    key={key}
+                    className="flex items-center gap-2 text-xs text-main"
+                  >
+                    <input
+                      type="checkbox"
+                      name={`checklist_${key}`}
+                      defaultChecked={workspace[`checklist_${key}`]}
+                      className="h-3.5 w-3.5 rounded border-border text-primary focus:ring-primary"
+                    />
+                    <span>{label}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <TinyField htmlFor="notes" label="Notes">
+              <Textarea
+                id="notes"
+                name="notes"
+                defaultValue={workspace.notes ?? ''}
+                rows={2}
+                placeholder="Anything the next operator should know."
+              />
+            </TinyField>
+
+            <div className="flex items-center gap-2">
+              <Button type="submit" size="sm">
+                Save
+              </Button>
+              <Link href="/admin/apps/hermes-workspaces">
+                <Button type="button" variant="ghost" size="sm">
+                  Cancel
+                </Button>
+              </Link>
+            </div>
+          </Card>
+
+          {/* Col 2: Connection */}
+          <Card className="flex flex-col gap-2 p-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted">
+              Connection
             </p>
-          </div>
-        )}
-
-        <div className="rounded-[5px] border border-danger/30 bg-[#f7e3e3] px-3 py-2 text-sm text-danger">
-          <p className="font-semibold">Tokens, API keys, and passwords stay on the VPS .env only.</p>
-          <p className="mt-0.5 text-xs">
-            Hermes Operations HQ stores operator metadata. It never holds the
-            Discord bot token, OpenAI / Anthropic keys, or any credential
-            material.
-          </p>
-        </div>
-      </Card>
-
-      <Card>
-        {error && (
-          <div
-            role="alert"
-            className="mb-5 rounded-[5px] border border-[#eccaca] bg-[#f7e3e3] px-3.5 py-2.5 text-sm text-danger"
-          >
-            {error}
-          </div>
-        )}
-
-        <form action={updateHermesWorkspace} className="flex flex-col gap-5">
-          <input type="hidden" name="id" value={workspace.id} />
-
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Field htmlFor="client_name" label="Client or team name" required>
+            <TinyField htmlFor="discord_channel_name" label="Discord channel">
               <Input
-                id="client_name"
-                name="client_name"
-                defaultValue={workspace.client_name}
-                required
+                id="discord_channel_name"
+                name="discord_channel_name"
+                defaultValue={workspace.discord_channel_name ?? ''}
+                placeholder="#hermes-connectnpo"
               />
-            </Field>
-            <Field
-              htmlFor="workspace_key"
-              label="Workspace key"
-              helper="Lowercase slug. Letters, numbers, dashes, underscores."
-              required
-            >
+            </TinyField>
+            <TinyField htmlFor="discord_channel_id" label="Channel ID">
               <Input
-                id="workspace_key"
-                name="workspace_key"
-                defaultValue={workspace.workspace_key}
-                required
+                id="discord_channel_id"
+                name="discord_channel_id"
+                defaultValue={workspace.discord_channel_id ?? ''}
+                placeholder="123456789012345678"
               />
-            </Field>
-          </div>
-
-          <div className="grid gap-5 sm:grid-cols-3">
-            <Field
-              htmlFor="organization"
-              label="Organization"
-              helper="connectNPO, GivingArc, NPO Accounting, a client, or internal tooling."
-            >
-              <Select
-                id="organization"
-                name="organization"
-                defaultValue={workspace.organization}
-              >
-                <option value="connectnpo">connectNPO</option>
-                <option value="givingarc">GivingArc</option>
-                <option value="wife_cpa">NPO Accounting</option>
-                <option value="client">Client</option>
-                <option value="internal">Internal</option>
-              </Select>
-            </Field>
-            <Field htmlFor="purpose" label="Workspace purpose">
-              <Select
-                id="purpose"
-                name="purpose"
-                defaultValue={workspace.purpose}
-              >
-                <option value="dashboard">Dashboard</option>
-                <option value="content">Content</option>
-                <option value="meeting_intel">Meeting intel</option>
-                <option value="accounting">Accounting</option>
-                <option value="customer_support">Customer support</option>
-                <option value="automation">Automation</option>
-                <option value="client_ops">Client ops</option>
-                <option value="other">Other</option>
-              </Select>
-            </Field>
-            <Field htmlFor="environment" label="Environment">
-              <Select
-                id="environment"
-                name="environment"
-                defaultValue={workspace.environment}
-              >
-                <option value="internal">Internal</option>
-                <option value="client">Client</option>
-                <option value="pilot">Pilot</option>
-              </Select>
-            </Field>
-          </div>
-
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Field htmlFor="workspace_type" label="Workspace type">
-              <Select
-                id="workspace_type"
-                name="workspace_type"
-                defaultValue={workspace.workspace_type}
-              >
-                <option value="internal">Internal</option>
-                <option value="client">Client</option>
-                <option value="staff">Staff</option>
-                <option value="pilot">Pilot</option>
-              </Select>
-            </Field>
-            <Field
-              htmlFor="isolation_model"
-              label="Isolation model"
-              helper="Dedicated VPS is the default for paying clients."
-            >
-              <Select
-                id="isolation_model"
-                name="isolation_model"
-                defaultValue={workspace.isolation_model}
-              >
-                <option value="dedicated_vps">Dedicated VPS</option>
-                <option value="shared_vps_profile">Shared VPS profile</option>
-              </Select>
-            </Field>
-          </div>
-
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Field
-              htmlFor="vps_hostname"
-              label="VPS hostname"
-              helper="Hostname or IP, no credentials."
-            >
+            </TinyField>
+            <TinyField htmlFor="discord_bot_name" label="Discord bot">
               <Input
-                id="vps_hostname"
-                name="vps_hostname"
-                defaultValue={workspace.vps_hostname ?? ''}
-                placeholder="e.g. hermes-connectnpo.example.com"
+                id="discord_bot_name"
+                name="discord_bot_name"
+                defaultValue={workspace.discord_bot_name ?? ''}
               />
-            </Field>
-            <Field
-              htmlFor="hermes_profile"
-              label="Hermes profile"
-              helper="Profile name on the VPS (e.g. connectnpo, givingarc, wife-cpa)."
-            >
-              <Input
-                id="hermes_profile"
-                name="hermes_profile"
-                defaultValue={workspace.hermes_profile ?? ''}
-                placeholder="e.g. connectnpo"
-              />
-            </Field>
-          </div>
-
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Field
-              htmlFor="profile_path"
-              label="Profile path"
-              helper="Filesystem path on the VPS (e.g. /opt/hermes/connectnpo)."
-            >
-              <Input
-                id="profile_path"
-                name="profile_path"
-                defaultValue={workspace.profile_path ?? ''}
-                placeholder="/opt/hermes/connectnpo"
-              />
-            </Field>
-            <Field
-              htmlFor="service_name"
-              label="systemd service name"
-              helper="e.g. hermes-connectnpo.service"
-            >
+            </TinyField>
+            <TinyField htmlFor="service_name" label="Gateway service">
               <Input
                 id="service_name"
                 name="service_name"
                 defaultValue={workspace.service_name ?? ''}
                 placeholder="hermes-connectnpo.service"
               />
-            </Field>
-          </div>
-
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Field
-              htmlFor="dashboard_url"
-              label="Dashboard URL"
-              helper="Optional. If empty, we derive http://127.0.0.1:PORT from the port below."
-            >
-              <Input
-                id="dashboard_url"
-                name="dashboard_url"
-                defaultValue={workspace.dashboard_url ?? ''}
-                placeholder="http://127.0.0.1:9120"
-              />
-            </Field>
-            <Field htmlFor="dashboard_port" label="Dashboard port">
+            </TinyField>
+            <TinyField htmlFor="dashboard_port" label="Dashboard port">
               <Input
                 id="dashboard_port"
                 name="dashboard_port"
@@ -425,170 +356,79 @@ export default async function HermesWorkspaceDetailPage({
                 defaultValue={workspace.dashboard_port ?? ''}
                 placeholder="9120"
               />
-            </Field>
-          </div>
-
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Field
-              htmlFor="discord_server_name"
-              label="Discord server"
-              helper="Server / guild display name only."
-            >
-              <Input
-                id="discord_server_name"
-                name="discord_server_name"
-                defaultValue={workspace.discord_server_name ?? ''}
-                placeholder="connectNPO Ops"
+            </TinyField>
+            <TinyField htmlFor="soul_md_content" label="SOUL.md">
+              <Textarea
+                id="soul_md_content"
+                name="soul_md_content"
+                rows={4}
+                defaultValue={workspace.soul_md_content ?? ''}
+                placeholder={'# Role\nYou are...\n\n# Style\n...'}
               />
-            </Field>
-            <Field
-              htmlFor="discord_bot_name"
-              label="Discord bot name"
-              helper="Display name only. Never enter the bot token."
-            >
-              <Input
-                id="discord_bot_name"
-                name="discord_bot_name"
-                defaultValue={workspace.discord_bot_name ?? ''}
-              />
-            </Field>
-          </div>
+            </TinyField>
+          </Card>
 
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Field htmlFor="discord_channel_name" label="Discord channel">
-              <Input
-                id="discord_channel_name"
-                name="discord_channel_name"
-                defaultValue={workspace.discord_channel_name ?? ''}
-                placeholder="#hermes-connectnpo"
-              />
-            </Field>
-            <Field
-              htmlFor="discord_channel_id"
-              label="Discord channel ID"
-              helper="Numeric channel ID. Public identifier only."
-            >
-              <Input
-                id="discord_channel_id"
-                name="discord_channel_id"
-                defaultValue={workspace.discord_channel_id ?? ''}
-                placeholder="123456789012345678"
-              />
-            </Field>
-          </div>
-
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Field htmlFor="status" label="Lifecycle status">
-              <Select
-                id="status"
-                name="status"
-                defaultValue={workspace.status}
-              >
-                <option value="planning">Planning</option>
-                <option value="setup">Setup</option>
-                <option value="active">Active</option>
-                <option value="paused">Paused</option>
-                <option value="retired">Retired</option>
-              </Select>
-            </Field>
-            <Field htmlFor="support_status" label="Support status">
-              <Select
-                id="support_status"
-                name="support_status"
-                defaultValue={workspace.support_status}
-              >
-                <option value="not_started">Not started</option>
-                <option value="needs_setup">Needs setup</option>
-                <option value="monitoring">Monitoring</option>
-                <option value="issue">Issue</option>
-                <option value="ok">OK</option>
-              </Select>
-            </Field>
-          </div>
-
-          <Field htmlFor="monthly_cost" label="Monthly cost (USD)">
-            <Input
-              id="monthly_cost"
-              name="monthly_cost"
-              type="number"
-              min={0}
-              step="0.01"
-              defaultValue={workspace.monthly_cost ?? ''}
-              placeholder="e.g. 18.00"
-            />
-          </Field>
-
-          <fieldset className="flex flex-col gap-2 rounded-[5px] border border-border bg-surface p-4">
-            <legend className="px-1 text-sm font-semibold text-main">
-              Operations checklist
-            </legend>
-            <p className="text-xs text-muted">
-              Track the work the operator did on the VPS. None of this triggers
-              anything here — it just lets the team see what is left.
-            </p>
-            <div className="mt-1 grid gap-2 sm:grid-cols-2">
-              {HERMES_CHECKLIST_KEYS.map((key) => (
-                <label
-                  key={key}
-                  className="flex items-start gap-2 text-sm text-main"
-                >
-                  <input
-                    type="checkbox"
-                    name={`checklist_${key}`}
-                    defaultChecked={workspace[`checklist_${key}`]}
-                    className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary"
-                  />
-                  <span>{CHECKLIST_LABEL[key]}</span>
-                </label>
-              ))}
+          {/* Col 3: VPS commands */}
+          <Card className="flex flex-col gap-2 p-3">
+            <div className="flex flex-col gap-0.5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted">
+                VPS commands
+              </p>
+              <p className="text-[11px] text-muted">
+                Run these after SSH into the VPS. They will not work in a local
+                Mac or Windows terminal.
+              </p>
             </div>
-          </fieldset>
-
-          <Field htmlFor="notes" label="Operator notes">
-            <Textarea
-              id="notes"
-              name="notes"
-              defaultValue={workspace.notes ?? ''}
-              placeholder="Anything an operator should know — onboarding context, SSH tunnel command, scheduled review."
-            />
-          </Field>
-
-          <div className="flex items-center gap-3 pt-1">
-            <Button type="submit">Save changes</Button>
-            <Link href="/admin/apps/hermes-workspaces">
-              <Button type="button" variant="ghost">
-                Cancel
-              </Button>
-            </Link>
-          </div>
-        </form>
-      </Card>
-
+            {commandGroups.length === 0 ? (
+              <p className="text-[11px] text-muted">
+                Add a Hermes profile, gateway service, or dashboard port to
+                generate copy-paste commands.
+              </p>
+            ) : (
+              commandGroups.map((group) => (
+                <div key={group.title} className="flex flex-col gap-1">
+                  <p className="text-[10px] uppercase tracking-wide text-muted">
+                    {group.title}
+                  </p>
+                  {group.commands.map((command) => (
+                    <div
+                      key={command}
+                      className="flex items-center gap-1.5"
+                    >
+                      <code className="flex-1 break-all rounded-[5px] border border-[#374151] bg-[#111827] px-2 py-1 font-mono text-[11px] text-[#f9fafb]">
+                        {command}
+                      </code>
+                      <CopyButton value={command} label="Copy" />
+                    </div>
+                  ))}
+                </div>
+              ))
+            )}
+          </Card>
+        </div>
+      </form>
     </div>
   );
 }
 
-function OperatorRow({
+function TinyField({
+  htmlFor,
   label,
-  value,
-  mono,
+  children,
 }: {
+  htmlFor: string;
   label: string;
-  value: string | null;
-  mono?: boolean;
+  children: React.ReactNode;
 }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <dt className="text-[10px] uppercase tracking-[0.16em] text-muted">
-        {label}
-      </dt>
-      <dd
-        className={`break-all rounded-[5px] border border-border bg-surface px-3 py-2 text-xs ${
-          mono ? 'font-mono' : ''
-        } ${value ? 'text-main' : 'text-muted/70'}`}
+      <label
+        htmlFor={htmlFor}
+        className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted"
       >
-        {value ?? '—'}
-      </dd>
+        {label}
+      </label>
+      {children}
     </div>
   );
 }

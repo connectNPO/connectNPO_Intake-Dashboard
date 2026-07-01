@@ -4,7 +4,6 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import {
-  HERMES_CHECKLIST_KEYS,
   type HermesWorkspaceEnvironment,
   type HermesWorkspaceIsolationModel,
   type HermesWorkspaceOrganization,
@@ -75,19 +74,12 @@ function pick<T extends string>(
   return (allowed as readonly string[]).includes(s) ? (s as T) : fallback;
 }
 
-function bool(value: FormDataEntryValue | null): boolean {
-  const s = String(value ?? '').trim().toLowerCase();
-  return s === 'on' || s === 'true' || s === '1';
-}
-
-function parseHttpUrl(value: string): string | null {
-  try {
-    const u = new URL(value);
-    if (u.protocol !== 'http:' && u.protocol !== 'https:') return null;
-    return u.toString();
-  } catch {
-    return null;
-  }
+function slugify(value: string): string {
+  const s = value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return s.length > 0 ? s : 'hermes-profile';
 }
 
 function redirectWithError(message: string): never {
@@ -98,17 +90,21 @@ function redirectWithError(message: string): never {
 
 export async function createHermesWorkspace(formData: FormData) {
   const clientName = clean(formData.get('client_name'));
+  if (!clientName) redirectWithError('Display name is required.');
+
   const rawKey = clean(formData.get('workspace_key'));
-
-  if (!clientName) redirectWithError('Client or team name is required.');
-  if (!rawKey) redirectWithError('Workspace key is required.');
-
-  const workspaceKey = rawKey!.toLowerCase();
+  const workspaceKey = (rawKey ?? slugify(clientName!)).toLowerCase();
   if (!/^[a-z0-9][a-z0-9-_]*$/.test(workspaceKey)) {
     redirectWithError(
-      'Workspace key must be lowercase letters, numbers, dashes, or underscores.',
+      'Profile key must be lowercase letters, numbers, dashes, or underscores.',
     );
   }
+
+  const hermesProfile = clean(formData.get('hermes_profile')) ?? workspaceKey;
+
+  const rawServiceName = clean(formData.get('service_name'));
+  const serviceName =
+    rawServiceName ?? `hermes-gateway-${hermesProfile}.service`;
 
   const portRaw = clean(formData.get('dashboard_port'));
   let dashboardPort: number | null = null;
@@ -120,88 +116,73 @@ export async function createHermesWorkspace(formData: FormData) {
     dashboardPort = n;
   }
 
-  const costRaw = clean(formData.get('monthly_cost'));
-  let monthlyCost: number | null = null;
-  if (costRaw) {
-    const n = Number.parseFloat(costRaw);
-    if (!Number.isFinite(n) || n < 0) {
-      redirectWithError('Monthly cost must be a positive number.');
-    }
-    monthlyCost = n;
-  }
-
-  const dashboardUrlRaw = clean(formData.get('dashboard_url'));
-  let dashboardUrl: string | null = null;
-  if (dashboardUrlRaw) {
-    const parsed = parseHttpUrl(dashboardUrlRaw);
-    if (!parsed) {
-      redirectWithError(
-        'Dashboard URL must be a full http:// or https:// URL.',
-      );
-    }
-    dashboardUrl = parsed;
-  }
-
-  const checklist = Object.fromEntries(
-    HERMES_CHECKLIST_KEYS.map((key) => [
-      `checklist_${key}`,
-      bool(formData.get(`checklist_${key}`)),
-    ]),
-  );
-
   const supabase = await createClient();
-  const { error } = await supabase.from('hermes_workspaces').insert({
-    client_name: clientName,
-    workspace_key: workspaceKey,
-    workspace_type: pick(
-      formData.get('workspace_type'),
-      WORKSPACE_TYPES,
-      'client',
-    ),
-    organization: pick(
-      formData.get('organization'),
-      ORGANIZATIONS,
-      'client',
-    ),
-    purpose: pick(formData.get('purpose'), PURPOSES, 'other'),
-    environment: pick(
-      formData.get('environment'),
-      ENVIRONMENTS,
-      'client',
-    ),
-    isolation_model: pick(
-      formData.get('isolation_model'),
-      ISOLATION_MODELS,
-      'dedicated_vps',
-    ),
-    vps_hostname: clean(formData.get('vps_hostname')),
-    hermes_profile: clean(formData.get('hermes_profile')),
-    profile_path: clean(formData.get('profile_path')),
-    service_name: clean(formData.get('service_name')),
-    dashboard_url: dashboardUrl,
-    dashboard_port: dashboardPort,
-    discord_bot_name: clean(formData.get('discord_bot_name')),
-    discord_server_name: clean(formData.get('discord_server_name')),
-    discord_channel_name: clean(formData.get('discord_channel_name')),
-    discord_channel_id: clean(formData.get('discord_channel_id')),
-    status: pick(formData.get('status'), STATUSES, 'planning'),
-    support_status: pick(
-      formData.get('support_status'),
-      SUPPORT_STATUSES,
-      'not_started',
-    ),
-    monthly_cost: monthlyCost,
-    notes: clean(formData.get('notes')),
-    ...checklist,
-  });
+  const { data, error } = await supabase
+    .from('hermes_workspaces')
+    .insert({
+      client_name: clientName,
+      workspace_key: workspaceKey,
+      workspace_type: pick(
+        formData.get('workspace_type'),
+        WORKSPACE_TYPES,
+        'internal',
+      ),
+      organization: pick(
+        formData.get('organization'),
+        ORGANIZATIONS,
+        'internal',
+      ),
+      purpose: pick(formData.get('purpose'), PURPOSES, 'other'),
+      environment: pick(
+        formData.get('environment'),
+        ENVIRONMENTS,
+        'internal',
+      ),
+      isolation_model: pick(
+        formData.get('isolation_model'),
+        ISOLATION_MODELS,
+        'dedicated_vps',
+      ),
+      vps_hostname: null,
+      hermes_profile: hermesProfile,
+      profile_path: null,
+      service_name: serviceName,
+      dashboard_url: null,
+      dashboard_port: dashboardPort,
+      soul_md_content: clean(formData.get('soul_md_content')),
+      discord_bot_name: clean(formData.get('discord_bot_name')),
+      discord_server_name: clean(formData.get('discord_server_name')),
+      discord_channel_name: clean(formData.get('discord_channel_name')),
+      discord_channel_id: clean(formData.get('discord_channel_id')),
+      status: pick(formData.get('status'), STATUSES, 'setup'),
+      support_status: pick(
+        formData.get('support_status'),
+        SUPPORT_STATUSES,
+        'needs_setup',
+      ),
+      monthly_cost: null,
+      notes: null,
+      checklist_profile_exists: false,
+      checklist_dashboard_running: false,
+      checklist_discord_connected: false,
+      checklist_message_content_intent_on: false,
+      checklist_service_restarted: false,
+      checklist_test_message_passed: false,
+    })
+    .select('id')
+    .single();
 
   if (error) {
     const msg = error.message.includes('hermes_workspaces_workspace_key_key')
-      ? 'A workspace with that key already exists. Choose a different key.'
-      : 'Could not create the workspace. Please try again.';
+      ? 'A profile with that key already exists. Choose a different key.'
+      : 'Could not create the profile. Please try again.';
     redirectWithError(msg);
   }
 
   revalidatePath('/admin/apps/hermes-workspaces');
+
+  if (data?.id) {
+    redirect(`/admin/apps/hermes-workspaces/${data.id}`);
+  }
   redirect('/admin/apps/hermes-workspaces');
 }

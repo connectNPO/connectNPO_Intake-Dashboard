@@ -165,6 +165,7 @@ export type HermesWorkspace = {
   service_name: string | null;
   dashboard_url: string | null;
   dashboard_port: number | null;
+  soul_md_content: string | null;
   discord_bot_name: string | null;
   discord_server_name: string | null;
   discord_channel_name: string | null;

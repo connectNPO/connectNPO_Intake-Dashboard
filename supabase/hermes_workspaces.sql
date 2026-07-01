@@ -25,6 +25,7 @@ create table if not exists public.hermes_workspaces (
   service_name text,
   dashboard_url text,
   dashboard_port integer,
+  soul_md_content text,
   discord_bot_name text,
   discord_server_name text,
   discord_channel_name text,
@@ -78,6 +79,8 @@ alter table public.hermes_workspaces
   add column if not exists checklist_service_restarted boolean not null default false;
 alter table public.hermes_workspaces
   add column if not exists checklist_test_message_passed boolean not null default false;
+alter table public.hermes_workspaces
+  add column if not exists soul_md_content text;
 
 -- Value constraints. Idempotent: drop the named constraint first so re-runs
 -- pick up any tightening here without raising "already exists".
