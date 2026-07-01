@@ -215,3 +215,45 @@ export async function updateHermesWorkspace(formData: FormData) {
   revalidatePath(`/admin/apps/hermes-workspaces/${id}`);
   redirect(`/admin/apps/hermes-workspaces/${id}?saved=1`);
 }
+
+export async function retireHermesWorkspace(formData: FormData) {
+  const id = clean(formData.get('id'));
+  if (!id) redirect('/admin/apps/hermes-workspaces');
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from('hermes_workspaces')
+    .update({ status: 'retired', support_status: 'ok' })
+    .eq('id', id);
+
+  if (error) {
+    redirectWithError(id, 'Could not retire the profile. Please try again.');
+  }
+
+  revalidatePath('/admin/apps/hermes-workspaces');
+  revalidatePath(`/admin/apps/hermes-workspaces/${id}`);
+  redirect(`/admin/apps/hermes-workspaces/${id}?saved=1`);
+}
+
+export async function deleteHermesWorkspace(formData: FormData) {
+  const id = clean(formData.get('id'));
+  if (!id) redirect('/admin/apps/hermes-workspaces');
+
+  const confirm = String(formData.get('delete_confirm') ?? '').trim();
+  if (confirm !== 'DELETE') {
+    redirectWithError(id, 'Type DELETE to confirm deletion.');
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from('hermes_workspaces')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    redirectWithError(id, 'Could not delete the profile. Please try again.');
+  }
+
+  revalidatePath('/admin/apps/hermes-workspaces');
+  redirect('/admin/apps/hermes-workspaces');
+}

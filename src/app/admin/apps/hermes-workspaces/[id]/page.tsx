@@ -12,7 +12,11 @@ import {
   type HermesWorkspace,
   type HermesWorkspaceChecklistKey,
 } from '@/lib/types';
-import { updateHermesWorkspace } from './actions';
+import {
+  deleteHermesWorkspace,
+  retireHermesWorkspace,
+  updateHermesWorkspace,
+} from './actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -307,6 +311,45 @@ export default async function HermesWorkspaceDetailPage({
                   Cancel
                 </Button>
               </Link>
+            </div>
+
+            <div className="flex flex-col gap-2 rounded-[5px] border border-[#eccaca] bg-[#fdf5f5] p-2">
+              <p className="text-[10px] uppercase tracking-[0.16em] text-danger">
+                Manage record
+              </p>
+              <p className="text-[11px] text-muted">
+                Delete removes only this dashboard record. It does not delete
+                the VPS profile or Discord bot.
+              </p>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="submit"
+                  variant="secondary"
+                  size="sm"
+                  formAction={retireHermesWorkspace}
+                >
+                  Retire
+                </Button>
+                <span className="text-[11px] text-muted">
+                  Marks status retired.
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Input
+                  name="delete_confirm"
+                  placeholder="Type DELETE to delete"
+                  aria-label="Type DELETE to delete"
+                  className="max-w-[10rem]"
+                />
+                <Button
+                  type="submit"
+                  variant="danger"
+                  size="sm"
+                  formAction={deleteHermesWorkspace}
+                >
+                  Delete
+                </Button>
+              </div>
             </div>
           </Card>
 
