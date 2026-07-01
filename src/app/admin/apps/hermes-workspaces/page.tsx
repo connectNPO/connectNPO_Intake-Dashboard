@@ -116,7 +116,7 @@ const CURRENT_PROFILE_MAP: CurrentProfileMapRecord[] = [
 ];
 
 const CURRENT_WORKSPACE_COLUMNS =
-  'id, client_name, workspace_key, workspace_type, organization, purpose, environment, isolation_model, vps_hostname, hermes_profile, service_name, dashboard_port, status, support_status, checklist_profile_exists, checklist_dashboard_running, checklist_discord_connected, checklist_message_content_intent_on, checklist_service_restarted, checklist_test_message_passed, updated_at';
+  'id, client_name, workspace_key, workspace_type, organization, purpose, environment, isolation_model, vps_hostname, hermes_profile, service_name, dashboard_port, discord_channel_name, status, support_status, checklist_profile_exists, checklist_dashboard_running, checklist_discord_connected, checklist_message_content_intent_on, checklist_service_restarted, checklist_test_message_passed, updated_at';
 
 const LEGACY_WORKSPACE_COLUMNS =
   'id, client_name, workspace_key, workspace_type, isolation_model, vps_hostname, hermes_profile, dashboard_port, status, support_status, updated_at';
@@ -135,6 +135,7 @@ type WorkspaceRow = Pick<
   | 'hermes_profile'
   | 'service_name'
   | 'dashboard_port'
+  | 'discord_channel_name'
   | 'status'
   | 'support_status'
   | 'checklist_profile_exists'
@@ -174,6 +175,7 @@ function normalizeWorkspace(row: RawWorkspaceRow): WorkspaceRow {
     hermes_profile: row.hermes_profile ?? null,
     service_name: row.service_name ?? null,
     dashboard_port: row.dashboard_port ?? null,
+    discord_channel_name: row.discord_channel_name ?? null,
     status: row.status,
     support_status: row.support_status,
     checklist_profile_exists: row.checklist_profile_exists ?? false,
@@ -234,6 +236,15 @@ export default async function HermesOperationsPage() {
   const tableMissing =
     workspaceError &&
     /relation .*hermes_workspaces.* does not exist/i.test(workspaceError.message);
+
+  const knownProfileKeys = new Set(
+    CURRENT_PROFILE_MAP.map((p) => p.hermesProfile),
+  );
+  const extraWorkspaces = allWorkspaces.filter((w) => {
+    if (w.workspace_key && knownProfileKeys.has(w.workspace_key)) return false;
+    if (w.hermes_profile && knownProfileKeys.has(w.hermes_profile)) return false;
+    return true;
+  });
 
   return (
     <div className="flex flex-col gap-6">
@@ -379,6 +390,60 @@ export default async function HermesOperationsPage() {
                     View details →
                   </Link>
                 )}
+              </div>
+            </Card>
+          );
+        })}
+
+        {extraWorkspaces.map((workspace) => {
+          const profileKey =
+            workspace.hermes_profile ?? workspace.workspace_key;
+          const channel =
+            workspace.discord_channel_name ?? 'No Discord channel yet';
+          const done = checklistDone(workspace);
+          const nextAction = nextOperatorAction(workspace);
+          return (
+            <Card
+              key={workspace.id}
+              className="flex flex-col gap-2 p-4"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <Link
+                    href={`/admin/apps/hermes-workspaces/${workspace.id}`}
+                    className="text-sm font-semibold text-main hover:text-primary"
+                  >
+                    {workspace.client_name}
+                  </Link>
+                  <p className="mt-0.5 truncate font-mono text-[11px] text-muted">
+                    {profileKey}
+                  </p>
+                </div>
+                <div className="flex shrink-0 flex-col items-end gap-1">
+                  <Badge className={STATUS_CLASS[workspace.status]}>
+                    {STATUS_LABEL[workspace.status]}
+                  </Badge>
+                  <Badge className={SUPPORT_CLASS[workspace.support_status]}>
+                    {SUPPORT_LABEL[workspace.support_status]}
+                  </Badge>
+                </div>
+              </div>
+
+              <p className="truncate text-xs text-muted">{channel}</p>
+
+              <div className="mt-auto flex items-center justify-between gap-2 border-t border-border pt-2 text-xs text-muted">
+                <span className="min-w-0 truncate">
+                  <span className="font-mono text-main">
+                    {done}/{HERMES_CHECKLIST_KEYS.length}
+                  </span>{' '}
+                  · {nextAction}
+                </span>
+                <Link
+                  href={`/admin/apps/hermes-workspaces/${workspace.id}`}
+                  className="shrink-0 text-primary hover:underline"
+                >
+                  View details →
+                </Link>
               </div>
             </Card>
           );
