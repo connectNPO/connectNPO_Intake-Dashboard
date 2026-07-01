@@ -60,7 +60,7 @@ export default async function NewHermesWorkspacePage({
               <Input
                 id="client_name"
                 name="client_name"
-                placeholder="e.g. connectNPO ContentBot"
+                placeholder="e.g. Test Discord Bot"
                 required
               />
             </Field>
@@ -92,6 +92,10 @@ export default async function NewHermesWorkspacePage({
               </Select>
             </Field>
 
+            <p className="text-xs text-muted">
+              Leave the next two fields blank unless you need a custom name.
+            </p>
+
             <Field
               htmlFor="workspace_key"
               label="Profile key"
@@ -100,7 +104,7 @@ export default async function NewHermesWorkspacePage({
               <Input
                 id="workspace_key"
                 name="workspace_key"
-                placeholder="connectnpo-content"
+                placeholder="leave blank for auto-create"
               />
             </Field>
 
@@ -112,7 +116,7 @@ export default async function NewHermesWorkspacePage({
               <Input
                 id="hermes_profile"
                 name="hermes_profile"
-                placeholder="connectnpo-content"
+                placeholder="leave blank to use profile key"
               />
             </Field>
 
@@ -146,7 +150,7 @@ export default async function NewHermesWorkspacePage({
               <Input
                 id="discord_server_name"
                 name="discord_server_name"
-                placeholder="connectNPO Ops"
+                placeholder="e.g. NPOBot"
               />
             </Field>
 
@@ -154,7 +158,7 @@ export default async function NewHermesWorkspacePage({
               <Input
                 id="discord_channel_name"
                 name="discord_channel_name"
-                placeholder="#hermes-connectnpo"
+                placeholder="e.g. #test-bot"
               />
             </Field>
 
@@ -166,7 +170,7 @@ export default async function NewHermesWorkspacePage({
               <Input
                 id="discord_channel_id"
                 name="discord_channel_id"
-                placeholder="123456789012345678"
+                placeholder="e.g. 123456789012345678"
               />
             </Field>
 
@@ -174,7 +178,7 @@ export default async function NewHermesWorkspacePage({
               <Input
                 id="discord_bot_name"
                 name="discord_bot_name"
-                placeholder="ContentBot"
+                placeholder="e.g. TestBot"
               />
             </Field>
           </Card>
@@ -200,7 +204,7 @@ export default async function NewHermesWorkspacePage({
               <Input
                 id="service_name"
                 name="service_name"
-                placeholder="hermes-gateway-connectnpo-content.service"
+                placeholder="leave blank for auto-create"
               />
             </Field>
 
@@ -211,7 +215,7 @@ export default async function NewHermesWorkspacePage({
                 type="number"
                 min={1}
                 max={65535}
-                placeholder="9119"
+                placeholder="optional, e.g. 9119"
               />
             </Field>
 
